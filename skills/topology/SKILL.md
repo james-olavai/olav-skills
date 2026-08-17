@@ -44,13 +44,23 @@ For any query like "show me BGP neighbors" / "what OSPF adjacencies on R1":
 2. Format the result table / markdown / diagram as requested
 3. Return to the orchestrator
 
-**Zero LLM calls on normal queries.** Views are pre-built by the
-`netops_init` pipeline; your tool just reads them.
+**Zero LLM calls on normal queries.** Views are pre-built when data lands —
+`netops_init` Stage 3.7 on a live collection, `ingest_snapshot` on an offline
+bundle; your script just reads them.
+
+**Read `absent_layers` before you interpret an empty layer.** A layer listed
+there has no source view in this database, i.e. its command was never
+collected. `bgp_sessions: []` alone means no sessions; `bgp_sessions: []` with
+`"bgp"` in `absent_layers` means nobody asked the devices — say which one it
+is, and name the command to collect rather than reporting "no BGP".
 
 ## Handling unknown / new protocols
 
 When the user asks about a protocol NOT in the built-in set (BGP / OSPF /
-CDP-LLDP), check `list_recipes()` for coverage:
+CDP-LLDP), check `list_recipes()` for coverage — it returns
+`{"recipes": [...], "table_present": bool}`, and `table_present: false` means
+this database was never seeded, which is not the same as "no coverage for that
+protocol":
 
 - **Coverage complete** → normal path (`query_topology`)
 - **Missing for declared intent** (from `~/.olav/config/topology.yaml`) →

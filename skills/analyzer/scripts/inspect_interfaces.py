@@ -7,6 +7,14 @@ rev ~301): stateless DuckDB read — no persistent state, no audit row.
 Reads ``netops.v_show_ip_interface_brief_auto`` (latest snapshot per device)
 with Junos terse fallback via ``netops.v_show_interfaces_terse_auto``.
 
+**Either source may be absent.** A per-command view exists only if the
+snapshot carried that command, so a Cisco-only collection has no
+``v_show_interfaces_terse_auto`` and a Junos-only one has no
+``v_show_ip_interface_brief_auto``. Until 2026-08-17 both were queried
+unconditionally and DuckDB raised ``CatalogException`` — a crash on ordinary
+single-vendor data, in both runtimes. Absent sources are now named in
+``absent_sources`` and the remaining one is still read.
+
 Accepts JSON on stdin:
   {"devices": ["R1", "R3"], "include_unassigned": false}
 Pass devices=[] for discovery mode (all devices with interface data).
@@ -24,12 +32,37 @@ def _db_path() -> Path:
     cwd_db = Path.cwd() / ".olav" / "databases" / "main.duckdb"
     if cwd_db.exists():
         return cwd_db
+    try:  # the platform's own resolution (honours OLAV_HOME), when installed
+        from olav.core.config import MAIN_DB_PATH
+        if Path(MAIN_DB_PATH).exists():
+            return Path(MAIN_DB_PATH)
+    except Exception:  # noqa: BLE001
+        pass
     base = os.environ.get("OLAV_BASE_PATH")
     if base:
         p = Path(base) / "databases" / "main.duckdb"
         if p.exists():
             return p
     return cwd_db
+
+
+def _view_exists(con: Any, view: str) -> bool:
+    """True when ``netops.<view>`` is in the catalogue.
+
+    Cheaper than try/except around every query and, more importantly, it lets
+    the caller be *told* which command is missing instead of reading a
+    traceback.
+    """
+    return bool(con.execute(
+        "SELECT 1 FROM information_schema.tables "
+        "WHERE table_schema = 'netops' AND table_name = ? LIMIT 1",
+        [view],
+    ).fetchone())
+
+
+def _command_for(view: str) -> str:
+    """``v_show_interfaces_terse_auto`` → ``show interfaces terse``."""
+    return view.removeprefix("v_").removesuffix("_auto").replace("_", " ")
 
 
 def inspect_interfaces(
@@ -66,6 +99,7 @@ def inspect_interfaces(
             },
             "snapshot_ids": {hostname: snapshot_id},
             "unknown_devices": [hostname, ...],
+            "absent_sources": [{"view", "command"}, ...],  # not collected
         }``.
     """
     db = _db_path()
@@ -81,31 +115,56 @@ def inspect_interfaces(
     snapshot_ids: dict[str, str] = {}
     unknown_devices: list[str] = []
 
+    _IOS_VIEW = "v_show_ip_interface_brief_auto"
+    _JUNOS_VIEW = "v_show_interfaces_terse_auto"
+
     with duckdb.connect(str(db), read_only=True) as con:
+        have_ios = _view_exists(con, _IOS_VIEW)
+        have_junos = _view_exists(con, _JUNOS_VIEW)
+        absent_sources = [
+            {"view": f"netops.{v}", "command": _command_for(v)}
+            for v, present in ((_IOS_VIEW, have_ios), (_JUNOS_VIEW, have_junos))
+            if not present
+        ]
+        if not have_ios and not have_junos:
+            return {
+                "found": {},
+                "snapshot_ids": {},
+                "unknown_devices": list(devices),
+                "absent_sources": absent_sources,
+                "error": "no interface data in this database — neither "
+                         f"{_command_for(_IOS_VIEW)!r} nor "
+                         f"{_command_for(_JUNOS_VIEW)!r} was collected",
+            }
+
         if not devices:
-            rows = con.execute("""
-                SELECT DISTINCT device_name
-                FROM netops.v_show_ip_interface_brief_auto
-                ORDER BY device_name
-            """).fetchall()
-            target_devices = [r[0] for r in rows]
+            names: list[str] = []
+            for view, present in ((_IOS_VIEW, have_ios), (_JUNOS_VIEW, have_junos)):
+                if not present:
+                    continue
+                names += [r[0] for r in con.execute(
+                    f"SELECT DISTINCT device_name FROM netops.{view}"
+                ).fetchall()]
+            target_devices = sorted(set(names))
         else:
             target_devices = list(devices)
 
         for d in target_devices:
-            ios_latest = con.execute("""
-                SELECT MAX(snapshot_id)
-                FROM netops.v_show_ip_interface_brief_auto
-                WHERE device_name = ?
-            """, [d]).fetchone()
-            jun_latest = con.execute("""
-                SELECT MAX(snapshot_id)
-                FROM netops.v_show_interfaces_terse_auto
-                WHERE device_name = ?
-            """, [d]).fetchone()
-
-            ios_snap = ios_latest[0] if ios_latest else None
-            jun_snap = jun_latest[0] if jun_latest else None
+            ios_snap = jun_snap = None
+            if have_ios:
+                row = con.execute(f"""
+                    SELECT MAX(snapshot_id)
+                    FROM netops.{_IOS_VIEW}
+                    WHERE device_name = ?
+                """, [d]).fetchone()
+                ios_snap = row[0] if row else None
+            if have_junos:
+                row = con.execute(f"""
+                    SELECT MAX(snapshot_id)
+                    FROM netops.{_JUNOS_VIEW}
+                    WHERE device_name = ?
+                """, [d]).fetchone()
+                jun_snap = row[0] if row else None
 
             if not ios_snap and not jun_snap:
                 unknown_devices.append(d)
@@ -158,6 +217,7 @@ def inspect_interfaces(
         "found": found,
         "snapshot_ids": snapshot_ids,
         "unknown_devices": unknown_devices,
+        "absent_sources": absent_sources,
     }
 
 

@@ -40,17 +40,30 @@ def _resolve_source(command: str, vendor: str) -> str:
     return "unknown"
 
 
-def list_recipes(concept: str | None = None) -> list[dict[str, Any]]:
+def _table_exists(con, table: str) -> bool:
+    return bool(con.execute(
+        "SELECT 1 FROM information_schema.tables WHERE table_name = ? LIMIT 1",
+        [table],
+    ).fetchone())
+
+
+def list_recipes(concept: str | None = None) -> dict[str, Any]:
     """Return active recipes from ``view_recipes`` DB, annotated with source.
 
     Args:
         concept: Optional filter (``bgp_neighbors``, ``ospf_neighbors``, etc.).
 
     Returns:
-        List of ``{command, concept, vendor_hint, source, field_count}``
-        dicts sorted by (concept, vendor_hint, command). ``source`` is
-        ``'builtin'`` / ``'user'`` / ``'unknown'`` based on which YAML
-        file contains the matching entry.
+        ``{"recipes": [{command, concept, vendor_hint, source, field_count,
+        has_filter, discovered_at}, ...], "table_present": bool}``, sorted by
+        (concept, vendor_hint, command). ``source`` is ``'builtin'`` /
+        ``'user'`` / ``'unknown'`` based on which YAML file contains the entry.
+
+        ``table_present: false`` means this database was never seeded with
+        recipes — a different answer from "seeded and empty", and the reason
+        this returns a dict rather than the bare list it used to: on a database
+        with no ``view_recipes`` table the SELECT raised ``CatalogException``,
+        so the agent's coverage check crashed instead of reporting no coverage.
     """
     import duckdb
     import json as _json
@@ -58,6 +71,8 @@ def list_recipes(concept: str | None = None) -> list[dict[str, Any]]:
 
     con = duckdb.connect(str(MAIN_DB_PATH), read_only=True)
     try:
+        if not _table_exists(con, "view_recipes"):
+            return {"recipes": [], "table_present": False}
         sql = (
             "SELECT command, concept, vendor_hint, field_mappings, filter_expr, "
             "discovered_at FROM view_recipes"
@@ -87,7 +102,7 @@ def list_recipes(concept: str | None = None) -> list[dict[str, Any]]:
             "has_filter": bool(flt),
             "discovered_at": str(discovered) if discovered else None,
         })
-    return out
+    return {"recipes": out, "table_present": True}
 
 
 if __name__ == "__main__":

@@ -149,8 +149,9 @@ def rebuild_views(concept: str | None = None) -> dict[str, Any]:
         if recipes is None:
             return {
                 "status": "error",
-                "error": "no view_recipes table in this database — run the "
-                         "ingest pipeline (netops_init) or save_recipe first",
+                "error": "no view_recipes table in this database — nothing has "
+                         "seeded it yet; save_recipe creates it, and a live "
+                         "collection seeds the built-ins",
             }
         if not recipes:
             known = [

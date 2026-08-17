@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""discover_recipe — LLM-drafts a recipe YAML for a new (protocol, vendor).
+"""prepare_recipe — everything needed to draft a recipe YAML, minus the drafting.
 
-ARCH-29: when a user adds a new protocol to ``~/.olav/config/topology.yaml``,
-the topology agent uses this tool to produce a candidate recipe YAML by:
+The deterministic half of the ARCH-29 discovery flow: find which collected
+commands could carry this protocol, sample the parsed field names one of them
+actually has, and state the output contract. What it does *not* do is write the
+YAML — that is a language model's job, and which model depends on where this
+runs:
 
-1. Scanning ``netops.raw_output_store`` for commands matching the protocol
-   keyword (e.g. ``%bfd%``) on the target vendor's devices
-2. Sampling the first parsed entry to see the available JSON field names
-3. Prompting the LLM to produce a YAML recipe matching the contract in
-   ``references/RECIPE_FORMAT.md``
+* inside OLAV, ``discover_recipe`` calls this and hands ``instructions`` to the
+  configured LLM endpoint;
+* in the published skill pack there is no endpoint, and none is needed — the
+  model reading this output is Claude, which drafts the YAML directly.
 
-The output is a YAML string to be reviewed/saved via ``save_recipe``.
-This function does NOT write to DB or disk — that's ``save_recipe``'s job.
+Splitting it this way is what makes the extension path work in both runtimes
+from one copy of the code (dev_docs/122 §2.6 — an LLM is a counterpart, not an
+external system). Nothing here writes to the database or disk; ``save_recipe``
+validates and persists.
 
-**No sandbox, no Python code generation** — LLM emits YAML only.
+Accepts JSON on stdin: {"protocol": "bfd", "vendor": "cisco_ios"}
 """
 
 from __future__ import annotations
@@ -118,13 +122,19 @@ def _canonical_field_hints(protocol: str) -> str:
     ))
 
 
-def _render_prompt(
+def render_instructions(
     protocol: str,
     vendor: str,
     commands: list[str],
     sample: dict,
     protocol_concept: str,
 ) -> str:
+    """The drafting brief: candidates, one real sample, and the output contract.
+
+    Written for whichever model reads it. The sample matters more than the
+    prose — ``field_mappings`` values have to be keys that exist in the parsed
+    output, and the only way to know them is to look.
+    """
     sample_json = json.dumps(sample, indent=2, ensure_ascii=False)[:2500]
     cmds_list = "\n".join(f"  - {c!r}" for c in commands[:5])
     hints = _canonical_field_hints(protocol)
@@ -151,18 +161,19 @@ def _render_prompt(
     )
 
 
-def discover_recipe(protocol: str, vendor: str) -> dict[str, Any]:
-    """Draft a recipe YAML for a ``(protocol, vendor)`` pair using LLM.
+def prepare_recipe(protocol: str, vendor: str) -> dict[str, Any]:
+    """Gather what a recipe for ``(protocol, vendor)`` has to be drafted from.
 
     Args:
         protocol: User-declared protocol keyword (``bfd``, ``hsrp``, etc.).
         vendor: Target platform (``cisco_ios``, ``juniper_junos``, ``arista_eos``).
 
     Returns:
-        ``{ok, yaml, diagnostics}``. On success ``yaml`` is the candidate
-        recipe string (pass to ``save_recipe``). On failure ``ok=False``
-        with ``error`` explaining why (no matching command, no parsed
-        data, LLM unavailable, etc.).
+        ``{ok, protocol, vendor, concept, commands_found, chosen_command,
+        sample, instructions}``. Draft the YAML from ``instructions``, then pass
+        it to ``save_recipe``. On failure ``ok=False`` with ``error`` naming what
+        is missing — a protocol whose commands were never collected and one whose
+        output never parsed need different fixes, so they are different errors.
     """
     import duckdb
     from olav.core.config import MAIN_DB_PATH
@@ -177,14 +188,16 @@ def discover_recipe(protocol: str, vendor: str) -> dict[str, Any]:
             return {
                 "ok": False,
                 "error": (
-                    f"no raw_output_store commands matching {protocol!r} keywords "
-                    f"on vendor {vendor!r}; run netops_init first or extend "
-                    f"_PROTOCOL_KEYWORDS"
+                    f"no collected command matches {protocol!r} on vendor "
+                    f"{vendor!r} — this protocol was never captured. Add its "
+                    "show-command to the collection and ingest again, or extend "
+                    "_PROTOCOL_KEYWORDS if the command is present under a name "
+                    "these keywords miss"
                 ),
                 "diagnostics": {"commands_found": []},
             }
 
-        # Try each candidate until we find one with non-empty parsed_data
+        # Try each candidate until we find one with non-empty parsed_data.
         sample = None
         chosen_cmd = None
         for cmd in commands:
@@ -198,73 +211,32 @@ def discover_recipe(protocol: str, vendor: str) -> dict[str, Any]:
                 "ok": False,
                 "error": (
                     f"found commands {commands} but none have parsed_data on "
-                    f"{vendor!r} devices; parse layer (ntc-templates or "
-                    f"ARCH-25 PaC) needs to succeed first"
+                    f"{vendor!r} devices; the parser layer has to succeed first "
+                    "— learn a parser for one of them (/learn_cmd) and re-ingest"
                 ),
                 "diagnostics": {"commands_found": commands, "sample": None},
             }
     finally:
         con.close()
 
-    # LLM call — prompt is YAML-only, no Python, no sandbox
-    try:
-        from olav.core.llm import LLMFactory
-        llm = LLMFactory.get_chat_model()
-    except Exception as exc:
-        return {
-            "ok": False,
-            "error": f"LLM unavailable: {exc}",
-            "diagnostics": {"commands_found": commands, "chosen_cmd": chosen_cmd},
-        }
-
-    prompt = _render_prompt(protocol, vendor, commands, sample, concept)
-    try:
-        response = llm.invoke(prompt)
-        yaml_text = (
-            response.content if hasattr(response, "content") else str(response)
-        ).strip()
-    except Exception as exc:
-        return {
-            "ok": False,
-            "error": f"LLM invoke failed: {exc}",
-            "diagnostics": {"commands_found": commands, "chosen_cmd": chosen_cmd},
-        }
-
-    # Strip markdown fences if any (the prompt asks not to include them but LLM
-    # sometimes does anyway)
-    if yaml_text.startswith("```"):
-        yaml_text = yaml_text.split("\n", 1)[1] if "\n" in yaml_text else ""
-    if yaml_text.endswith("```"):
-        yaml_text = yaml_text.rsplit("```", 1)[0].rstrip()
-
-    # Fast YAML parse sanity (save_recipe will re-validate)
-    try:
-        import yaml
-        parsed = yaml.safe_load(yaml_text)
-        entries = parsed if isinstance(parsed, list) else [parsed]
-    except Exception as exc:
-        return {
-            "ok": False,
-            "error": f"LLM output is not valid YAML: {exc}",
-            "diagnostics": {"raw": yaml_text[:500]},
-        }
-
     return {
         "ok": True,
-        "yaml": yaml_text,
-        "diagnostics": {
-            "protocol": protocol,
-            "vendor": vendor,
-            "concept": concept,
-            "chosen_cmd": chosen_cmd,
-            "sample_keys": sorted(sample.keys())[:15],
-            "entries": len(entries),
-        },
+        "protocol": protocol,
+        "vendor": vendor,
+        "concept": concept,
+        "commands_found": commands,
+        "chosen_command": chosen_cmd,
+        "sample": sample,
+        "instructions": render_instructions(
+            protocol, vendor, commands, sample, concept
+        ),
+        "next": "draft the YAML from `instructions`, then call save_recipe(recipe_yaml=...)",
     }
 
 
 if __name__ == "__main__":
-    import json as _json, sys as _sys
+    import json as _json
+    import sys as _sys
     _args = _json.loads(_sys.stdin.read() or "{}")
-    result = discover_recipe(**_args)
+    result = prepare_recipe(**_args)
     print(_json.dumps(result, default=str))

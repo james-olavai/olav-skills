@@ -6,9 +6,9 @@ Query the topology views (`v_show_ip_bgp_summary_auto`,
 ``TopologySnapshot`` Pydantic model. Used by the netops orchestrator and
 analyzer sub-agent.
 
-The views are built at snapshot time (Stage 3.7 in netops_init) so this
-tool does **zero ETL work on invocation** — just SELECT + Pydantic
-validate. State values are canonical (``Established`` for BGP,
+The views are built when data lands — Stage 3.7 of a live collection, or
+``ingest_snapshot`` for an offline bundle — so this tool does **zero ETL work on
+invocation**: just SELECT + Pydantic validate. State values are canonical (``Established`` for BGP,
 ``Full``/``FULL/DR``/``FULL/BDR`` for OSPF per vendor).
 
 2026-05-10 schema-drift fix: BGP joins v_show_ip_bgp_summary_auto for

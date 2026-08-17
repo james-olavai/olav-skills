@@ -20,9 +20,10 @@ the same SQL shape ``save_recipe`` dry-runs, so a recipe that passed
 ``save_recipe`` materialises identically.
 
 Not this script's job: ``netops.v_show_<command>_auto`` and
-``netops.v_l2_links_auto`` are built by the ingest pipeline
-(``view_builder.finalise_ingest`` — netops_init Stage 3.7 / take_snapshot).
-This script only turns ``view_recipes`` rows into ``netops.v_<concept>_auto``.
+``netops.v_l2_links_auto`` are built by ``view_builder.finalise_ingest`` when
+data lands — Stage 3.7 of a live collection, or ``ingest_snapshot`` for an
+offline bundle. This script only turns ``view_recipes`` rows into
+``netops.v_<concept>_auto``.
 """
 
 from __future__ import annotations

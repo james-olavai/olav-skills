@@ -65,10 +65,17 @@ protocol":
 - **Coverage complete** → normal path (`query_topology`)
 - **Missing for declared intent** (from `~/.olav/config/topology.yaml`) →
   you may run the discovery flow:
-  1. `discover_recipe(protocol, vendor)` — drafts a YAML recipe via LLM
-  2. Review the draft with the user if `diagnostics.row_count` is small
-     or field mappings look suspicious
-  3. `save_recipe(yaml_text)` — persists + writes user YAML file
+  1. `prepare_recipe(protocol, vendor)` — the candidate commands, one real
+     parsed sample, and `instructions`: the drafting brief
+  2. **Draft the YAML yourself** from `instructions`. The mappings' values must
+     be keys that appear in the sample — that is why the sample is there. (If
+     this runtime has an LLM endpoint configured, `discover_recipe(protocol,
+     vendor)` does steps 1–2 in one call and returns the YAML; without an
+     endpoint it returns the same `instructions` for you to work from. Either
+     way the drafting is a model's job, not the script's.)
+  3. `save_recipe(yaml_text)` — validates, dry-runs against the current
+     snapshot, persists + writes the user YAML file. It creates `view_recipes`
+     if this database has never had one, so no seeding step is needed.
   4. `rebuild_views(concept=protocol)` — materializes `netops.v_<concept>_auto`
      and returns its row count. Check `skipped` too: a recipe whose source
      command is absent from the snapshot is reported there, not raised.

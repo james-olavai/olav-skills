@@ -34,9 +34,10 @@ protocols:
 
 ## What the agent does with this list
 
-1. On every `netops_init` Stage 3.6: reads the list; compares against
-   `view_recipes` DB; WARNs for each declared protocol whose recipe is
-   missing for some vendor in your inventory
+1. When data lands (`netops_init` Stage 3.6 on a live collection): reads the
+   list; compares against `view_recipes`; WARNs for each declared protocol whose
+   recipe is missing for some vendor in your inventory. An offline bundle ingest
+   does not run this check, so `list_recipes` is how you see coverage there
 2. On `/query_topology <protocol>`: if the concept has zero recipes,
    offers to run discovery
 3. On `olav recipes discover <protocol>`: runs discovery for each vendor

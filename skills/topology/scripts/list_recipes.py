@@ -7,21 +7,18 @@ active, which are built-in vs user, and where each came from.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 
 def _resolve_source(command: str, vendor: str) -> str:
     """Return 'builtin' / 'user' / 'unknown' based on file existence."""
-    from olav_netops.core.recipe_seeds import (
-        _builtin_recipes_dir,
-        _user_recipes_dir,
-    )
-    builtin = _builtin_recipes_dir()
-    user = _user_recipes_dir()
+    from olav_netops.core.recipe_files import builtin_recipes_dir, user_recipes_dir
+
+    builtin = builtin_recipes_dir()   # None when this install ships none
+    user = user_recipes_dir()
     # Simple filename heuristic: <protocol>_<vendor>.yaml
     for root, label in [(builtin, "builtin"), (user, "user")]:
-        if not root.exists():
+        if root is None or not root.exists():
             continue
         for f in root.glob("*.yaml"):
             import yaml

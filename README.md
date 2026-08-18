@@ -28,6 +28,30 @@ pip install 'olav>=0.27.0' 'olav-netops>=0.27.0'
 cp -r skills/* ~/.claude/skills/          # or into <project>/.claude/skills/
 ```
 
+### Install (lean) — recommended
+
+That line pulls **218 packages and 1.4 GB**: thirteen LangChain providers,
+LangGraph, LanceDB + Arrow, scipy, sklearn, pandas. They are OLAV's agent runtime
+and memory layer — and in Claude Code *you* are the agent runtime, so nothing here
+uses them. Skip the dependency closure and install what the scripts actually
+import:
+
+```bash
+pip install -r requirements-lean.txt
+pip install --no-deps 'olav>=0.27.0' 'olav-netops>=0.27.0'
+```
+
+**122 MB**, and verified rather than assumed: all 36 files import, a collector
+bundle lands (3 devices, 29 commands, 28 parsed, 13 views, 4 topology links), and
+one real call per agent — devices, BGP topology, evidence search, a draw.io
+diagram, a config diff, a parser-learning prep — returns the same answers as the
+full install.
+
+Two of the seven are load-bearing in ways worth knowing: without `ntc-templates`
+nothing parses (raw output lands, zero rows become structured), and without
+`netutils` interface names are not canonicalised, so `Gi1` and `GigabitEthernet1`
+become two ports on the same link.
+
 ## Querying it
 
 Every agent's scripts take one JSON object on stdin. For anything the typed

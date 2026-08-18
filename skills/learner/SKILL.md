@@ -25,9 +25,27 @@ requires_packages:
 > stdout. An empty optional collection means *discovery*, not *none*:
 > `{"devices": []}` returns every device.
 >
-> Tools named in the prose that this pack does not ship (`execute_sql`,
-> `olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
-> runtime. Read the DuckDB directly instead — see the pack README.
+> **`execute_sql` is a script here**, at `analyzer/scripts/execute_sql.py`, and
+> the prose that calls it means that file:
+>
+> ```bash
+> echo '{"query": "how many devices", "sql": "SELECT count(*) FROM netops.devices"}' \
+>   | python analyzer/scripts/execute_sql.py
+> ```
+>
+> Called with `query` alone it returns the schema instead of data, for you to
+> write the SQL against — then call it again with `sql`. Prefer it over your own
+> `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
+> connection, and anything mutating is **refused rather than executed** —
+> `status: "requires_approval"`, nothing written. It also caps how many rows reach
+> your context (the full result goes to a CSV under `exports/queries/` when it is
+> large). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
+> when no syslog directory was copied along with the database.
+>
+> Tools named in the prose that this pack genuinely does not ship
+> (`olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
+> runtime: the first two need its memory layer and sub-agent router, and the
+> third formats output you are better at formatting yourself.
 
 # Command Learner System Prompt
 

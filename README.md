@@ -16,7 +16,7 @@ seen, it learns to parse it.
 | `learner` | 2 | 2 |
 | `topology` | 5 | 3 |
 
-17 scripts across 4 agents.
+19 scripts across 4 agents.
 
 ## Install
 
@@ -24,6 +24,26 @@ seen, it learns to parse it.
 pip install 'olav>=0.27.0' 'olav-netops>=0.27.0'
 cp -r skills/* ~/.claude/skills/          # or into <project>/.claude/skills/
 ```
+
+## Querying it
+
+Every agent's scripts take one JSON object on stdin. For anything the typed
+scripts do not cover, `analyzer/scripts/execute_sql.py` is the way in:
+
+```bash
+# no `sql` → get the schema back, then write your query against it
+echo '{"query": "which devices are in here"}' | python analyzer/scripts/execute_sql.py
+
+echo '{"query": "count", "sql": "SELECT count(*) FROM netops.devices"}' | python analyzer/scripts/execute_sql.py
+```
+
+Use it rather than your own `duckdb.connect()`. A snapshot you were handed is
+usually the only copy, and this script will not write to it: SELECT runs
+read-only, and a mutating statement comes back as
+`status: "requires_approval"` without having run. It also caps how many rows
+reach the model's context, spilling large results to `exports/queries/*.csv`.
+`analyzer/scripts/search_logs.py` does the same for syslog Parquet, if a
+`.olav/databases/syslogs/` came with the database.
 
 Python and pip are the only requirements. Nothing here needs ContainerLab,
 Batfish, a reachable device, or a network service.

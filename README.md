@@ -41,16 +41,24 @@ pip install -r requirements-lean.txt
 pip install --no-deps 'olav>=0.27.0' 'olav-netops>=0.27.0'
 ```
 
-**122 MB**, and verified rather than assumed: all 36 files import, a collector
+**127 MB**, and verified rather than assumed: all 36 files import, a collector
 bundle lands (3 devices, 29 commands, 28 parsed, 13 views, 4 topology links), and
 one real call per agent — devices, BGP topology, evidence search, a draw.io
 diagram, a config diff, a parser-learning prep — returns the same answers as the
 full install.
 
-Two of the seven are load-bearing in ways worth knowing: without `ntc-templates`
-nothing parses (raw output lands, zero rows become structured), and without
-`netutils` interface names are not canonicalised, so `Gi1` and `GigabitEthernet1`
-become two ports on the same link.
+Three of the eight are there because leaving them out fails *silently*:
+
+* **`ntc-templates`** — without it nothing parses. Raw output lands and zero rows
+  become structured, which reads like an empty network rather than a missing
+  library.
+* **`netutils`** — without it interface names are not canonicalised, so `Gi1` and
+  `GigabitEthernet1` become two ports on the same link.
+* **`netconan`** — without it **redaction is skipped and credentials land on disk
+  in plaintext**. OLAV prints a SECURITY warning and continues; on a laptop
+  holding a customer's configs that is the wrong side to fail on. If you
+  deliberately want no redaction, say so in `.olav/config/api.json`
+  (`"redaction": {"enabled": false}`) rather than getting it by omission.
 
 ## Querying it
 

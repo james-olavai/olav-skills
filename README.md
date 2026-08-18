@@ -24,30 +24,19 @@ seen, it learns to parse it.
 ## Install
 
 ```bash
-pip install 'olav>=0.27.0' 'olav-netops>=0.27.0'
+python -m venv .venv && . .venv/bin/activate
+pip install ./runtime
 cp -r skills/* ~/.claude/skills/          # or into <project>/.claude/skills/
 ```
 
-### Install (lean) — recommended
+That is the whole install. **This pack depends on no OLAV distribution**: it
+carries the library code it needs in `runtime/` — 44 modules, copied from the olav
+repo and generated, never hand-edited — and `runtime/pyproject.toml` declares only
+third-party packages. Nothing is fetched from PyPI's `olav`, so a refactor over
+there cannot change what a published pack does.
 
-That line pulls **218 packages and 1.4 GB**: thirteen LangChain providers,
-LangGraph, LanceDB + Arrow, scipy, sklearn, pandas. They are OLAV's agent runtime
-and memory layer — and in Claude Code *you* are the agent runtime, so nothing here
-uses them. Skip the dependency closure and install what the scripts actually
-import:
-
-```bash
-pip install -r requirements-lean.txt
-pip install --no-deps 'olav>=0.27.0' 'olav-netops>=0.27.0'
-```
-
-**127 MB**, and verified rather than assumed: all 36 files import, a collector
-bundle lands (3 devices, 29 commands, 28 parsed, 13 views, 4 topology links), and
-one real call per agent — devices, BGP topology, evidence search, a draw.io
-diagram, a config diff, a parser-learning prep — returns the same answers as the
-full install.
-
-Three of the eight are there because leaving them out fails *silently*:
+Seven third-party packages, ~120 MB installed. Three of them fail *silently* if
+you drop them, which is why they are pinned rather than suggested:
 
 * **`ntc-templates`** — without it nothing parses. Raw output lands and zero rows
   become structured, which reads like an empty network rather than a missing
@@ -55,33 +44,28 @@ Three of the eight are there because leaving them out fails *silently*:
 * **`netutils`** — without it interface names are not canonicalised, so `Gi1` and
   `GigabitEthernet1` become two ports on the same link.
 * **`netconan`** — without it **redaction is skipped and credentials land on disk
-  in plaintext**. OLAV prints a SECURITY warning and continues; on a laptop
-  holding a customer's configs that is the wrong side to fail on. If you
-  deliberately want no redaction, say so in `.olav/config/api.json`
-  (`"redaction": {"enabled": false}`) rather than getting it by omission.
+  in plaintext**. If you deliberately want no redaction, say so in
+  `.olav/config/api.json` (`"redaction": {"enabled": false}`) rather than getting
+  it by omission.
 
-## Querying it
+**Use a virtualenv.** `runtime/` provides the import names `olav` and
+`olav_netops`, so it must not share an environment with a platform install of
+OLAV itself.
 
-Every agent's scripts take one JSON object on stdin. For anything the typed
-scripts do not cover, `analyzer/scripts/execute_sql.py` is the way in:
+Verified rather than assumed, in an environment with no OLAV package present: all
+36 files import, a collector bundle lands (3 devices, 29 commands, 28 parsed, 13
+views, 4 topology links), and one real call per agent — devices, SQL, BGP topology,
+evidence search, a draw.io diagram, a config diff, bundle validation — returns what
+a full platform install returns.
+
+### If you already run the OLAV platform
+
+Then you do not need `runtime/`: the same scripts work against the installed
+packages.
 
 ```bash
-# no `sql` → get the schema back, then write your query against it
-echo '{"query": "which devices are in here"}' | python analyzer/scripts/execute_sql.py
-
-echo '{"query": "count", "sql": "SELECT count(*) FROM netops.devices"}' | python analyzer/scripts/execute_sql.py
+pip install 'olav>=0.28.0' 'olav-netops>=0.28.0'
 ```
-
-Use it rather than your own `duckdb.connect()`. A snapshot you were handed is
-usually the only copy, and this script will not write to it: SELECT runs
-read-only, and a mutating statement comes back as
-`status: "requires_approval"` without having run. It also caps how many rows
-reach the model's context, spilling large results to `exports/queries/*.csv`.
-`analyzer/scripts/search_logs.py` does the same for syslog Parquet, if a
-`.olav/databases/syslogs/` came with the database.
-
-Python and pip are the only requirements. Nothing here needs ContainerLab,
-Batfish, a reachable device, or a network service.
 
 ## Data
 

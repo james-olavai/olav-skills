@@ -7,8 +7,8 @@ allowed-tools:
   - Grep
   - Glob
 requires_packages:
-  - olav>=0.27.0
-  - olav-netops>=0.27.0
+  - olav>=0.28.0
+  - olav-netops>=0.28.0
 ---
 
 > **Calling convention in this pack.** These agents were written for the OLAV

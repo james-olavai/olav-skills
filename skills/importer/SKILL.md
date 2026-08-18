@@ -45,7 +45,15 @@ requires_packages:
 > Tools named in the prose that this pack genuinely does not ship
 > (`olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
 > runtime: the first two need its memory layer and sub-agent router, and the
-> third formats output you are better at formatting yourself.
+> third formats output you are better at formatting yourself. Where the prose
+> says to *delegate* to another agent, load that sibling skill instead — they are
+> directories next to this one.
+>
+> **Nothing here touches a device.** `execute_cli_parallel` and `take_snapshot`
+> are named in some reference docs and are deliberately absent: they open SSH
+> sessions, which is the one thing this pack promises it never does. Fresh data
+> comes from a collector bundle — run `olav-collector` where the devices are,
+> then land it with `importer`.
 
 # Ingest — system prompt
 

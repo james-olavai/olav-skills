@@ -11,12 +11,15 @@ seen, it learns to parse it.
 
 | Agent | Scripts | References |
 |---|---|---|
-| `analyzer` | 5 | 7 |
+| `analyzer` | 7 | 7 |
 | `importer` | 5 | 4 |
 | `learner` | 2 | 2 |
+| `netops` | 5 | 18 |
+| `reporter` | 4 | 4 |
 | `topology` | 5 | 3 |
+| `writer` | 4 | 0 |
 
-19 scripts across 4 agents.
+32 scripts across 7 agents.
 
 ## Install
 
@@ -84,7 +87,7 @@ This wave is deliberately narrow. Where the prose points at an agent that
 is not here, the capability exists in the full OLAV runtime — the pointer
 is accurate, the agent is simply out of the box:
 
-- `analyzer` mentions `reporter`
+- `netops` mentions `admin`, `analyst`, `simulator`
 
 ## License
 

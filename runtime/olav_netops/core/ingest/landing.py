@@ -163,6 +163,37 @@ def _classify_unparsed(
     return out
 
 
+def _ensure_command_ssot(conn: Any) -> None:
+    """Populate ``netops.commands`` if nothing has.
+
+    The classifier needs the SSOT to tell "nothing is registered" from "a parser
+    ran and matched nothing" — and without it every unparsed row is
+    ``unclassified``, which the learn queue filters out. The result is an empty
+    queue on an import that landed 159 unparsed outputs.
+
+    In the platform that never showed, because `olav init` syncs the table and a
+    reload hook re-syncs it. The skill pack has neither: no CLI, no plugin
+    discovery, by design (dev_docs/126). So the sync has to be reachable from the
+    place that needs it, which is here.
+
+    Runs only when the table is missing or empty — a scan of the ntc-templates
+    directory is cheap but not free, and in the platform this is a no-op.
+    """
+    try:
+        n = conn.execute("SELECT count(*) FROM netops.commands").fetchone()[0]
+        if n:
+            return
+    except Exception:  # noqa: BLE001 — table absent is exactly the case to fix
+        pass
+    try:
+        from olav_netops.core.commands_sync import sync_commands
+
+        stats = sync_commands(conn)
+        logger.info("command SSOT synced during ingest: %s", stats)
+    except Exception:  # noqa: BLE001 — classification degrades, ingest does not
+        logger.warning("could not sync the command SSOT", exc_info=True)
+
+
 def _recipe_wanted() -> set[tuple[str, str]]:
     """(vendor, command) pairs a builtin view recipe declares.
 
@@ -568,6 +599,7 @@ def ingest_snapshot(
     unparsed_rows: list[dict[str, Any]] = []
     try:
         with open_write_connection(str(db_path)) as conn:
+            _ensure_command_ssot(conn)
             unparsed_rows = _classify_unparsed(conn, unparsed, parse_errors)
     except Exception:  # noqa: BLE001 — reporting must never fail an ingest
         logger.warning("could not classify unparsed outputs", exc_info=True)

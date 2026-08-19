@@ -47,18 +47,40 @@ def builtin_recipes_dir() -> Path | None:
     except Exception:  # noqa: BLE001 — config unavailable is not fatal here
         pass
 
-    here = Path(__file__).resolve().parent
-    candidates = [
-        here.parents[2] / ".olav" / "workspace" / "netops" / "topology" / "recipes" / "builtin",
-        here.parent.parent / "data" / "recipes" / "builtin",
-        # The copy inside the wheel — the only one a pip-only install has.
-        here.parent.parent / "data" / "skillpack" / ".olav" / "workspace" / "netops"
-        / "topology" / "recipes" / "builtin",
-    ]
-    for candidate in candidates:
+    for candidate in _candidates():
         if candidate.is_dir():
             return candidate
     return None
+
+
+def _package_root() -> Path:
+    """The installed ``olav_netops`` directory.
+
+    Derived from the package, not by counting `.parent`s off this module: `here`
+    is already ``<pkg>/core``, so ``here.parent.parent`` is *site-packages* and
+    every packaged-data path built from it missed by one level. In a source
+    checkout the dev-tree candidate matched first and hid it; in the skill pack
+    there is no dev tree, so `builtin_recipes_dir()` returned None, the learn
+    queue lost its ranking, and nothing said so. ``config_files`` already
+    resolved it this way — the two should not disagree.
+    """
+    import olav_netops
+
+    return Path(olav_netops.__file__).resolve().parent
+
+
+def _candidates() -> list[Path]:
+    """Every place the builtin recipes may live, most specific first."""
+    here = Path(__file__).resolve().parent
+    pkg = _package_root()
+    return [
+        # Source checkout: <repo>/olav-netops/.olav/workspace/...
+        here.parents[2] / ".olav" / "workspace" / "netops" / "topology" / "recipes" / "builtin",
+        pkg / "data" / "recipes" / "builtin",
+        # The copy inside the wheel — the only one a pip-only install has.
+        pkg / "data" / "skillpack" / ".olav" / "workspace" / "netops"
+        / "topology" / "recipes" / "builtin",
+    ]
 
 
 def user_recipes_dir() -> Path:

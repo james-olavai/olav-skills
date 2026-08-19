@@ -157,9 +157,10 @@ echo '{"platform":"cisco_ios","command":"show access-list",
 # 4. re-run step 1. The same bundle now parses more.
 ```
 
-**A low parse ratio on a first sweep is expected.** The collector deliberately
-sweeps its whole command library, because a site visit is expensive and disk is
-not, and everything lands in `raw_output_store` whether a parser exists or not. So
+**A low parse ratio on a first sweep is expected.** The collector's default is to
+sweep its whole command library — `--task` narrows it, `--all-commands` widens it
+again — because a site visit is expensive and disk is not, and everything lands in
+`raw_output_store` whether a parser exists or not. So
 a template you write today applies to output collected weeks ago — step 4 needs no
 new collection, which is the reason the collector carries no parsers.
 

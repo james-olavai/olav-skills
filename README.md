@@ -130,7 +130,25 @@ These agents read a DuckDB database; they do not collect. Two ways to get one:
 * **Import a bundle** — collect with `olav-collector` (netmiko + pyyaml, runs on
   a jump host next to the devices), then `importer` lands it.
 
-The second is the normal path, and it is a loop rather than a one-way import:
+The second is the normal path, and it is a loop rather than a one-way import.
+
+**Point `path` at the directory that holds `manifest.yaml`** — the collector writes
+one bundle per run at `output/<date>/<time>/`, so that is the level, not its parent
+and not `devices/` inside it. A `.zip` of the same directory works too, which is
+usually how it travels. Getting the level wrong fails loudly and says which file it
+looked for:
+
+```
+ValueError: bundle validation failed: ['manifest.yaml missing under <path>']
+```
+
+**Set `OLAV_HOME` first.** It decides where the database is written, and every later
+query resolves through it, so importing without it lands the data somewhere you then
+have to find:
+
+```bash
+export OLAV_HOME=~/work/acme        # the project root; the DB goes to its .olav/
+```
 
 ```bash
 # 1. land it — everything in the bundle, parsed or not

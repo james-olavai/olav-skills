@@ -109,6 +109,12 @@ def ingest_snapshot(
         templates_report = {"error": f"{type(exc).__name__}: {exc}"}
 
     return {
+        # Where the data actually went. The project root is OLAV_HOME, else the
+        # nearest *ancestor* of the working directory holding `.olav/`, else the
+        # working directory — and that middle clause means a stray `~/.olav` makes
+        # every directory under `~` resolve to `~`. An import that does not say
+        # which database it wrote leaves the reader to guess (dev_docs/129).
+        "db_path": str(effective_db_path),
         "bundle_id": result.bundle_id,
         "snapshot_id": result.snapshot_id,
         "bundle_sha256": result.bundle_sha256,

@@ -142,13 +142,43 @@ looked for:
 ValueError: bundle validation failed: ['manifest.yaml missing under <path>']
 ```
 
-**Set `OLAV_HOME` first.** It decides where the database is written, and every later
-query resolves through it, so importing without it lands the data somewhere you then
-have to find:
+**You do not have to configure anything.** Drop the bundle wherever you are working
+and ask for it in words — that is the point of a skill: Claude reads your sentence,
+picks `importer`, and runs the script with the path you named.
+
+> *"import the bundle in ./captures/041302"*
+
+The database is created under the *project root*, and every later query resolves the
+same way, so a whole engagement can live in one directory.
+
+**Which directory is the project root is the one rule worth knowing**, because it is
+often not the one you are standing in: the project root is
+`OLAV_HOME` if set, else **the nearest ancestor of your working directory that
+contains `.olav/`**, else the working directory. That middle clause is the trap — if
+`~/.olav` exists, and it does on any machine that has run OLAV once, then every
+directory under `~` resolves to `~` and your new project quietly shares that
+database. Writing this section, a bundle imported from a fresh `clean/` directory
+landed two levels up, in a `.olav/` left behind by an unrelated experiment — the
+working directory got nothing at all. So the import tells you which database it
+wrote, every time:
+
+```json
+"db_path": "/home/you/work/acme/.olav/databases/main.duckdb"
+```
+
+**To make the directory you are in the project**, give it its own marker before you
+import — one command, and everything then stays local to it:
 
 ```bash
-export OLAV_HOME=~/work/acme        # the project root; the DB goes to its .olav/
+mkdir -p .olav                       # this directory is now the project root
+# or, equivalently, for one session:
+export OLAV_HOME=$PWD                # the project root, never its .olav
 ```
+
+Measured while writing this, on a machine that had run OLAV before: importing from a
+fresh directory with neither of those put the database in `~/.olav/databases/`, not
+in the directory. Both forms above put it in `./.olav/databases/main.duckdb`, and
+`db_path` in the import result is how you confirm it rather than assume it.
 
 ```bash
 # 1. land it — everything in the bundle, parsed or not

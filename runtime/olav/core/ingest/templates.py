@@ -48,7 +48,7 @@ def templates_root() -> Path:
     """``.olav/templates`` for the active workspace."""
     from olav.core.config import get_paths_config
 
-    return Path(get_paths_config().agent_dir) / "templates"
+    return Path(get_paths_config().agent_dir_path) / "templates"
 
 
 def incoming_dir() -> Path:

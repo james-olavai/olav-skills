@@ -47,7 +47,7 @@ def _templates_base() -> Path:
     """Resolve ``.olav/templates/`` via the platform paths config."""
     try:
         from olav.core.config import get_paths_config
-        return Path(get_paths_config().agent_dir) / "templates"
+        return Path(get_paths_config().agent_dir_path) / "templates"
     except Exception as exc:
         logger.warning("_templates_base: get_paths_config failed (%s); falling back to CWD", exc)
         return Path.cwd() / ".olav" / "templates"

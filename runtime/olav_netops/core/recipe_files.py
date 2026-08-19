@@ -40,7 +40,7 @@ def builtin_recipes_dir() -> Path | None:
     """
     try:
         from olav.core.config import get_paths_config
-        base = (Path(get_paths_config().agent_dir) / "workspace" / "netops"
+        base = (Path(get_paths_config().agent_dir_path) / "workspace" / "netops"
                 / "topology" / "recipes" / "builtin")
         if base.is_dir():
             return base

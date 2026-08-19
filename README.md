@@ -121,14 +121,54 @@ packages.
 pip install 'olav>=0.28.0' 'olav-netops>=0.28.0'
 ```
 
-## Data
+## Data — and the loop that makes it better over time
 
 These agents read a DuckDB database; they do not collect. Two ways to get one:
 
 * **Copy one** — `main.duckdb` from an OLAV host into `.olav/databases/` of the
   directory you work in. Views travel inside the file.
 * **Import a bundle** — collect with `olav-collector` (netmiko + pyyaml, runs on
-  a laptop next to the devices), then `importer` lands it.
+  a jump host next to the devices), then `importer` lands it.
+
+The second is the normal path, and it is a loop rather than a one-way import:
+
+```bash
+# 1. land it — everything in the bundle, parsed or not
+echo '{"path": "~/captures/acme/041302"}' | python importer/scripts/ingest_snapshot.py
+
+# devices 2 | landed 166 | parsed 7 | unparsed 159
+# learn queue:
+#   recipe  juniper_junos  show bgp summary        x1
+#   recipe  cisco_ios      show ip ospf neighbor   x1
+#   -       cisco_ios      show access-list        x1
+
+# 2. ask questions of what did parse
+echo '{"query": "which devices are in the snapshot"}' | python analyzer/scripts/execute_sql.py
+echo '{}' | python topology/scripts/query_topology.py
+
+# 3. close a gap from the queue: prepare, write the template, freeze it
+echo '{"platform":"cisco_ios","command":"show access-list",
+       "samples":[{"device":"R2","raw_output":"<raw text from raw_output_store>"}]}' \
+  | python learner/scripts/prepare_learn.py
+echo '{"platform":"cisco_ios","command":"show access-list",
+       "parser_response":"# OLAV_DSL: textfsm\nValue ...", "samples":[...]}' \
+  | python learner/scripts/finish_learn.py
+
+# 4. re-run step 1. The same bundle now parses more.
+```
+
+**A low parse ratio on a first sweep is expected.** The collector deliberately
+sweeps its whole command library, because a site visit is expensive and disk is
+not, and everything lands in `raw_output_store` whether a parser exists or not. So
+a template you write today applies to output collected weeks ago — step 4 needs no
+new collection, which is the reason the collector carries no parsers.
+
+The queue is ordered: commands a builtin topology recipe declares come first,
+because those become queryable views the moment they parse. `finish_learn` freezes
+to `$OLAV_HOME/.olav/templates/<platform>/<command>.textfsm` and a TextFSM
+template is live on the next parse — fitted to however many samples you gave it,
+so pass every sample you have. (Only low-sample *Python* parsers are held back for
+review.)
 
 The database is resolved by `olav.core.config`, in this order: `OLAV_HOME` if
 set, otherwise the nearest ancestor of the working directory that contains a

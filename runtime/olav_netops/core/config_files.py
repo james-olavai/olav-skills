@@ -45,7 +45,7 @@ def resolve_netops_init_config(filename: str) -> Path | None:
     # 1. Deployed workspace, via the platform's own path config.
     try:
         from olav.core.config import get_paths_config
-        candidate = Path(get_paths_config().agent_dir).joinpath(
+        candidate = Path(get_paths_config().agent_dir_path).joinpath(
             *_WORKSPACE_SUBPATH[1:], filename
         )
         if candidate.is_file():

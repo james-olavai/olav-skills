@@ -325,7 +325,7 @@ def sync_commands(conn: Any) -> dict[str, Any]:
     """
     try:
         from olav.core.config import get_paths_config
-        agent_dir = Path(get_paths_config().agent_dir)
+        agent_dir = Path(get_paths_config().agent_dir_path)
     except Exception:
         agent_dir = Path.home() / ".olav"
     templates_base = agent_dir / "templates"

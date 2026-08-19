@@ -18,7 +18,7 @@ requires_packages:
 > arguments as JSON on stdin:
 >
 > ```bash
-> echo '{"devices": []}' | python scripts/inspect_interfaces.py
+> echo '{"devices": []}' | python analyzer/scripts/inspect_interfaces.py
 > ```
 >
 > Every script reads one JSON object from stdin and prints one JSON object to

@@ -13,7 +13,13 @@
 # Their callers are already inside try/except paths that degrade, because a pack
 # has no LLM endpoint and no recall store; the code behind them cannot run here.
 #
-# NOTE: this distribution provides the import names `olav` and `olav_netops`.
+# Vendored, but their optional backend is NOT installed — a lazily-imported
+# package raises ImportError when that one code path is called, and nowhere else:
+#   langchain_text_splitters — wanted by olav.core.utils
+#   openai — wanted by olav.core.embedder
+#   sentence_transformers — wanted by olav.core.embedder
+#
+# NOTE: this distribution provides the import names `olav`, `olav_netops`.
 # Do not install it into an environment that also has the platform packages —
 # use a virtualenv for the pack.
 [build-system]

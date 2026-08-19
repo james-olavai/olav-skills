@@ -355,7 +355,43 @@ def query_evidence(
 
 
 if __name__ == "__main__":
-    import json as _json, sys as _sys
-    _args = _json.loads(_sys.stdin.read() or "{}")
-    result = query_evidence(**_args)
+    import json as _json
+    import sys as _sys
+
+    # Every script in this pack promises "one JSON object on stdout". A bare
+    # `query_evidence(**args)` broke that promise for the most likely mistake:
+    # a missing or misspelled key raised TypeError and printed a traceback, which
+    # a reader parsing JSON cannot act on. Naming the accepted keys in the error
+    # is what turns a crash into a retry (ADR-0009: fix arg shape at the boundary,
+    # not with a prose rule).
+    _accepted = ("source", "pattern", "device", "time_range", "snapshot")
+    try:
+        _args = _json.loads(_sys.stdin.read() or "{}")
+    except ValueError as exc:
+        print(_json.dumps({"status": "error", "error": f"bad JSON stdin: {exc}"}))
+        _sys.exit(1)
+    if not isinstance(_args, dict):
+        print(_json.dumps({"status": "error",
+                           "error": "stdin must be one JSON object",
+                           "accepted_args": list(_accepted)}))
+        _sys.exit(1)
+    _missing = [k for k in ("source", "pattern") if not _args.get(k)]
+    _unknown = [k for k in _args if k not in _accepted]
+    if _missing or _unknown:
+        print(_json.dumps({
+            "status": "error",
+            "error": (f"missing required: {_missing}" if _missing else "")
+                     + ("; " if _missing and _unknown else "")
+                     + (f"not accepted: {_unknown}" if _unknown else ""),
+            "accepted_args": list(_accepted),
+            "hint": 'source is one of syslog | command_output | config, '
+                    'e.g. {"source": "command_output", "pattern": "BGP"}',
+        }))
+        _sys.exit(1)
+    try:
+        result = query_evidence(**_args)
+    except Exception as exc:  # noqa: BLE001
+        print(_json.dumps({"status": "error",
+                           "error": f"{type(exc).__name__}: {exc}"}))
+        _sys.exit(1)
     print(_json.dumps(result, default=str))

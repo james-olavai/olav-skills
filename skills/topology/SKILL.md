@@ -1,6 +1,6 @@
 ---
 name: topology
-description: "Network topology queries + LLM-assisted recipe discovery. Built-in: BGP / OSPF / CDP-LLDP / L2. Extension path: declare new protocols in ~/.olav/config/topology.yaml — agent drafts a YAML recipe on first query and freezes it for reuse. No Python-code generation, no sandbox. "
+description: Topology from the recorded snapshot — BGP, OSPF, CDP/LLDP and L2 adjacency as queryable views. For a protocol with no builtin recipe, `prepare_recipe` gathers the evidence and hands you the drafting job; the YAML you write is frozen and reused.
 allowed-tools:
   - Bash
   - Read

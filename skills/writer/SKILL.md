@@ -1,6 +1,6 @@
 ---
 name: writer
-description: "Content + diagram agent. Two modes. (A) Polish an EXISTING Markdown file under exports/ — read → improve prose / structure / embed a Mermaid or draw.io topology → save back. (B) Draw a network-topology diagram FROM the DB — query a SCOPED adjacency table, render it to draw.io XML (or Mermaid), and export it. Invoked when the user says 'polish / improve / 润色 this report', OR 'draw / diagram / visualize the topology / 画拓扑图'."
+description: Turns the model into something a person keeps — draws the topology to draw.io XML or Mermaid from a scoped adjacency query, and polishes an existing report under exports/ in place.
 allowed-tools:
   - Bash
   - Read

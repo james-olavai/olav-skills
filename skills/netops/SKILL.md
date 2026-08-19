@@ -1,6 +1,6 @@
 ---
 name: netops
-description: Network Operations — SSH collection, BGP/OSPF analysis, topology queries, simulation, drift detection, ContainerLab digital twin, parser learning
+description: "Router and shared helpers for this pack — says which sibling skill answers what (topology, analyzer, reporter, importer, learner, writer) and holds the read-only cross-cutting scripts: config and snapshot diffs, command search, change-plan reading, blast radius. Reads a recorded snapshot; no device access."
 allowed-tools:
   - Bash
   - Read

@@ -7,19 +7,73 @@ seen, it learns to parse it.
 **Generated. Do not edit by hand.** Rebuilt from the olav repo with
 `uv run python scripts/gen_olav_skills.py --write`.
 
-## What is in it
+## What it does
 
-| Agent | Scripts | References |
+You have CLI output from a network — a collector bundle, a rancid backup, a
+directory of `show` output someone emailed you. On its own that is text. This pack
+turns it into a model you can ask questions of, and then into something a person
+keeps.
+
+**Land a snapshot and query it.**
+
+```bash
+echo '{"path": "/path/to/bundle"}'  | python importer/scripts/ingest_snapshot.py
+echo '{"query": "which devices are in the snapshot"}' | python analyzer/scripts/execute_sql.py
+echo '{"sql": "SELECT hostname, vendor, model FROM netops.devices"}' \
+  | python analyzer/scripts/execute_sql.py
+```
+
+Called with `query` alone, `execute_sql` returns the schema for you to write SQL
+against; SELECTs run read-only and anything mutating is refused rather than run.
+`inspect_devices` with `{"devices": []}` is the same idea for facts — an empty
+collection means *show me everything*, not *nothing*.
+
+**See the topology, without asking for it twice.** The views are built when the
+data lands, so this is a query, not an ETL run:
+
+```bash
+echo '{}' | python topology/scripts/query_topology.py
+```
+
+It returns typed BGP / OSPF / L2 adjacency for the snapshot. BGP, OSPF, CDP/LLDP
+and L2 are built in. For a protocol that has no recipe,
+`prepare_recipe` gathers the evidence and hands you the drafting job — the YAML
+you write is frozen and reused, so the next snapshot needs no drafting.
+
+**Teach it a command it cannot parse.** `ntc-templates` covers a lot and not
+everything. `learner` closes that gap without anyone editing the platform:
+`prepare_learn` analyses the raw samples and returns the drafting prompt, you
+write the TextFSM or Python parser, `finish_learn` validates it in a sandbox and
+freezes it. Every later import picks it up automatically.
+
+**Produce what a person actually asked for.**
+
+| You want | Skill | It writes |
 |---|---|---|
-| `analyzer` | 7 | 7 |
-| `importer` | 5 | 4 |
-| `learner` | 2 | 2 |
-| `netops` | 5 | 18 |
-| `reporter` | 4 | 4 |
-| `topology` | 5 | 3 |
-| `writer` | 4 | 0 |
+| "why is this down / audit this network" | `reporter` | an evidence-backed report under `exports/reports/` |
+| "plan this change" | `analyzer` | a per-device change plan + rollback + post-checks |
+| "draw the topology" | `writer` | draw.io XML or Mermaid from the tables |
+| "what breaks if this dies" | `reporter` | blast radius over the graph |
+| "diff these two snapshots" | `netops` | config and snapshot diffs |
 
-32 scripts across 7 agents.
+Each is a skill directory. Claude Code loads the one whose description matches
+what you asked, reads its prose, and runs the scripts underneath — so the useful
+unit is a request in your own words, not a command you have to remember.
+
+## The agents
+
+| Agent | What it does | Scripts |
+|---|---|---|
+| `analyzer` | Change-plan drafter — gather device facts via SQL, write a vendor-specific change plan markdown (CLI per device + rollback + post-checks + risks) to exports/change_plans/. | 7 |
+| `importer` | Offline snapshot ingest — drops a bundle / rancid backup / vendor dump in and lands it in raw_output_store + structured views. | 5 |
+| `learner` | Parser learning for CLI output ntc-templates cannot parse. `prepare_learn` analyses the samples and returns the drafting prompt; you write the TextFSM or Python parser; `finish_learn` validates it in a sandbox and freezes it, so every later import picks it up. | 2 |
+| `netops` | Router and shared helpers for this pack — says which sibling skill answers what (topology, analyzer, reporter, importer, learner, writer) and holds the read-only cross-cutting scripts: config and snapshot diffs, command search, change-plan reading, blast radius. Reads a recorded snapshot; no device access. | 5 |
+| `reporter` | Investigation and blast radius from the recorded snapshot — gather SQL evidence, search logs, synthesise findings into a report under exports/reports/, or simulate a device or link failure over the graph to see what it takes with it. | 4 |
+| `topology` | Topology from the recorded snapshot — BGP, OSPF, CDP/LLDP and L2 adjacency as queryable views. For a protocol with no builtin recipe, `prepare_recipe` gathers the evidence and hands you the drafting job; the YAML you write is frozen and reused. | 5 |
+| `writer` | Turns the model into something a person keeps — draws the topology to draw.io XML or Mermaid from a scoped adjacency query, and polishes an existing report under exports/ in place. | 4 |
+
+32 scripts across 7 agents. `netops` is the router: it says
+which of the others answers what.
 
 ## Install
 

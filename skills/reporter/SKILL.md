@@ -1,6 +1,6 @@
 ---
 name: reporter
-description: "Network investigation + blast-radius reporter. Two modes: (B) investigation/audit — gather SQL evidence, query logs, synthesise L1-L4 findings, write structured report to exports/reports/; (C) blast-radius what-if — simulate device/link failure on NetworkX graph. Use when the user asks 'investigate / why is X down / audit / blast radius / drift between snapshots / 调研 / 故障定位'. For change plans (add/modify config), use analyzer instead."
+description: Investigation and blast radius from the recorded snapshot — gather SQL evidence, search logs, synthesise findings into a report under exports/reports/, or simulate a device or link failure over the graph to see what it takes with it.
 allowed-tools:
   - Bash
   - Read

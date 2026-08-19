@@ -1,6 +1,6 @@
 ---
 name: learner
-description: "Parser-layer learning for CLI output. Takes raw device output the stock ntc-templates can't parse and produces a persistent parser (TextFSM or Python). Invoked via `/learn_cmd` — learns once, freezes the parser, every subsequent pipeline run picks it up automatically. "
+description: Parser learning for CLI output ntc-templates cannot parse. `prepare_learn` analyses the samples and returns the drafting prompt; you write the TextFSM or Python parser; `finish_learn` validates it in a sandbox and freezes it, so every later import picks it up.
 allowed-tools:
   - Bash
   - Read

@@ -163,6 +163,66 @@ def _classify_unparsed(
     return out
 
 
+def _recipe_wanted() -> set[tuple[str, str]]:
+    """(vendor, command) pairs a builtin view recipe declares.
+
+    Ranking material for the learn queue. A broad sweep — the collector's default
+    since the jump host cannot parse and a second site visit is expensive — lands
+    a hundred-odd commands per device, and the learnable subset is then far larger
+    than anyone will work through in one sitting. Sorting it by *count* puts
+    `show clock` on twenty devices above `show ip bgp summary` on three, which is
+    backwards: the second becomes a queryable view the moment it parses, and the
+    first becomes a column nobody reads.
+
+    Empty set on any failure — this only orders a suggestion list, and reporting
+    must never fail an ingest.
+    """
+    wanted: set[tuple[str, str]] = set()
+    try:
+        import yaml
+
+        from olav_netops.core.recipe_files import builtin_recipes_dir
+
+        rdir = builtin_recipes_dir()
+        if rdir is None:
+            return wanted
+        for path in sorted(rdir.glob("*.yaml")):
+            for entry in yaml.safe_load(path.read_text(encoding="utf-8")) or []:
+                if not isinstance(entry, dict):
+                    continue
+                command = str(entry.get("command", "")).strip()
+                vendor = str(entry.get("vendor_hint") or "").strip()
+                # `@directive` rows are computed from data already in the DB —
+                # there is no CLI output behind them to learn a parser for.
+                if command and not command.startswith("@") and vendor:
+                    wanted.add((vendor, command.lower()))
+    except Exception:  # noqa: BLE001
+        logger.debug("recipe ranking unavailable", exc_info=True)
+    return wanted
+
+
+def _learn_queue(unparsed_rows: list[dict[str, Any]], wanted: set[tuple[str, str]],
+                 limit: int = 15) -> list[dict[str, Any]]:
+    """The subset `netops/learner` can fix, most useful first.
+
+    `raw_only` is excluded by design and `parser_error` rows are bugs, not gaps.
+    Order is recipe-declared before merely frequent: a broad sweep leaves dozens
+    of learnable commands and the operator works down the list, so the fifteen
+    that surface decide what gets learned.
+    """
+    return [
+        {"command": r["command"], "platform": r["platform"], "count": r["count"],
+         "wanted_by": "recipe" if (r["platform"], r["command"].lower()) in wanted
+                      else ""}
+        for r in sorted(
+            (r for r in unparsed_rows
+             if r["reason"] in {"no_parser_registered", "parser_no_match"}),
+            key=lambda r: ((r["platform"], r["command"].lower()) not in wanted,
+                           -r["count"], r["command"]),
+        )
+    ][:limit]
+
+
 def _pct(part: int, whole: int) -> int:
     """Rounded percentage; the caller derives the complement so they sum to 100."""
     return round(part * 100 / whole) if whole else 0
@@ -532,6 +592,7 @@ def ingest_snapshot(
         parser_fills=parser_fills,
     )
 
+    _wanted = _recipe_wanted()
     parse_report: dict[str, Any] = {
         "devices_landed": len(hosts),
         "devices_with_structured_data": len(hosts_with_parsed),
@@ -545,11 +606,7 @@ def ingest_snapshot(
         # The subset netops/learner can actually fix, so the agent can say
         # "and here is how to close it" rather than only naming the gap.
         # raw_only is excluded by design; parser_error rows are bugs, not gaps.
-        "learnable_commands": [
-            {"command": r["command"], "platform": r["platform"], "count": r["count"]}
-            for r in unparsed_rows
-            if r["reason"] in {"no_parser_registered", "parser_no_match"}
-        ][:15],
+        "learnable_commands": _learn_queue(unparsed_rows, _wanted),
         "learnable_outputs": sum(
             r["count"] for r in unparsed_rows
             if r["reason"] in {"no_parser_registered", "parser_no_match"}

@@ -89,8 +89,8 @@ repo and generated, never hand-edited — and `runtime/pyproject.toml` declares 
 third-party packages. Nothing is fetched from PyPI's `olav`, so a refactor over
 there cannot change what a published pack does.
 
-Seven third-party packages, ~120 MB installed. Three of them fail *silently* if
-you drop them, which is why they are pinned rather than suggested:
+8 third-party packages, ~120 MB installed. Three of them fail *silently*
+if you drop them, which is why they are pinned rather than suggested:
 
 * **`ntc-templates`** — without it nothing parses. Raw output lands and zero rows
   become structured, which reads like an empty network rather than a missing

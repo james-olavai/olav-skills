@@ -92,3 +92,13 @@ exactly when the user intent matches their trigger.
    (The change-plan workflow stacks three verbatim results; stacking is
    not summarising.)
 3. **Ambiguous intent** → ask one clarifying question before routing.
+
+
+## Bounded query routing
+
+For supported snapshot statistics, device/command coverage, filtered inventory, multi-device summary, top N, key diff or protocol health, route once to analyzer/reporter/topology and return that sub-agent output under the existing thin-router rule. Those sub-agents expose `query_batch`; the orchestrator does not call it directly. Prefer templates before relevant compact schema and bounded read-only SQL fallback. Missing canonical views and zero matches differ; no full body dumps or per-device loops for batch questions. See [query contract](references/batch_query.md).
+
+
+## Recorded data time
+
+Cite snapshot ID and `temporal.collected_at` with its precision, source and status. A date label derived from a snapshot ID is an inference, not verified device capture. `ingested_at` and `record_updated_at` are separate clocks; neither proves collection time. Unknown or conflicting time must be reported as unknown. `latest` uses collection provenance and may return `ambiguous_snapshot_time`; choose an explicit snapshot instead of ordering IDs. CLI evidence `captured_at` is null without an explicit raw capture field (previous versions incorrectly exposed updated_at there). Time coverage describes the snapshot or returned records, never live network state or an arbitrary SQL result. Diff results carry separate source and target times.

@@ -64,15 +64,15 @@ unit is a request in your own words, not a command you have to remember.
 
 | Agent | What it does | Scripts |
 |---|---|---|
-| `analyzer` | Change-plan drafter — gather device facts via SQL, write a vendor-specific change plan markdown (CLI per device + rollback + post-checks + risks) to exports/change_plans/. | 7 |
+| `analyzer` | Change-plan drafter — gather device facts via SQL, write a vendor-specific change plan markdown (CLI per device + rollback + post-checks + risks) to exports/change_plans/. | 8 |
 | `importer` | Offline snapshot ingest — drops a bundle / rancid backup / vendor dump in and lands it in raw_output_store + structured views. | 5 |
 | `learner` | Parser learning for CLI output ntc-templates cannot parse. `prepare_learn` analyses the samples and returns the drafting prompt; you write the TextFSM or Python parser; `finish_learn` validates it in a sandbox and freezes it, so every later import picks it up. | 2 |
-| `netops` | Router and shared helpers for this pack — says which sibling skill answers what (topology, analyzer, reporter, importer, learner, writer) and holds the read-only cross-cutting scripts: config and snapshot diffs, command search, change-plan reading, blast radius. Reads a recorded snapshot; no device access. | 5 |
-| `reporter` | Investigation and blast radius from the recorded snapshot — gather SQL evidence, search logs, synthesise findings into a report under exports/reports/, or simulate a device or link failure over the graph to see what it takes with it. | 4 |
-| `topology` | Topology from the recorded snapshot — BGP, OSPF, CDP/LLDP and L2 adjacency as queryable views. For a protocol with no builtin recipe, `prepare_recipe` gathers the evidence and hands you the drafting job; the YAML you write is frozen and reused. | 5 |
+| `netops` | Router and shared helpers for this pack — says which sibling skill answers what (topology, analyzer, reporter, importer, learner, writer) and holds the read-only cross-cutting scripts: config and snapshot diffs, command search, change-plan reading, blast radius. Reads a recorded snapshot; no device access. | 6 |
+| `reporter` | Investigation and blast radius from the recorded snapshot — gather SQL evidence, search logs, synthesise findings into a report under exports/reports/, or simulate a device or link failure over the graph to see what it takes with it. | 5 |
+| `topology` | Topology from the recorded snapshot — BGP, OSPF, CDP/LLDP and L2 adjacency as queryable views. For a protocol with no builtin recipe, `prepare_recipe` gathers the evidence and hands you the drafting job; the YAML you write is frozen and reused. | 6 |
 | `writer` | Turns the model into something a person keeps — draws the topology to draw.io XML or Mermaid from a scoped adjacency query, and polishes an existing report under exports/ in place. | 4 |
 
-32 scripts across 7 agents. `netops` is the router: it says
+36 scripts across 7 agents. `netops` is the router: it says
 which of the others answers what.
 
 ## Install
@@ -89,8 +89,8 @@ repo and generated, never hand-edited — and `runtime/pyproject.toml` declares 
 third-party packages. Nothing is fetched from PyPI's `olav`, so a refactor over
 there cannot change what a published pack does.
 
-8 third-party packages, ~120 MB installed. Three of them fail *silently*
-if you drop them, which is why they are pinned rather than suggested:
+8 third-party packages, ~120 MB installed. Three of them fail *silently* if
+you drop them, which is why they are pinned rather than suggested:
 
 * **`ntc-templates`** — without it nothing parses. Raw output lands and zero rows
   become structured, which reads like an empty network rather than a missing

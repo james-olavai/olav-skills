@@ -82,67 +82,537 @@ def _safe_view_name(command: str) -> str:
 
 # ── L2 topology view (minimal projection) ───────────────────────────────
 
+_CAPTURE_FIELDS = ("captured_at", "collected_at", "snapshot_date")
+_DATE_RE = "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+_AWARE_RE = (
+    "[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"(\.[0-9]{1,6})?(Z|[+-][0-9]{2}(:?[0-9]{2})?)"
+)
+_NAIVE_RE = (
+    "[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"(\.[0-9]{1,6})?"
+)
+# ``snapshot_date`` is date-only provenance.  A timestamp is accepted only
+# when it is the documented midnight placeholder; a non-midnight value would
+# otherwise silently lose time, which is exactly what OW-058 forbids.
+_MIDNIGHT_AWARE_RE = "[0-9]{4}-[0-9]{2}-[0-9]{2}[T ]00:00:00(Z|[+]00:00)"
+_MIDNIGHT_NAIVE_RE = "[0-9]{4}-[0-9]{2}-[0-9]{2}[T ]00:00:00"
+
+
+def _table_columns(con: Any, table: str) -> list[str]:
+    """Columns of ``netops.<table>``, or [] when the table is absent.
+
+    Column introspection keeps this adapter tolerant of old/new databases:
+    only collection fields that actually exist are exposed, and a missing
+    table never implies a fabricated time.  No metadata table is assumed.
+    """
+    try:
+        rows = con.execute(
+            """
+            SELECT column_name FROM information_schema.columns
+             WHERE table_schema = 'netops' AND table_name = ?
+             ORDER BY ordinal_position
+            """,
+            [table],
+        ).fetchall()
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("view_builder: column introspection for %s failed: %s", table, exc)
+        return []
+    return [str(r[0]) for r in rows]
+
+
+def _capture_union(parsed_cols: list[str], raw_cols: list[str]) -> str:
+    """UNION ALL of every explicit collection column that exists.
+
+    ``bundle_ingests`` is deliberately never read: it is a separate,
+    explicitly authorized source.  Raw output is a current-state table whose
+    ``snapshot_id`` is a last-writer label, so its capture values are marked
+    with that source name and only used by its own snapshot label.
+    """
+    parts: list[str] = []
+    for table, cols in (("parsed_outputs", parsed_cols),
+                        ("raw_output_store", raw_cols)):
+        # raw_output_store without a snapshot_id cannot be keyed to a snapshot.
+        # Do not emit invalid SQL for such an old/partial schema.
+        if "snapshot_id" not in cols:
+            continue
+        for field in _CAPTURE_FIELDS:
+            if field not in cols:
+                continue
+            parts.append(
+                f"SELECT snapshot_id, '{table}' AS capture_table, "
+                f"'{table}.{field}' AS capture_source, "
+                f"TRIM(CAST({field} AS VARCHAR)) AS value "
+                f"FROM netops.{table} "
+                f"WHERE snapshot_id IS NOT NULL AND {field} IS NOT NULL"
+            )
+    if not parts:
+        return (
+            "SELECT CAST(NULL AS VARCHAR) AS snapshot_id, "
+            "CAST(NULL AS VARCHAR) AS capture_table, "
+            "CAST(NULL AS VARCHAR) AS capture_source, "
+            "CAST(NULL AS VARCHAR) AS value WHERE FALSE"
+        )
+    return "\nUNION ALL\n".join(parts)
+
+
 def build_snapshots_view(con: Any) -> dict[str, int]:
     """Create / refresh ``netops.v_snapshots_auto``.
 
-    Per-snapshot metadata view: capture timestamp, device coverage,
-    row count.  Lets downstream consumers (analyzer, audit, reports)
-    anchor every artifact in real time without guessing today's date.
+    Capture and ingestion are separate concepts.  A snapshot's capture time
+    is only what an explicit collection column actually recorded; it is not
+    ``MIN(ingested_at)`` and it is never parsed out of a ``snap_*`` import ID.
+    If no collection field proves a capture, ``captured_at`` is NULL.  The
+    old columns stay for compatibility, but their semantics changed:
 
-    Source: ``netops.parsed_outputs`` (snapshot_id + ingested_at).
-    If ``ingested_at`` is NULL for older rows, fall back to parsing
-    the timestamp encoded in the snapshot_id itself (snap_YYYYMMDD_HHMMSS_*).
+    * ``captured_at`` / ``capture_start`` — earliest explicit capture value;
+      NULL when unavailable.
+    * ``finished_at`` / ``capture_end`` — latest explicit capture value;
+      NULL when unavailable (it is the capture window end, not ingest end).
+    * ``duration_s`` — observed capture window length, not import duration.
+    * ``capture_status`` — known / partial / invalid / conflict / unknown.
+      Multi-source or mixed date/timestamp/clock provenance is conservative:
+      conflicting windows are not silently resolved by source priority.
+    * ``capture_precision`` — date / timestamp / timestamp_without_timezone /
+      unknown.  Dates remain dates; they are not promoted to midnight timestamps.
+    * ``capture_source`` — the explicit field that supplied the window.
+    * ``ingested_at`` / ``ingest_start`` / ``ingest_end`` — parsed-output
+      ingestion window only.  IDs never supply a time.  An offset-aware
+      value is normalised to the same instant in UTC before min/max, so
+      ``02:00+02:00`` and ``01:00Z`` produce ``00:00``..``01:00``.  Naive
+      values keep their ``timestamp_without_timezone`` meaning; a snapshot
+      mixing naive and aware ingestion is ``conflict`` with no window rather
+      than a falsely ``known`` comparison.
+    * ``ingest_precision`` / ``ingest_clock`` / ``ingest_source`` /
+      ``ingest_status`` describe the ingestion window: precision is date /
+      timestamp / timestamp_without_timezone / mixed / unknown, clock is
+      date / utc / naive / mixed / unknown, status is known / partial /
+      invalid / conflict / unknown.  ``ingest_start_text`` /
+      ``ingest_end_text`` keep the date or UTC-normalised text form so date
+      precision is not re-read as a midnight instant.
+    * ``record_updated_at`` / ``record_update_text`` — the **latest record
+      update** where the table has one, i.e. ``MAX(updated_at)`` under the
+      normalised precision/clock, not the earliest row's start.  Offset-aware
+      values are normalised to the same instant in UTC before MAX, dates stay
+      dates.  Precision, clock, source and status follow the same rules as
+      ingestion; a MAX over mixed clocks is not reported as a known update
+      time (NULL instead).  Ingestion keeps its start/end window; only the
+      single-valued record update uses the latest/end side.
+    * ``event_time`` — always NULL: these tables carry no event-time source.
+    * ``capture_date_label`` — a bare ``YYYY-MM-DD`` snapshot ID is kept as a
+      *derived* compatibility label; it is not capture proof and never fills
+      ``captured_at``.  ``snap_*`` labels are not parsed at all.
 
-    Columns:
-        snapshot_id    VARCHAR
-        captured_at    TIMESTAMP  (MIN ingested_at, or parsed from snap_id)
-        finished_at    TIMESTAMP  (MAX ingested_at, or parsed from snap_id)
-        device_count   INT
-        row_count      INT
-        duration_s     DOUBLE     (NULL when single-row snapshots)
+    ``bundle_ingests`` is not read implicitly.  Callers that are explicitly
+    authorized for that table must use their existing trusted capability;
+    the default view is raw/parsed-only and safe without it.
     """
     try:
+        parsed_cols = _table_columns(con, "parsed_outputs")
+        if not parsed_cols or "snapshot_id" not in parsed_cols:
+            logger.debug("build_snapshots_view: netops.parsed_outputs/snapshot_id is absent")
+            return {}
+        raw_cols = _table_columns(con, "raw_output_store")
+        capture_union = _capture_union(parsed_cols, raw_cols)
+        source_totals_parts = [
+            "SELECT snapshot_id, 'parsed_outputs' AS capture_table, "
+            "COUNT(*) AS source_rows FROM netops.parsed_outputs "
+            "WHERE snapshot_id IS NOT NULL GROUP BY snapshot_id"
+        ]
+        if "snapshot_id" in raw_cols:
+            source_totals_parts.append(
+                "SELECT snapshot_id, 'raw_output_store' AS capture_table, "
+                "COUNT(*) AS source_rows FROM netops.raw_output_store "
+                "WHERE snapshot_id IS NOT NULL GROUP BY snapshot_id"
+            )
+        source_totals_sql = "\nUNION ALL\n".join(source_totals_parts)
+        ingest_expr = "CAST(ingested_at AS VARCHAR)" if "ingested_at" in parsed_cols else "CAST(NULL AS VARCHAR)"
+        updated_expr = "CAST(updated_at AS VARCHAR)" if "updated_at" in parsed_cols else "CAST(NULL AS VARCHAR)"
+        priority = """
+            CASE capture_source
+                WHEN 'parsed_outputs.captured_at' THEN 1
+                WHEN 'parsed_outputs.collected_at' THEN 2
+                WHEN 'parsed_outputs.snapshot_date' THEN 3
+                WHEN 'raw_output_store.captured_at' THEN 4
+                WHEN 'raw_output_store.collected_at' THEN 5
+                WHEN 'raw_output_store.snapshot_date' THEN 6
+                ELSE 9
+            END
+        """
         con.execute(
-            """
+            f"""
             CREATE OR REPLACE VIEW netops.v_snapshots_auto AS
-            WITH derived AS (
+            WITH parsed AS (
                 SELECT
                     snapshot_id,
-                    MIN(ingested_at) AS min_ingested,
-                    MAX(ingested_at) AS max_ingested,
-                    COUNT(DISTINCT device_name) AS device_count,
-                    COUNT(*) AS row_count
+                    device_name,
+                    {ingest_expr} AS ingested_text,
+                    {updated_expr} AS updated_text
                 FROM netops.parsed_outputs
                 WHERE snapshot_id IS NOT NULL
+            ),
+            capture_rows AS (
+                {capture_union}
+            ),
+            source_totals AS (
+                {source_totals_sql}
+            ),
+            capture_checked AS (
+                SELECT
+                    snapshot_id,
+                    capture_table,
+                    capture_source,
+                    value,
+                    regexp_full_match(value, '{_DATE_RE}') AS is_date_re,
+                    regexp_full_match(value, '{_AWARE_RE}') AS is_aware_re,
+                    regexp_full_match(value, '{_NAIVE_RE}') AS is_naive_re,
+                    regexp_full_match(value, '{_MIDNIGHT_AWARE_RE}') AS is_midnight_aware,
+                    regexp_full_match(value, '{_MIDNIGHT_NAIVE_RE}') AS is_midnight_naive,
+                    TRY_CAST(value AS DATE) IS NOT NULL AS date_cast_ok,
+                    TRY_CAST(value AS TIMESTAMPTZ) IS NOT NULL AS aware_cast_ok,
+                    TRY_CAST(value AS TIMESTAMP) IS NOT NULL AS naive_cast_ok,
+                    capture_source LIKE '%.snapshot_date' AS is_snapshot_date_field
+                FROM capture_rows
+                WHERE value IS NOT NULL AND value <> ''
+            ),
+            capture_measured AS (
+                SELECT
+                    snapshot_id,
+                    capture_table,
+                    capture_source,
+                    value,
+                    -- A date-named collection field carries date provenance.  A
+                    -- timestamp is read as a date only when it is the exact
+                    -- documented midnight placeholder (a TIMESTAMP column
+                    -- stores a date that way); any other time would lose
+                    -- information and is classified invalid below.
+                    CASE
+                        WHEN is_snapshot_date_field
+                         AND (is_midnight_naive OR is_midnight_aware)
+                         AND TRY_CAST(substr(value, 1, 10) AS DATE) IS NOT NULL
+                        THEN substr(value, 1, 10)
+                        ELSE value
+                    END AS norm_value,
+                    (
+                        (is_date_re AND date_cast_ok)
+                        OR (is_snapshot_date_field
+                            AND (is_midnight_naive OR is_midnight_aware)
+                            AND TRY_CAST(substr(value, 1, 10) AS DATE) IS NOT NULL)
+                    ) AS is_date,
+                    -- A timestamp from a date-named field is never a capture
+                    -- instant: the midnight placeholder was already read as a
+                    -- date above, so any remaining time here is invalid.
+                    (is_aware_re AND aware_cast_ok
+                     AND NOT is_snapshot_date_field) AS is_aware,
+                    (is_naive_re AND naive_cast_ok
+                     AND NOT is_snapshot_date_field) AS is_naive
+                FROM capture_checked
+            ),
+            capture_agg AS (
+                SELECT
+                    snapshot_id,
+                    capture_table,
+                    capture_source,
+                    COUNT(*) AS value_count,
+                    COUNT(*) FILTER (WHERE NOT (is_date OR is_aware OR is_naive)) AS invalid_count,
+                    COUNT(*) FILTER (WHERE is_date) AS date_count,
+                    COUNT(*) FILTER (WHERE is_aware) AS aware_count,
+                    COUNT(*) FILTER (WHERE is_naive) AS naive_count,
+                    arg_min(norm_value, TRY_CAST(norm_value AS TIMESTAMP)) FILTER (WHERE is_date) AS date_start,
+                    arg_max(norm_value, TRY_CAST(norm_value AS TIMESTAMP)) FILTER (WHERE is_date) AS date_end,
+                    arg_min(value, TRY_CAST(value AS TIMESTAMPTZ)) FILTER (WHERE is_aware) AS aware_start,
+                    arg_max(value, TRY_CAST(value AS TIMESTAMPTZ)) FILTER (WHERE is_aware) AS aware_end,
+                    arg_min(value, TRY_CAST(value AS TIMESTAMP)) FILTER (WHERE is_naive) AS naive_start,
+                    arg_max(value, TRY_CAST(value AS TIMESTAMP)) FILTER (WHERE is_naive) AS naive_end
+                FROM capture_measured
+                GROUP BY snapshot_id, capture_table, capture_source
+            ),
+            capture_source_class AS (
+                SELECT
+                    c.*,
+                    COALESCE(t.source_rows, c.value_count) AS source_rows,
+                    CASE
+                        WHEN invalid_count > 0 THEN 'invalid'
+                        WHEN (CASE WHEN date_count > 0 THEN 1 ELSE 0 END
+                              + CASE WHEN aware_count > 0 THEN 1 ELSE 0 END
+                              + CASE WHEN naive_count > 0 THEN 1 ELSE 0 END) > 1 THEN 'mixed'
+                        WHEN date_count > 0 THEN 'date'
+                        WHEN aware_count > 0 THEN 'timestamp'
+                        WHEN naive_count > 0 THEN 'timestamp_without_timezone'
+                        ELSE 'unknown'
+                    END AS measured_precision,
+                    CASE
+                        WHEN date_count > 0 THEN date_start
+                        WHEN aware_count > 0 THEN aware_start
+                        WHEN naive_count > 0 THEN naive_start
+                        ELSE NULL
+                    END AS start_text,
+                    CASE
+                        WHEN date_count > 0 THEN date_end
+                        WHEN aware_count > 0 THEN aware_end
+                        WHEN naive_count > 0 THEN naive_end
+                        ELSE NULL
+                    END AS end_text
+                FROM capture_agg c
+                LEFT JOIN source_totals t
+                  ON t.snapshot_id = c.snapshot_id
+                 AND t.capture_table = c.capture_table
+            ),
+            capture_summary AS (
+                SELECT
+                    snapshot_id,
+                    SUM(value_count) AS capture_value_count,
+                    MAX(value_count) AS max_source_values,
+                    COUNT(DISTINCT capture_source) AS capture_source_count,
+                    MAX(CASE WHEN measured_precision IN
+                        ('date','timestamp','timestamp_without_timezone')
+                        THEN 0 ELSE 1 END) AS has_bad_source,
+                    MAX(CASE WHEN measured_precision IN
+                        ('date','timestamp','timestamp_without_timezone')
+                        AND invalid_count = 0
+                        AND value_count >= source_rows
+                        THEN 1 ELSE 0 END) AS has_complete_source,
+                    COUNT(DISTINCT CASE WHEN measured_precision IN
+                        ('date','timestamp','timestamp_without_timezone')
+                        THEN measured_precision || '|' || start_text || '|' || end_text
+                        ELSE NULL END) AS interval_count,
+                    arg_min(capture_source, {priority}) AS chosen_source,
+                    arg_min(start_text, {priority}) AS chosen_start,
+                    arg_min(end_text, {priority}) AS chosen_end,
+                    arg_min(measured_precision, {priority}) AS chosen_precision
+                FROM capture_source_class
                 GROUP BY snapshot_id
+            ),
+            parsed_summary AS (
+                SELECT
+                    snapshot_id,
+                    COUNT(DISTINCT device_name) AS device_count,
+                    COUNT(*) AS row_count
+                FROM parsed
+                GROUP BY snapshot_id
+            ),
+            clock_rows AS (
+                SELECT snapshot_id, 'ingest' AS clock_field,
+                       ingested_text AS raw_text
+                FROM parsed
+                UNION ALL
+                SELECT snapshot_id, 'update' AS clock_field,
+                       updated_text AS raw_text
+                FROM parsed
+            ),
+            clock_kind AS (
+                SELECT
+                    snapshot_id,
+                    clock_field,
+                    raw_text,
+                    CASE
+                        WHEN raw_text IS NULL OR TRIM(raw_text) = '' THEN NULL
+                        WHEN regexp_full_match(raw_text, '{_DATE_RE}')
+                         AND TRY_CAST(raw_text AS DATE) IS NOT NULL THEN 'date'
+                        WHEN regexp_full_match(raw_text, '{_AWARE_RE}')
+                         AND TRY_CAST(raw_text AS TIMESTAMPTZ) IS NOT NULL THEN 'aware'
+                        WHEN regexp_full_match(raw_text, '{_NAIVE_RE}')
+                         AND TRY_CAST(raw_text AS TIMESTAMP) IS NOT NULL THEN 'naive'
+                        ELSE 'invalid'
+                    END AS kind
+                FROM clock_rows
+            ),
+            clock_measured AS (
+                SELECT
+                    snapshot_id,
+                    clock_field,
+                    kind,
+                    -- Dates keep date text; offset-aware values are rendered as
+                    -- the same instant in UTC instead of losing the offset.
+                    -- The cast keeps any valid fractional seconds, so the text
+                    -- form stays consistent with ``order_ts``.
+                    CASE kind
+                        WHEN 'date' THEN substr(raw_text, 1, 10)
+                        WHEN 'aware' THEN replace(CAST(
+                            CAST(raw_text AS TIMESTAMPTZ) AT TIME ZONE 'UTC'
+                            AS VARCHAR), ' ', 'T')
+                        ELSE replace(raw_text, ' ', 'T')
+                    END AS norm_text,
+                    CASE kind
+                        WHEN 'date' THEN TRY_CAST(substr(raw_text, 1, 10) AS TIMESTAMP)
+                        WHEN 'aware' THEN CAST(
+                            CAST(raw_text AS TIMESTAMPTZ) AT TIME ZONE 'UTC' AS TIMESTAMP)
+                        WHEN 'naive' THEN TRY_CAST(raw_text AS TIMESTAMP)
+                        ELSE NULL
+                    END AS order_ts
+                FROM clock_kind
+            ),
+            clock_summary AS (
+                SELECT
+                    snapshot_id,
+                    clock_field,
+                    COUNT(*) FILTER (WHERE kind IS NOT NULL) AS present,
+                    COUNT(*) FILTER (WHERE kind = 'invalid') AS invalid_count,
+                    COUNT(*) FILTER (WHERE kind = 'date') AS date_count,
+                    COUNT(*) FILTER (WHERE kind = 'aware') AS aware_count,
+                    COUNT(*) FILTER (WHERE kind = 'naive') AS naive_count,
+                    COUNT(DISTINCT kind) FILTER (
+                        WHERE kind IN ('date','aware','naive')) AS kind_count,
+                    MIN(order_ts) FILTER (
+                        WHERE kind IN ('date','aware','naive')) AS start_ts,
+                    MAX(order_ts) FILTER (
+                        WHERE kind IN ('date','aware','naive')) AS end_ts,
+                    arg_min(norm_text, order_ts) FILTER (
+                        WHERE kind IN ('date','aware','naive')) AS start_text,
+                    arg_max(norm_text, order_ts) FILTER (
+                        WHERE kind IN ('date','aware','naive')) AS end_text
+                FROM clock_measured
+                GROUP BY snapshot_id, clock_field
+            ),
+            clock_status AS (
+                SELECT
+                    c.snapshot_id,
+                    c.clock_field,
+                    c.present,
+                    CASE
+                        WHEN c.present = 0 THEN 'unknown'
+                        WHEN c.invalid_count > 0 THEN 'invalid'
+                        WHEN c.kind_count > 1 THEN 'conflict'
+                        WHEN c.present < p.row_count THEN 'partial'
+                        ELSE 'known'
+                    END AS clock_status,
+                    CASE
+                        WHEN c.present = 0 OR c.invalid_count > 0 THEN 'unknown'
+                        WHEN c.kind_count > 1 THEN 'mixed'
+                        WHEN c.date_count > 0 THEN 'date'
+                        WHEN c.aware_count > 0 THEN 'timestamp'
+                        WHEN c.naive_count > 0 THEN 'timestamp_without_timezone'
+                        ELSE 'unknown'
+                    END AS clock_precision,
+                    CASE
+                        WHEN c.present = 0 OR c.invalid_count > 0 THEN 'unknown'
+                        WHEN c.kind_count > 1 THEN 'mixed'
+                        WHEN c.date_count > 0 THEN 'date'
+                        WHEN c.aware_count > 0 THEN 'utc'
+                        WHEN c.naive_count > 0 THEN 'naive'
+                        ELSE 'unknown'
+                    END AS clock_clock,
+                    CASE
+                        WHEN c.present = 0 OR c.invalid_count > 0
+                          OR c.kind_count > 1 THEN NULL
+                        ELSE c.start_ts
+                    END AS clock_start,
+                    CASE
+                        WHEN c.present = 0 OR c.invalid_count > 0
+                          OR c.kind_count > 1 THEN NULL
+                        ELSE c.end_ts
+                    END AS clock_end,
+                    CASE
+                        WHEN c.present = 0 OR c.invalid_count > 0
+                          OR c.kind_count > 1 THEN NULL
+                        ELSE c.start_text
+                    END AS clock_start_text,
+                    CASE
+                        WHEN c.present = 0 OR c.invalid_count > 0
+                          OR c.kind_count > 1 THEN NULL
+                        ELSE c.end_text
+                    END AS clock_end_text
+                FROM clock_summary c
+                JOIN parsed_summary p USING (snapshot_id)
+            ),
+            enriched AS (
+                SELECT
+                    p.*,
+                    c.capture_value_count,
+                    c.max_source_values,
+                    c.capture_source_count,
+                    c.has_bad_source,
+                    c.has_complete_source,
+                    c.interval_count,
+                    c.chosen_source,
+                    c.chosen_start,
+                    c.chosen_end,
+                    c.chosen_precision,
+                    CASE
+                        WHEN c.capture_value_count IS NULL OR c.capture_value_count = 0 THEN 'unknown'
+                        WHEN c.has_bad_source > 0 THEN 'invalid'
+                        WHEN c.interval_count IS NULL OR c.interval_count <> 1 THEN 'conflict'
+                        WHEN c.has_complete_source = 0 THEN 'partial'
+                        ELSE 'known'
+                    END AS capture_status,
+                    CASE WHEN regexp_full_match(p.snapshot_id, '{_DATE_RE}')
+                         THEN p.snapshot_id ELSE NULL END AS capture_date_label
+                FROM parsed_summary p
+                LEFT JOIN capture_summary c USING (snapshot_id)
             )
             SELECT
-                snapshot_id,
-                COALESCE(
-                    min_ingested,
-                    CASE
-                        WHEN snapshot_id LIKE 'snap\\_%' ESCAPE '\\'
-                        THEN try_strptime(substr(snapshot_id, 6, 15), '%Y%m%d_%H%M%S')
-                        ELSE NULL
-                    END
-                ) AS captured_at,
-                COALESCE(
-                    max_ingested,
-                    CASE
-                        WHEN snapshot_id LIKE 'snap\\_%' ESCAPE '\\'
-                        THEN try_strptime(substr(snapshot_id, 6, 15), '%Y%m%d_%H%M%S')
-                        ELSE NULL
-                    END
-                ) AS finished_at,
+                e.snapshot_id,
+                CASE WHEN capture_status IN ('known','partial')
+                     THEN CASE WHEN chosen_precision = 'timestamp'
+                          THEN CAST(TRY_CAST(chosen_start AS TIMESTAMPTZ)
+                                    AT TIME ZONE 'UTC' AS TIMESTAMP)
+                          ELSE TRY_CAST(chosen_start AS TIMESTAMP) END
+                     ELSE NULL END AS captured_at,
+                CASE WHEN capture_status IN ('known','partial')
+                     THEN CASE WHEN chosen_precision = 'timestamp'
+                          THEN CAST(TRY_CAST(chosen_end AS TIMESTAMPTZ)
+                                    AT TIME ZONE 'UTC' AS TIMESTAMP)
+                          ELSE TRY_CAST(chosen_end AS TIMESTAMP) END
+                     ELSE NULL END AS finished_at,
+                CASE WHEN capture_status IN ('known','partial')
+                      AND chosen_start IS NOT NULL AND chosen_end IS NOT NULL
+                     THEN CASE WHEN chosen_precision = 'timestamp'
+                          THEN EPOCH(TRY_CAST(chosen_end AS TIMESTAMPTZ)
+                                     - TRY_CAST(chosen_start AS TIMESTAMPTZ))
+                          ELSE EPOCH(TRY_CAST(chosen_end AS TIMESTAMP)
+                                     - TRY_CAST(chosen_start AS TIMESTAMP)) END
+                     ELSE NULL END AS duration_s,
                 device_count,
                 row_count,
-                CASE
-                    WHEN min_ingested IS NOT NULL AND max_ingested IS NOT NULL
-                    THEN EPOCH(max_ingested - min_ingested)
-                    ELSE NULL
-                END AS duration_s
-            FROM derived
-            ORDER BY captured_at DESC NULLS LAST
+                CASE WHEN capture_status IN ('known','partial')
+                     THEN chosen_start ELSE NULL END AS capture_start,
+                CASE WHEN capture_status IN ('known','partial')
+                     THEN chosen_end ELSE NULL END AS capture_end,
+                CASE WHEN capture_status IN ('known','partial')
+                     THEN chosen_precision ELSE 'unknown' END AS capture_precision,
+                CASE WHEN capture_status IN ('known','partial')
+                     THEN chosen_source ELSE NULL END AS capture_source,
+                capture_status,
+                capture_date_label,
+                CASE WHEN capture_date_label IS NOT NULL
+                     THEN 'derived' ELSE 'unknown' END AS capture_date_label_status,
+                -- Ingestion and update clocks: UTC-normalised for aware
+                -- values, naive kept naive, mixed clocks never "known".
+                CASE WHEN i.clock_status IN ('known','partial')
+                     THEN i.clock_start END AS ingested_at,
+                CASE WHEN i.clock_status IN ('known','partial')
+                     THEN i.clock_start END AS ingest_start,
+                CASE WHEN i.clock_status IN ('known','partial')
+                     THEN i.clock_end END AS ingest_end,
+                CASE WHEN i.clock_status IN ('known','partial')
+                     THEN i.clock_start_text END AS ingest_start_text,
+                CASE WHEN i.clock_status IN ('known','partial')
+                     THEN i.clock_end_text END AS ingest_end_text,
+                COALESCE(i.clock_precision, 'unknown') AS ingest_precision,
+                COALESCE(i.clock_clock, 'unknown') AS ingest_clock,
+                COALESCE(i.clock_status, 'unknown') AS ingest_status,
+                CASE WHEN i.present > 0
+                     THEN 'parsed_outputs.ingested_at' ELSE NULL END AS ingest_source,
+                -- Single-valued record update = LATEST update, i.e. MAX
+                -- under the normalised precision/clock (u.clock_end / end_text
+                -- is MAX(order_ts)/arg_max).  Ingestion above keeps start/end.
+                CASE WHEN u.clock_status IN ('known','partial')
+                     THEN u.clock_end END AS record_updated_at,
+                CASE WHEN u.clock_status IN ('known','partial')
+                     THEN u.clock_end_text END AS record_update_text,
+                COALESCE(u.clock_precision, 'unknown') AS record_update_precision,
+                COALESCE(u.clock_clock, 'unknown') AS record_update_clock,
+                COALESCE(u.clock_status, 'unknown') AS record_update_status,
+                CASE WHEN u.present > 0
+                     THEN 'parsed_outputs.updated_at' ELSE NULL END AS record_update_source,
+                CAST(NULL AS TIMESTAMP) AS event_time,
+                'unknown' AS event_status
+            FROM enriched e
+            LEFT JOIN clock_status i
+              ON i.snapshot_id = e.snapshot_id AND i.clock_field = 'ingest'
+            LEFT JOIN clock_status u
+              ON u.snapshot_id = e.snapshot_id AND u.clock_field = 'update'
+            ORDER BY captured_at DESC NULLS LAST, e.snapshot_id
             """
         )
         n = con.execute("SELECT COUNT(*) FROM netops.v_snapshots_auto").fetchone()[0]
@@ -150,6 +620,145 @@ def build_snapshots_view(con: Any) -> dict[str, int]:
     except Exception as exc:
         logger.warning("build_snapshots_view failed: %s", exc)
         return {}
+
+
+def _snapshot_row_temporal(row: dict) -> dict:
+    """Translate one ``v_snapshots_auto`` row into the OW-058 time shape."""
+    from .query.temporal import unknown
+
+    status = row.get("capture_status")
+    if status in ("known", "partial") and row.get("capture_start"):
+        value = {
+            "value": row["capture_start"],
+            "precision": row.get("capture_precision") or "unknown",
+            "source": row.get("capture_source"),
+            "status": status,
+        }
+        if row.get("capture_end") and row["capture_end"] != row["capture_start"]:
+            value["range_start"] = row["capture_start"]
+            value["range_end"] = row["capture_end"]
+        return value
+    # Explicit provenance that is invalid/conflicting (or inconsistent with a
+    # usable window) must block the derived date-label fallback.  A bad
+    # collected_at is evidence of a problem, not permission to infer a date
+    # from the snapshot_id.
+    if status and status != "unknown":
+        return unknown(row.get("capture_source"), status)
+    if row.get("capture_date_label"):
+        return {
+            "value": row["capture_date_label"],
+            "precision": "date",
+            "source": "snapshot_id.date_label",
+            "status": "derived",
+        }
+    return unknown("v_snapshots_auto")
+
+
+def _read_snapshot_rows(con: Any, snapshot_ids: list[str] | None = None) -> list[dict]:
+    sql = "SELECT * FROM netops.v_snapshots_auto"
+    params: list[str] = []
+    if snapshot_ids is not None:
+        ids = list(dict.fromkeys(snapshot_ids))
+        if not ids:
+            return []
+        sql += " WHERE snapshot_id IN (" + ",".join("?" for _ in ids) + ")"
+        params.extend(ids)
+    cur = con.execute(sql, params)
+    cols = [c[0] for c in cur.description]
+    return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+
+def get_snapshot_temporal(con: Any, snapshot_id: str) -> dict:
+    """Capture provenance for an explicitly selected snapshot."""
+    from .query.temporal import unknown
+
+    rows = _read_snapshot_rows(con, [snapshot_id])
+    if not rows:
+        return {
+            "snapshot_id": snapshot_id,
+            "status": "missing",
+            "temporal": unknown("v_snapshots_auto", "missing"),
+        }
+    row = rows[0]
+    return {
+        "snapshot_id": snapshot_id,
+        "status": row.get("capture_status") or "unknown",
+        "temporal": _snapshot_row_temporal(row),
+    }
+
+
+def select_latest_snapshot(con: Any, *, snapshot_ids: list[str] | None = None) -> dict:
+    """Conservatively choose the newest snapshot by capture provenance.
+
+    Never orders by snapshot ID or import recency.  With more than one
+    candidate, every candidate needs a complete, comparable, non-overlapping
+    capture interval; otherwise the result is ``status='ambiguous'`` and the
+    caller must ask for an explicit ``snapshot_id``.  A single candidate may
+    still be used when its time is unknown/partial, but callers must not call
+    it "current".  ``snapshot_ids`` optionally restricts the candidates (for
+    example to snapshots that carry running-config rows).
+    """
+    from .query.temporal import interval, unknown
+
+    rows = _read_snapshot_rows(con, snapshot_ids)
+    requested = list(dict.fromkeys(snapshot_ids)) if snapshot_ids is not None else None
+    present = {r["snapshot_id"] for r in rows}
+    missing = [sid for sid in (requested or []) if sid not in present]
+    if missing:
+        # A candidate with no parsed/view row could be newer than every
+        # candidate we can see.  Dropping it would turn the remaining row into
+        # a false "single snapshot" fallback, so keep it as unknown and refuse
+        # to choose an implicit latest.
+        return {
+            "snapshot_id": None,
+            "status": "ambiguous",
+            "reason": "missing_candidate_metadata",
+            "temporal": unknown("v_snapshots_auto", "ambiguous"),
+            "candidates": sorted(set(requested or [])),
+            "missing_candidates": missing,
+        }
+    if not rows:
+        return {
+            "snapshot_id": None,
+            "status": "none",
+            "reason": "no_snapshot",
+            "temporal": unknown("v_snapshots_auto", "missing"),
+            "candidates": [],
+        }
+    if len(rows) == 1:
+        row = rows[0]
+        return {
+            "snapshot_id": row["snapshot_id"],
+            "status": "single",
+            "reason": "single_snapshot",
+            "temporal": _snapshot_row_temporal(row),
+            "candidates": [row["snapshot_id"]],
+        }
+
+    temporals = {r["snapshot_id"]: _snapshot_row_temporal(r) for r in rows}
+    intervals = {sid: interval(t) for sid, t in temporals.items()}
+    if all(intervals.values()):
+        for sid, candidate in intervals.items():
+            others = [v for k, v in intervals.items() if k != sid]
+            compatible = all(candidate[2] == v[2] for v in others)
+            if compatible and all(
+                (candidate[0] >= v[1] if candidate[2] == "date" else candidate[0] > v[1])
+                for v in others
+            ):
+                return {
+                    "snapshot_id": sid,
+                    "status": "ok",
+                    "reason": "latest_by_capture_time",
+                    "temporal": temporals[sid],
+                    "candidates": sorted(temporals),
+                }
+    return {
+        "snapshot_id": None,
+        "status": "ambiguous",
+        "reason": "ambiguous_snapshot_time",
+        "temporal": unknown("v_snapshots_auto", "ambiguous"),
+        "candidates": sorted(temporals),
+    }
 
 
 def build_l2_topology_view(con: Any) -> dict[str, int]:
@@ -638,7 +1247,10 @@ def finalise_ingest(con: Any) -> dict[str, Any]:
 
 
 __all__ = [
+    "build_snapshots_view",
     "build_l2_topology_view",
     "build_per_command_views",
     "finalise_ingest",
+    "get_snapshot_temporal",
+    "select_latest_snapshot",
 ]

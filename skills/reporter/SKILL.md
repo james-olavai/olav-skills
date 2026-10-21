@@ -72,6 +72,16 @@ requires_packages:
 - `netops.v_l2_links_auto`
 - `netops.v_show_logging_auto`
 
+## Bounded query templates first
+
+Use `execute_skill_script(skill_name="reporter", script_name="query_batch.py", arguments={"operation":"snapshot_summary","snapshot_id":"latest","devices":[]})` for supported metadata questions. Other operations: device_coverage, command_coverage, devices, commands, multi_device_summary, top_n, diff_summary, interface_health, bgp_health. `devices=[]` discovers within the server-bound project; do not loop over devices when one batch answers the question.
+
+Use the matching template first. If unsupported, say so; read only the relevant compact schema (`operation="context"`, capability metadata only) before a bounded read-only SQL fallback. Never silently drop vendor/snapshot/device/command filters. Sources with missing/unsupported columns are not healthy empty datasets. Inventory is not snapshot membership. Missing Junos canonical views does not imply absent underlying parsed records. Existing `query_topology` remains the adjacency entry point; do not duplicate it. Evidence reports use scoped `query_evidence`, not full config/raw-output dumps. See the shared query contract at parent `netops/references/batch_query.md` (standalone pack: `skills/netops/references/batch_query.md`), and the shared evidence-drilldown contract at parent `netops/references/evidence_query.md` (standalone pack: `skills/netops/references/evidence_query.md`) for the arguments each source actually accepts, per-source scope, paging continuation, character-budget omission, unknown-date exclusion, and failure/budget reporting.
+
+`query_evidence` takes `source`, `pattern`, `device`, `snapshot`, `commands`, `ids`, `date_from`/`date_to`, `page`/`offset`/`limit`; syslog rejects `commands`/`ids`; `search_logs` (platform core script) takes `query`, `hours`, `severity`, `host`, `page`, `limit`, `date_from`/`date_to` — no offset, command or ID aliases. Narrow only within the user's question: if a broad query cannot finish, report the partial/unfinished scope instead of silently narrowing it and claiming the result is exhaustive.
+
+
+
 # Reporter — investigation + blast-radius
 
 You read network state via SQL and evidence queries, emit a **Markdown report**.
@@ -171,6 +181,12 @@ writes it up — they do NOT keep querying "just in case". Do the same:
 - **Never re-run a query you've already run** (Batfish/SQL are deterministic;
   the answer won't change). If sim/`task` already answered the config-layer
   question, do NOT re-derive it in SQL — cite sim's verdict and move on.
+- **This count is a stopping rule, not the execution budget.** Timeout/memory,
+  permission, schema/SQL and missing-source failures keep their category and
+  unfinished scope; a failed query is never zero matches. Never raise or disable
+  a safety budget, never retry indefinitely or fall back to raw dumps. One
+  bounded corrective retry only for a real correctable argument/scope issue;
+  on a budget failure, stop and report (or ask for a smaller authorized scope).
 - **Routing config** (OSPF process / EIGRP AS / BGP ASN): get it with ONE
   `regexp_extract` per the `discover_routing_config_via_sql` guide. NEVER
   `SELECT raw_output` / `substr(raw_output…)` — that floods context and loops.
@@ -262,3 +278,10 @@ Rules: one sim call per question type · pass snapshot_id explicitly ·
 never ask sim to query DB (embed SQL state in the prompt) ·
 cite reply under `## Config-layer Findings (sim)`.
 
+
+
+## Recorded data time
+
+Cite snapshot ID and `temporal.collected_at` with its precision, source and status. A date label derived from a snapshot ID is an inference, not verified device capture. `ingested_at` and `record_updated_at` are separate clocks; neither proves collection time. Unknown or conflicting time must be reported as unknown. `latest` uses collection provenance and may return `ambiguous_snapshot_time`; choose an explicit snapshot instead of ordering IDs. CLI evidence `captured_at` is null without an explicit raw capture field (previous versions incorrectly exposed updated_at there). Time coverage describes the snapshot or returned records, never live network state or an arbitrary SQL result. Diff results carry separate source and target times.
+
+A `query_evidence` date filter (`date_from`/`date_to`) covers only candidate records whose collection date is known and inside the range. `date_unknown_candidates` / `date_exclusions` / `date_scope` disclose candidate records excluded *after the other metadata filters and before the date filter* because their collection time is unknown, invalid or conflicting. Those are candidate exclusions, not body-match counts; their bodies were not evaluated, and the helper does not expose their total, so never use `candidate_total + date_unknown_candidates` as a denominator. `total` and `total_is_complete` describe only the known-date predicate, not full time coverage of the store. `no_dated_candidates` means no candidate has a known date inside the range: if unknown-time exclusions exist, the date question is unanswered and it is wrong to report "no recorded evidence"; if there are none, known-dated records simply fall outside the range. Disclose unknown-time exclusions even when known-date matches exist. A page that is empty because `offset` is past `total` is a paging artifact, not an empty result set. Continue from `next_offset`/`page + 1` while `has_more`/`more pages` holds, keeping the same filters and snapshot; rows omitted by the character budget resume that way, but a shortened body is not fixed by paging. The shared `evidence_query.md` contract states the full paging, count-separation and failure rules.

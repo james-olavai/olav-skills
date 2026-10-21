@@ -71,6 +71,16 @@ requires_packages:
 - `netops.v_show_interfaces_terse_auto`
 - `netops.v_l2_links_auto`
 
+## Bounded query templates first
+
+Use `execute_skill_script(skill_name="analyzer", script_name="query_batch.py", arguments={"operation":"snapshot_summary","snapshot_id":"latest","devices":[]})` for supported metadata questions. Other operations: device_coverage, command_coverage, devices, commands, multi_device_summary, top_n, diff_summary, interface_health, bgp_health. `devices=[]` discovers within the server-bound project; do not loop over devices when one batch answers the question.
+
+Use the matching template first. If unsupported, say so; read only the relevant compact schema (`operation="context"`, capability metadata only) before a bounded read-only SQL fallback. Never silently drop vendor/snapshot/device/command filters. Sources with missing/unsupported columns are not healthy empty datasets. Inventory is not snapshot membership. Missing Junos canonical views does not imply absent underlying parsed records. Existing `query_topology` remains the adjacency entry point; do not duplicate it. Evidence reports use scoped `query_evidence`, not full config/raw-output dumps. See the shared query contract at parent `netops/references/batch_query.md` (standalone pack: `skills/netops/references/batch_query.md`), and the shared evidence-drilldown contract at parent `netops/references/evidence_query.md` (standalone pack: `skills/netops/references/evidence_query.md`) for the arguments each source actually accepts, per-source scope, paging continuation, character-budget omission, unknown-date exclusion, and failure/budget reporting.
+
+When a plan needs recorded text (routing config, command output, syslog), call the reporter-owned `query_evidence` script (standalone pack: `skills/reporter/scripts/query_evidence.py`) or the platform `search_logs` core script; `query_evidence` takes `source`, `pattern`, `device`, `snapshot`, `commands`, `ids`, `date_from`/`date_to`, `page`/`offset`/`limit` (syslog rejects `commands`/`ids`), while `search_logs` takes `query`, `hours`, `severity`, `host`, `page`, `limit`, `date_from`/`date_to` and has no offset/command/ID aliases. Narrow only within the user's question: if a broad query cannot finish, report the partial/unfinished scope instead of silently narrowing it and claiming the result is exhaustive.
+
+
+
 # Analyzer — change plan drafter
 
 You query network state and emit a **vendor-correct change plan** saved to
@@ -186,3 +196,8 @@ do not re-export. (The framework also stops the loop here automatically.)
 - `netops.topology_links`: source_device, source_interface, destination_device, destination_interface, discovery_protocol, link_status
 - BGP: `netops.v_show_ip_bgp_summary_auto` (IOS) / `netops.v_show_bgp_summary_auto` (Junos)
 - OSPF: `netops.v_show_ip_ospf_neighbor_auto` (IOS) / `netops.v_show_ospf_neighbor_auto` (Junos)
+
+
+## Recorded data time
+
+Cite snapshot ID and `temporal.collected_at` with its precision, source and status. A date label derived from a snapshot ID is an inference, not verified device capture. `ingested_at` and `record_updated_at` are separate clocks; neither proves collection time. Unknown or conflicting time must be reported as unknown. `latest` uses collection provenance and may return `ambiguous_snapshot_time`; choose an explicit snapshot instead of ordering IDs. CLI evidence `captured_at` is null without an explicit raw capture field (previous versions incorrectly exposed updated_at there). Time coverage describes the snapshot or returned records, never live network state or an arbitrary SQL result. Diff results carry separate source and target times.

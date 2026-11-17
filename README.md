@@ -13,20 +13,34 @@ is `olav_skills`, and its command is `olav-skills`. The former `olav` and
 
 Public source: [james-olavai/olav-skills](https://github.com/james-olavai/olav-skills).
 
-Use Python 3.11 or newer and install `olav-skills` 0.1.1 in a dedicated
-virtual environment:
+Use Python 3.11 or newer. Create and activate a dedicated environment, then
+install the package from PyPI:
 
 ```sh
-python3 -m venv /absolute/path/to/skills-venv
-/absolute/path/to/skills-venv/bin/python -m pip install olav-skills==0.1.1
-/absolute/path/to/skills-venv/bin/olav-skills version
-/absolute/path/to/skills-venv/bin/olav-skills doctor
-/absolute/path/to/skills-venv/bin/olav-skills list
+python3 -m venv ~/.venvs/olav-skills
+. ~/.venvs/olav-skills/bin/activate
+pip install olav-skills
 ```
 
-Alternatively, install a reviewed local wheel with
-`/absolute/path/to/skills-venv/bin/python -m pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl`
-after verifying its supplied SHA-256.
+Next, bind the bundled skills to your harness. Choose one:
+
+```sh
+olav-skills install --harness codex --scope user
+olav-skills install --harness claude-code --scope user
+olav-skills install --harness pi --scope user
+```
+
+Pip installs the Python tools and all seven skills. The binding command places
+those skills in the chosen harness's discovery directory and records this
+venv's interpreter; it does not download another package. No repository clone,
+manual skill copying or legacy package installation is needed. Keep this venv
+at its bound path. After `pip install --upgrade olav-skills`, repeat your binding
+command to refresh the harness's copied skills.
+
+The current published version is 0.1.1; use `pip install olav-skills==0.1.1` for
+an exact version. Checks are `olav-skills version`, `olav-skills doctor` and
+`olav-skills list`. Reviewed local wheels and source development are optional
+paths covered in the installation guide.
 
 The distribution includes the seven skills and a public synthetic example. Follow
 [installation](https://github.com/james-olavai/olav-skills/blob/main/docs/installation.md) for Codex, Claude Code and Pi; then run the

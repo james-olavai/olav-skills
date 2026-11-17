@@ -4,9 +4,9 @@ Olav Skills 为你已有的 AI 宿主提供网络领域知识，以及处理**�
 
 ## 从可复现结果开始
 
-1. [安装独立 Python 环境](installation.md)。确定性工具不需要模型密钥。
+1. [通过 pip 安装并绑定 harness](installation.md)。确定性工具不需要模型密钥。
 2. [运行完整离线示例](offline-data.md)。示例核对 R1/R2 精确设备集合、一条已记录 CDP 链路及 R1 证据片段，再生成图表和报告。
-3. [绑定已有 AI 宿主](harnesses.md)，也可以继续直接传入 stdin JSON。技能发现、脚本执行、模型回答分别需要验证。
+3. [检查宿主技能发现](harnesses.md)，也可以继续直接传入 stdin JSON。技能发现、脚本执行、模型回答分别需要验证。
 4. 从独立 Collector 产品取得经授权审阅的采集包，在新的分析根目录导入。
 
 ```mermaid

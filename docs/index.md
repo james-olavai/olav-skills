@@ -4,9 +4,9 @@ Olav Skills gives your existing AI harness network knowledge and deterministic P
 
 ## Start with a reproducible result
 
-1. [Install a dedicated Python environment](installation.md). No model key is required for deterministic tools.
+1. [Install with pip and bind your harness](installation.md). No model key is required for deterministic tools.
 2. [Run the complete offline example](offline-data.md). It checks the exact device set R1/R2, one recorded CDP link and an R1 evidence fragment, then writes a diagram and report.
-3. [Bind your harness](harnesses.md), or keep using stdin JSON directly. Skill discovery, script execution and model answers have separate validation requirements.
+3. [Check harness discovery](harnesses.md), or keep using stdin JSON directly. Skill discovery, script execution and model answers have separate validation requirements.
 4. Transfer a reviewed, authorized capture from the separate Collector product and import it into a new analysis root.
 
 ```mermaid

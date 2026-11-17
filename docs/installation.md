@@ -1,34 +1,60 @@
-# Install and bind standard skills
+# Install Olav Skills with pip
 
-This guide covers version `0.1.1` of the single `olav-skills` distribution.
-It has its own distribution history and does not follow the legacy platform's
-semantic version.
+Install the single **`olav-skills`** package from PyPI, then bind its bundled
+skills to your harness. The package contains the Python tools and all seven
+skills. You do not need to clone a repository, copy skill folders by hand or
+install the retired `olav` / `olav-netops` packages.
 
-Use Python 3.11 or newer and a dedicated virtual environment:
-
-```sh
-python3 -m venv /absolute/path/to/skills-venv
-/absolute/path/to/skills-venv/bin/python -m pip install olav-skills==0.1.1
-/absolute/path/to/skills-venv/bin/olav-skills version
-/absolute/path/to/skills-venv/bin/olav-skills doctor
-/absolute/path/to/skills-venv/bin/olav-skills list
-```
-
-For a reviewed local wheel, verify its supplied SHA-256 and replace the install
-command with:
+Use Python 3.11 or newer. Create and activate a dedicated environment first
+(the following examples use a POSIX shell):
 
 ```sh
-/absolute/path/to/skills-venv/bin/python -m pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
+python3 -m venv ~/.venvs/olav-skills
+. ~/.venvs/olav-skills/bin/activate
 ```
 
-For source development, `python -m pip install .` remains available, but release
-verification must use the wheel in a fresh, non-editable environment. The wheel
-contains deterministic Python code plus all seven standard skill directories;
-it does not depend on `olav`, `olav-netops`, DeepAgents or LangGraph. The eight
-third-party dependencies are declared in `pyproject.toml`. No `.env` is loaded
-by the CLI; it does not configure models or run agent sessions.
+## 1. Install the package
 
-## Harness discovery layout
+```sh
+pip install olav-skills
+```
+
+The current published version is **0.1.1**. To reproduce that exact version,
+use `pip install olav-skills==0.1.1` instead. Run subsequent commands in this
+same activated environment.
+
+## 2. Bind the skills to your harness
+
+Choose the command for the harness you use:
+
+```sh
+# Codex
+olav-skills install --harness codex --scope user
+
+# Claude Code
+olav-skills install --harness claude-code --scope user
+
+# Pi
+olav-skills install --harness pi --scope user
+```
+
+This step places the bundled skills in the harness's discovery directory and
+binds them to this environment's Python interpreter. It does not download a
+second package. `pip install` alone does not register skills with a harness.
+Keep this environment at its current path; refresh the harness session if
+needed to discover the skills.
+
+Check the installation, then follow the [offline data walkthrough](offline-data.md):
+
+```sh
+olav-skills version
+olav-skills doctor
+olav-skills list
+```
+
+The CLI does not load `.env`, configure a model or run an agent session.
+
+## Project scope and discovery layout
 
 Bind an existing project explicitly, or select user scope explicitly:
 
@@ -72,13 +98,23 @@ partway through may leave some skills upgraded; rerunning is safe.
 
 ## Upgrade and remove
 
-For each of the three harnesses, install a reviewed replacement wheel into a
-new dedicated venv, run `version`/`doctor`, then repeat that harness's original
-`install` command from the new venv. Keep the scope root identical. Version and
-Python path are refreshed only for unchanged, installer-owned skill directories.
-A moved venv also requires reinstalling the bindings. Preserve the previous
-venv until validation completes so it can reinstall its own matching resources.
-The wheel install alone does not update already copied skills.
+Upgrade through pip in the same activated environment, then repeat your
+harness binding command. For example, for Codex:
+
+```sh
+pip install --upgrade olav-skills
+olav-skills install --harness codex --scope user
+```
+
+For Claude Code or Pi, repeat the corresponding command from step 2. The pip
+upgrade alone does not refresh skills already copied to discovery directories.
+Keep the original scope root. Only unchanged, installer-owned skill directories
+are refreshed; preserve and review any local modifications first.
+
+For a staged upgrade, install the desired package version in a new dedicated
+venv, check it, then bind from that environment to the same scope root. Retain
+the previous venv until validation completes. Moving a venv also requires
+rebinding from its new interpreter.
 
 When a same-name directory is unowned, edited or has extra files, stop and review
 its contents. Back it up or move that exact directory outside the discovery tree,
@@ -142,3 +178,19 @@ successful doctor is not evidence of correct business answers or valid data.
   This package does not load `.env`; models and their credentials belong to the
   host harness. Direct script execution has process filesystem permissions and
   is not a sandbox. Import and artifact creation write files.
+
+## Optional: offline installation and source development
+
+For an offline or reviewed-artifact installation, verify the supplied SHA-256
+and install the local wheel **instead of** the PyPI command in step 1:
+
+```sh
+pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
+```
+
+Its dependencies must also be available in your offline environment. Bind the
+harness as in step 2. A wheel contains the same Python code and seven skills.
+Source contributors can use `python -m pip install .` from a checkout; this is
+not required for normal installation. Release verification uses a fresh,
+non-editable wheel environment. Dependencies are declared in `pyproject.toml`;
+there is no dependency on DeepAgents or LangGraph.

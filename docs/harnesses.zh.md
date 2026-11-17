@@ -2,6 +2,25 @@
 
 技能是供宿主发现的文件，说明何时使用某项能力，以及如何调用确定性脚本。它不会创建代理进程、注册 MCP 服务、选择模型或授予执行权限。
 
+
+## 先 pip 安装，再绑定
+
+在已激活的独立 Python 环境中，只需安装一次包：
+
+```sh
+pip install olav-skills
+```
+
+然后按所用 harness 选择对应命令：
+
+```sh
+olav-skills install --harness codex --scope user
+olav-skills install --harness claude-code --scope user
+olav-skills install --harness pi --scope user
+```
+
+只执行匹配的绑定命令即可。它使用包内已有的七个技能并记录解释器路径，无需再次下载或手动复制。pip 安装本身不会让 harness 自动发现技能。环境准备和项目范围安装见[安装指南](installation.md)。
+
 ## 三种交接方式
 
 | 方式 | 交付内容 | 宿主仍需提供 |

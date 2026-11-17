@@ -1,24 +1,50 @@
-# 安装并绑定标准技能
+# 通过 pip 安装 Olav Skills
 
-本指南针对单一发行包 `olav-skills` **0.1.1**，已发布到 PyPI。其版本历史独立于旧平台。使用 Python 3.11 或更新版本及独立虚拟环境：
+从 PyPI 安装唯一的 **`olav-skills`** 包，再绑定到所用 harness。包内已包含 Python 工具和全部七个技能，普通安装不需要克隆仓库、手动复制技能目录，也不需要安装已退役的 `olav`、`olav-netops`。
 
-```sh
-python3 -m venv /absolute/path/to/skills-venv
-/absolute/path/to/skills-venv/bin/python -m pip install olav-skills==0.1.1
-/absolute/path/to/skills-venv/bin/olav-skills version
-/absolute/path/to/skills-venv/bin/olav-skills doctor
-/absolute/path/to/skills-venv/bin/olav-skills list
-```
-
-也可以在核对提供的 SHA-256 后安装审阅过的本地 wheel：
+使用 Python 3.11 或更新版本。先创建并激活独立环境，以下示例使用 POSIX shell：
 
 ```sh
-/absolute/path/to/skills-venv/bin/python -m pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
+python3 -m venv ~/.venvs/olav-skills
+. ~/.venvs/olav-skills/bin/activate
 ```
 
-源码开发可用 `python -m pip install .`，发行验证则应在新环境非 editable 安装构建产物。wheel 同时包含确定性代码及七个标准技能目录，不依赖 `olav`、`olav-netops`、DeepAgents 或 LangGraph。依赖项由 `pyproject.toml` 声明。CLI 不加载 `.env`，不配置模型，也不运行代理会话。
+## 第一步：安装包
 
-## 宿主发现布局
+```sh
+pip install olav-skills
+```
+
+当前发布版本为 **0.1.1**。需要固定版本复现时，改用 `pip install olav-skills==0.1.1`。后续命令均在同一个已激活环境中执行。
+
+## 第二步：绑定到所用 harness
+
+选择你使用的 harness，执行对应命令：
+
+```sh
+# Codex
+olav-skills install --harness codex --scope user
+
+# Claude Code
+olav-skills install --harness claude-code --scope user
+
+# Pi
+olav-skills install --harness pi --scope user
+```
+
+这一步将包内技能放入宿主发现目录，并绑定当前环境的 Python 解释器，不会再下载一套包。仅执行 `pip install` 不会自动向 harness 注册技能。请保留当前环境的路径，必要时按宿主要求刷新会话。
+
+检查安装后，继续[离线数据示例](offline-data.md)：
+
+```sh
+olav-skills version
+olav-skills doctor
+olav-skills list
+```
+
+CLI 不加载 `.env`，不配置模型，也不运行代理会话。
+
+## 项目范围与宿主发现布局
 
 显式选择项目或用户范围：
 
@@ -45,7 +71,16 @@ python3 -m venv /absolute/path/to/skills-venv
 
 ## 升级与移除
 
-将审阅过的新 wheel 安装到新 venv，运行 `version`/`doctor`，再从新环境重放原安装命令，范围根保持相同。只有未修改的安装器归属目录会刷新版本和 Python 路径。验证完成前保留旧 venv。单独更新 wheel 不会更新已复制技能。
+在同一个已激活环境中通过 pip 升级，再重放对应的绑定命令。例如 Codex：
+
+```sh
+pip install --upgrade olav-skills
+olav-skills install --harness codex --scope user
+```
+
+Claude Code 或 Pi 重放第二步中的对应命令。单独执行 pip 升级不会刷新已复制到发现目录的技能。保持原安装范围根；安装器只更新自己拥有且未被修改的技能目录，已有本地修改需先保存和审阅。
+
+需要分阶段验证升级时，可在新 venv 中安装目标版本、检查通过后，从新环境绑定到相同范围根；验证完成前保留旧 venv。移动 venv 后也需要从新解释器重新绑定。
 
 同名目录未归属、已编辑或多了文件时，先审阅备份；只将精确冲突目录移出发现树后再安装，不要删除整个 `.agents`、`.claude` 或 `.pi`。用户和项目范围可同时暴露同名技能，需核对实际生效配置并显式处理重复项。可编辑的归属元数据不是安全边界。
 
@@ -66,3 +101,13 @@ printf '%s' '{"sql":"SELECT hostname FROM netops.devices ORDER BY hostname"}' | 
 ## 常见问题
 
 依赖或资源缺失时核对绝对解释器并在独立环境重装；不要原地修现役旧环境。归属、绑定或本地修改冲突应保存后解决。技能不可见时核对宿主实际发现范围。数据库不对时检查 `OLAV_HOME`、继承覆盖项、导入 `db_path` 和解析报告。凭据不应进入 stdin、技能正文或日志；更多见[故障排查](troubleshooting.md)。
+
+## 可选：离线安装与源码开发
+
+离线或使用审阅过的发行物时，先核对提供的 SHA-256，再用本地 wheel **替代**第一步中的 PyPI 安装命令：
+
+```sh
+pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
+```
+
+离线环境也需备齐依赖。随后仍按第二步绑定 harness；wheel 包含相同的 Python 代码及七个技能。源码贡献者可在 checkout 中使用 `python -m pip install .`，普通用户无需这样安装。发行验证使用新环境中的非 editable wheel。依赖由 `pyproject.toml` 声明，不依赖 DeepAgents 或 LangGraph。

@@ -2,6 +2,28 @@
 
 Skills are files that a harness discovers. They describe when to use a capability and how to invoke its deterministic scripts. They do not create an agent process, register an MCP server, select a model or grant execution permissions.
 
+
+## Install with pip, then bind
+
+Install the package once in an activated dedicated Python environment:
+
+```sh
+pip install olav-skills
+```
+
+Then choose your harness:
+
+```sh
+olav-skills install --harness codex --scope user
+olav-skills install --harness claude-code --scope user
+olav-skills install --harness pi --scope user
+```
+
+Run only the matching binding command. It uses the seven skills already in the
+package and records the interpreter path; no second download or manual copy is
+needed. Pip installation alone does not make the harness discover the skills.
+See [installation](installation.md) for environment setup and project scope.
+
 ## Three different handoffs
 
 | Handoff | What it contains | What the host still supplies |

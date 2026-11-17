@@ -1,4 +1,4 @@
-name: Deploy Skills documentation
+name: Validate Skills documentation
 
 on:
   push:
@@ -19,11 +19,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: olav-docs-production
+  group: olav-docs-validation
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -34,9 +34,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
       - name: Install documentation dependencies
         run: python -m pip install -r requirements-docs.txt
       - name: Build standalone manual and compatibility routes
@@ -52,45 +49,10 @@ jobs:
               'run_id': os.environ['GITHUB_RUN_ID'],
           }) + '\n')
           PY
-      - name: Preserve deployable build
+      - name: Preserve validated build
         uses: actions/upload-artifact@v4
         with:
           name: olav-docs-${{ github.sha }}
           path: site/
           retention-days: 30
           if-no-files-found: error
-      - name: Check deployment credentials
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          test -n "$CLOUDFLARE_API_TOKEN" || { echo '::error::Configure CLOUDFLARE_API_TOKEN in repository Actions Secrets'; exit 1; }
-          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo '::error::Configure CLOUDFLARE_ACCOUNT_ID in repository Actions Secrets'; exit 1; }
-      - name: Deploy existing olav-docs Worker
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          WRANGLER_SEND_METRICS: 'false'
-        run: npx --yes wrangler@4.163.0 deploy --config wrangler.docs.toml --keep-vars
-      - name: Verify public release and key routes
-        run: |
-          python - <<'PY'
-          import json, os, time
-          from urllib.request import urlopen
-          base = 'https://docs.olavai.com'
-          for attempt in range(6):
-              try:
-                  with urlopen(base + '/docs-release.json?run=' + os.environ['GITHUB_RUN_ID'], timeout=20) as response:
-                      release = json.load(response)
-                  assert release['commit'] == os.environ['GITHUB_SHA'], 'Public release has not changed to this commit'
-                  break
-              except Exception:
-                  if attempt == 5:
-                      raise
-                  time.sleep(10)
-          for path in ['/', '/zh/', '/installation/', '/zh/installation/', '/harnesses/', '/offline-data/', '/search/search_index.json', '/sitemap.xml']:
-              with urlopen(base + path, timeout=20) as response:
-                  assert response.status == 200, path
-                  assert response.read(), path
-          print('Public release commit and key routes verified; full browser/legacy-anchor QA remains separate.')
-          PY

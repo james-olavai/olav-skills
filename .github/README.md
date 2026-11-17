@@ -1,44 +1,28 @@
-# Documentation build and Cloudflare deployment
+# Documentation validation and publication
 
-The maintained source is this repository's `docs/`. Production is deployed by
-**Cloudflare Workers Builds connected directly to GitHub**, using the existing
-Worker **olav-docs** and domain **https://docs.olavai.com/**. GitHub Actions only
-validates the build and preserves an artifact; it does not publish the site.
-No Cloudflare token or account ID is needed in GitHub Actions Secrets.
+The maintained source is this repository's `docs/`. GitHub Actions only runs
+its strict standalone builder and preserves an artifact; it does not deploy.
+No Cloudflare credentials are required in GitHub Actions Secrets.
 
-## Existing Worker connection migration
+Production keeps its existing Cloudflare Git connection to
+**james-olavai/olav-docs**, `main`, serving **https://docs.olavai.com/** through
+the existing **olav-docs** Worker. A reviewed static build from this repository
+is exported to that publication repository's **published-site/** directory.
+Its Wrangler config serves that directory; historical manual source there is
+not maintained. Do not change the Cloudflare connection or create another app.
 
-The existing Worker was still connected to `james-olavai/olav-docs` on
-2026-11-17. A successful push/build there can therefore keep publishing the
-historical platform manual. Pushing this repository cannot change that account
-setting. In the **existing olav-docs Worker → Settings → Builds**, change the
-Git repository/connection to:
+Build here with a separate Python environment:
 
-| Setting | Value |
-| --- | --- |
-| GitHub repository | `james-olavai/olav-skills` |
-| Production branch | `main` |
-| Root directory | Repository root (`/`) |
-| Build command | `python3 -m pip install -r requirements-docs.txt && python3 -B tools/build_docs.py` |
-| Deploy command | `npx --yes wrangler@4.163.0 deploy --config wrangler.docs.toml --keep-vars` |
+```sh
+python -m pip install -r requirements-docs.txt
+python -B tools/build_docs.py
+```
 
-Use Python 3.12 and Node 22 (at least 22.12) in the build environment. If the
-GitHub integration only has access to selected repositories, grant it access to
-`olav-skills`. Keep the existing Worker and custom domain; do not create a new
-application or change DNS. Save and trigger a production build. Its GitHub
-check should be **Workers Builds: olav-docs** on this repository's commit.
-Cloudflare build commands live in the account's Builds settings; this file does
-not change them automatically.
-
-Validate the actual public English/Chinese home and installation pages,
-harness setup, offline import, search, sitemap and old URL/anchor compatibility.
-A green GitHub Actions build is not evidence of deployment. A Cloudflare build
-on the old repository also does not prove that the new manual is live.
-
-The old `olav-docs` repository retains historical sources; its GitHub Actions
-deploy job is disabled. Its direct Cloudflare connection must be changed as
-above before it can be treated as retired from production. For rollback, use a
-previous deployment/version of this same Worker in the Cloudflare dashboard
-and check the public content; do not create another site or silently reconnect
-the old source. Build dependencies are ranges, so independent builds are not
-guaranteed byte-identical to earlier local artifacts.
+The publication repository's README defines the export, source-commit/file-hash
+manifest and review procedure. Never hand-edit generated HTML as another source.
+Push that publication repository to trigger Cloudflare's automatic production
+build. This repository's Actions success proves build validation only.
+After publication, check its **Workers Builds: olav-docs** commit, the live
+`/docs-release.json`, English/Chinese pages, installation, harness setup,
+offline import, search, sitemap and old URL/anchor compatibility. Build dependency
+ranges mean separate builds need not be byte-identical.

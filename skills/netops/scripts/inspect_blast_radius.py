@@ -16,11 +16,10 @@ def _find_project_root() -> Path:
     return Path.cwd()
 
 
-sys.path.insert(0, str(_find_project_root() / "src"))
 
 # Eager import to avoid asyncio.gather _ModuleLock deadlocks when
 # LangGraph runs multiple inspect_* tools in parallel.
-from olav_netops.sim import load_network_model
+from olav_skills.netops.sim import load_network_model
 
 
 def inspect_blast_radius(

@@ -114,7 +114,7 @@ referencing them:
 * `netops.bgp_sessions` / `netops.ospf_adjacencies` — ARCH-24 L3
   materialised tables, removed Round 70.  Use the views above.
 * `view_recipes_seed.yaml` monolith — split into per-protocol files
-  under `olav-netops/.olav/workspace/topology/recipes/builtin/`.
+  under `olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/`.
 * `auto_learn.py` batch learner — removed v0.21.0.  Invoke
   `netops/learner` (`learn_commands`) via the `/learn_cmd` skill for
   interactive parser learning.

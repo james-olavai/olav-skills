@@ -74,7 +74,7 @@ def draw_topology(
     if not db_path or db_path.startswith("<"):
         db_path = os.environ.get("OLAV_DB_PATH")
     if not db_path:
-        from olav.core.config import MAIN_DB_PATH
+        from olav_skills.core.config import MAIN_DB_PATH
         db_path = str(MAIN_DB_PATH)
 
     if not name_like and not center and not roles and not sites:
@@ -125,7 +125,7 @@ def draw_topology(
 
     # Resolve exports/diagrams/ under the project root.
     try:
-        from olav.core.config import get_paths_config
+        from olav_skills.core.config import get_paths_config
         root = get_paths_config().project_root
     except Exception:  # noqa: BLE001
         root = Path.cwd()

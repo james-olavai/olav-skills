@@ -1,0 +1,23 @@
+{
+  "schema": "olav.source-migration/v1",
+  "date": "2026-11-17",
+  "license": "LICENSE",
+  "source_authority": "legacy public netops workspace; ownership_manifest.yaml netops rule",
+  "portable_implementation": "native installed-package implementation; legacy scripts/skillpack/portable_profile.py catalog/link grammar reference only; no private adapter logic",
+  "workflows": [
+    {
+      "source": "olav-netops/.olav/workspace/netops/workflows/change_plan.workflow.yaml",
+      "destination": "skills/netops/workflows/change_plan.workflow.yaml",
+      "sha256": "17b380df1ba6ccbd9026d5c9ce0d9f6337692744f37dae681fe0026aacad56e0",
+      "transformation": "none; byte-exact copy"
+    },
+    {
+      "source": "olav-netops/.olav/workspace/netops/workflows/decommission_impact.workflow.yaml",
+      "destination": "skills/netops/workflows/decommission_impact.workflow.yaml",
+      "sha256": "2888d7876493227acb4f4d36f4eede790d71d1029f7823bc40279ae7cb7c4941",
+      "transformation": "none; byte-exact copy"
+    }
+  ],
+  "source_netops_revision": "36be4eca73c1f838593f829b7bc780b6f4c3edbd",
+  "license_sha256": "756363a0439470de50881f3d277e8042dbcf1afeea814aa694f9e26e0dcbcdb1"
+}

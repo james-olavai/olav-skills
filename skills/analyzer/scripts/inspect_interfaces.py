@@ -33,7 +33,7 @@ def _db_path() -> Path:
     if cwd_db.exists():
         return cwd_db
     try:  # the platform's own resolution (honours OLAV_HOME), when installed
-        from olav.core.config import MAIN_DB_PATH
+        from olav_skills.core.config import MAIN_DB_PATH
         if Path(MAIN_DB_PATH).exists():
             return Path(MAIN_DB_PATH)
     except Exception:  # noqa: BLE001
@@ -68,6 +68,7 @@ def _command_for(view: str) -> str:
 def inspect_interfaces(
     devices: list[str],
     include_unassigned: bool = False,
+    *, snapshot_id: str = "latest",
 ) -> dict[str, Any]:
     """
     Get per-interface IP / status / proto for the named devices.
@@ -102,6 +103,11 @@ def inspect_interfaces(
             "absent_sources": [{"view", "command"}, ...],  # not collected
         }``.
     """
+    from olav_skills.netops.core.query import warehouse as _warehouse
+    if _warehouse.configured():
+        return _warehouse.inspect_interfaces(devices, include_unassigned, snapshot_id=snapshot_id)
+    if snapshot_id != "latest":
+        return _warehouse.failure("INVALID_REQUEST", "snapshot_requires_candidate")
     db = _db_path()
     if not db.exists():
         return {
@@ -219,6 +225,12 @@ def inspect_interfaces(
         "unknown_devices": unknown_devices,
         "absent_sources": absent_sources,
     }
+
+
+from olav_skills.netops.core.query import warehouse as _candidate_warehouse
+
+if __name__ == "__main__" and _candidate_warehouse.configured():
+    _candidate_warehouse.candidate_main(inspect_interfaces)
 
 
 if __name__ == "__main__":

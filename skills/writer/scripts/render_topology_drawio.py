@@ -161,7 +161,7 @@ def _layout_tree(nodes: list[str], edges: list[tuple[str, str]]) -> dict[str, tu
 
     while remaining:
         root = max(
-            remaining,
+            sorted(remaining),
             key=lambda n: (len(adj.get(n, ())), -ord(n[0]) if n else 0),
         )
         # BFS from root, capturing depth per node.

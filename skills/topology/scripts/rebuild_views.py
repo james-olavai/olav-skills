@@ -7,7 +7,7 @@ from a pipeline. Pure SQL, zero LLM.
 2026-08-17: this script had been raising ``ImportError`` on **every** call,
 in both runtimes and against every published version — it imported
 ``build_all_views`` / ``build_one_view``, which R83.2 deleted from
-``olav_netops.core.view_builder`` along with the whole L1 recipe layer. The
+``olav_skills.netops.core.view_builder`` along with the whole L1 recipe layer. The
 import sat above the ``try``, so the failure was a traceback rather than the
 ``{"status": "error"}`` the caller expects. No test and no caller ever
 exercised it, which is why it stayed broken.
@@ -142,7 +142,7 @@ def rebuild_views(concept: str | None = None) -> dict[str, Any]:
         same thing as "there were no recipes".
     """
     import duckdb
-    from olav.core.config import MAIN_DB_PATH
+    from olav_skills.core.config import MAIN_DB_PATH
 
     con = duckdb.connect(str(MAIN_DB_PATH))
     try:

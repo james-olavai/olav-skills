@@ -96,7 +96,7 @@ def _validate_entry(entry: dict) -> tuple[bool, str]:
 
 def _user_recipes_dir() -> Path:
     try:
-        from olav.core.config import get_paths_config
+        from olav_skills.core.config import get_paths_config
         d = Path(get_paths_config().config_dir) / "recipes" / "user"
     except Exception:
         d = Path.home() / ".olav" / "config" / "recipes" / "user"
@@ -121,7 +121,7 @@ def save_recipe(recipe_yaml: str, force: bool = False) -> dict[str, Any]:
     import duckdb
     import yaml
     from datetime import UTC, datetime
-    from olav.core.config import MAIN_DB_PATH
+    from olav_skills.core.config import MAIN_DB_PATH
 
     try:
         parsed = yaml.safe_load(recipe_yaml)

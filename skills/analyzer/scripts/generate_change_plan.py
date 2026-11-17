@@ -38,7 +38,6 @@ def _find_root() -> Path:
     return Path.cwd()
 
 
-sys.path.insert(0, str(_find_root() / "src"))
 
 
 _DATE_TAIL_RE = re.compile(
@@ -85,7 +84,7 @@ def generate_change_plan(
     """
     import duckdb
 
-    from olav.core.config import MAIN_DB_PATH
+    from olav_skills.core.config import MAIN_DB_PATH
 
     db = Path(db_path or MAIN_DB_PATH)
 

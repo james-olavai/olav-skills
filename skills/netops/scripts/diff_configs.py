@@ -2,7 +2,7 @@
 """diff_configs — unified diff of raw CLI output between two snapshot_ids.
 
 The actual implementation lives in
-``olav_netops.core.diff.configs.diff_configs`` (per ADR-0007 R91
+``olav_skills.netops.core.diff.configs.diff_configs`` (per ADR-0007 R91
 Step 3). This script exposes it for subprocess / stdin-JSON invocation.
 """
 
@@ -22,9 +22,8 @@ def _find_project_root() -> Path:
     return Path.cwd()
 
 
-sys.path.insert(0, str(_find_project_root() / "src"))
 
-from olav_netops.core.diff.configs import diff_configs as _diff_configs_impl
+from olav_skills.netops.core.diff.configs import diff_configs as _diff_configs_impl
 
 
 def diff_configs(

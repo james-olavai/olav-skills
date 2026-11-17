@@ -13,13 +13,19 @@ from __future__ import annotations
 
 from typing import Any
 
-from olav_netops.sim import load_network_model
+from olav_skills.netops.core.query import warehouse as _warehouse
+
+
+def load_network_model(*args, **kwargs):
+    """Preserve the native loader injection point without eager model imports."""
+    from olav_skills.netops.sim import load_network_model as _load_network_model
+    return _load_network_model(*args, **kwargs)
 
 
 _FACT_FIELDS = ("platform", "loopback", "local_as", "mgmt_ip", "role")
 
 
-def inspect_devices(devices: list[str]) -> dict[str, Any]:
+def inspect_devices(devices: list[str], *, snapshot_id: str | None = None) -> dict[str, Any]:
     """
     Get consolidated facts for the named devices.
 
@@ -47,6 +53,10 @@ def inspect_devices(devices: list[str]) -> dict[str, Any]:
             "unknown_devices": [hostname, ...],         # not in inventory
         }``.
     """
+    if _warehouse.configured():
+        return _warehouse.inspect_devices(devices, snapshot_id=snapshot_id)
+    if snapshot_id is not None:
+        return _warehouse.failure("INVALID_REQUEST", "snapshot_requires_candidate")
     model = load_network_model()
     facts = model.facts
 
@@ -72,6 +82,12 @@ def inspect_devices(devices: list[str]) -> dict[str, Any]:
         "unknown_facts": unknown_facts,
         "unknown_devices": unknown_devices,
     }
+
+
+from olav_skills.netops.core.query import warehouse as _candidate_warehouse
+
+if __name__ == "__main__" and _candidate_warehouse.configured():
+    _candidate_warehouse.candidate_main(inspect_devices)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ from typing import Any
 
 def _resolve_source(command: str, vendor: str) -> str:
     """Return 'builtin' / 'user' / 'unknown' based on file existence."""
-    from olav_netops.core.recipe_files import builtin_recipes_dir, user_recipes_dir
+    from olav_skills.netops.core.recipe_files import builtin_recipes_dir, user_recipes_dir
 
     builtin = builtin_recipes_dir()   # None when this install ships none
     user = user_recipes_dir()
@@ -64,7 +64,7 @@ def list_recipes(concept: str | None = None) -> dict[str, Any]:
     """
     import duckdb
     import json as _json
-    from olav.core.config import MAIN_DB_PATH
+    from olav_skills.core.config import MAIN_DB_PATH
 
     con = duckdb.connect(str(MAIN_DB_PATH), read_only=True)
     try:

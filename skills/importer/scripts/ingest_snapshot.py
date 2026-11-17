@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """`ingest_snapshot` — land a portable bundle into raw_output_store.
 
-Wraps ``olav_netops.core.ingest.landing.ingest_snapshot``.  Defaults
+Wraps ``olav_skills.netops.core.ingest.landing.ingest_snapshot``.  Defaults
 ``db_path`` and ``staging_dir`` from the platform paths config so the
 agent does not have to plumb them.
 """
@@ -11,10 +11,14 @@ from pathlib import Path
 
 
 def ingest_snapshot(
-    path: str,
+    path: str | None = None,
     collection_source: str | None = None,
     host_platforms: dict[str, str] | None = None,
     db_path: str | None = None,
+    idempotency_key: str | None = None,
+    retry_postprocess: bool = False,
+    reconcile: bool = False,
+    observed_snapshot_id: str | None = None,
 ) -> dict:
     """Land an offline snapshot bundle into the netops DB.
 
@@ -56,14 +60,26 @@ def ingest_snapshot(
     import os
     from pathlib import Path
 
-    from olav.core.config import MAIN_DB_PATH, get_paths_config
-    from olav.core.ingest.bundle_reader import BundleReader
-    from olav_netops.core.ingest.landing import ingest_snapshot as _do_ingest
+    from olav_skills.core.config import MAIN_DB_PATH, get_paths_config
+    from olav_skills.core.ingest_connection import open_ingest_connection, _host_config
+    from olav_skills.core.ingest.bundle_reader import BundleReader
+    from olav_skills.netops.core.ingest.landing import ingest_snapshot as _do_ingest
 
-    effective_db_path = Path(
-        db_path
-        or os.environ.get("OLAV_DB_PATH")
-        or str(MAIN_DB_PATH)
+    from olav_skills.core.writer_host import configured_ingest_config, verify_entrypoint
+    configured_lake = configured_ingest_config() is not None
+    if configured_lake and (db_path is not None or os.environ.get("OLAV_DB_PATH")):
+        from olav_skills.core.ingest_connection import IngestConnectionError
+        raise IngestConnectionError("database override forbidden for configured ingest")
+    if configured_lake:
+        verify_entrypoint(__file__, role="importer/ingest_snapshot")
+        from olav_skills.netops.core.ingest.closure import ingest
+        return ingest(path, idempotency_key=idempotency_key,
+                      collection_source=collection_source, host_platforms=host_platforms,
+                      retry_postprocess=retry_postprocess, reconcile=reconcile, observed_snapshot_id=observed_snapshot_id)
+    if idempotency_key is not None or retry_postprocess or reconcile:
+        raise ValueError("closure controls require configured DuckLake ingest")
+    effective_db_path = None if configured_lake else Path(
+        db_path or os.environ.get("OLAV_DB_PATH") or str(MAIN_DB_PATH)
     )
 
     # If caller omitted collection_source, derive from manifest.
@@ -78,13 +94,22 @@ def ingest_snapshot(
     paths = get_paths_config()
     staging_dir = paths.project_root / "exports" / "snapshots" / "json"
 
-    result = _do_ingest(
-        path,
-        db_path=effective_db_path,
-        staging_dir=staging_dir,
-        collection_source=collection_source,
-        host_platforms=host_platforms,
-    )
+    # The entry point owns the local connection and business transaction.
+    with open_ingest_connection(native_path=db_path) as conn:
+        conn.execute("BEGIN")
+        try:
+            result = _do_ingest(
+                path,
+                db_path=effective_db_path,
+                staging_dir=staging_dir,
+                collection_source=collection_source,
+                host_platforms=host_platforms,
+                conn=conn,
+            )
+            conn.execute("COMMIT")
+        except BaseException:
+            conn.execute("ROLLBACK")
+            raise
 
     # A bundle may carry TextFSM templates. Stage them for review; never
     # activate them here (dev_docs/122 §4). An arriving parser is well-formed
@@ -93,7 +118,7 @@ def ingest_snapshot(
     # silently.
     templates_report = None
     try:
-        from olav.core.ingest.templates import incoming_dir, install_from_bundle
+        from olav_skills.core.ingest.templates import incoming_dir, install_from_bundle
 
         staged = install_from_bundle(path, source_id=collection_source)
         if staged.rejected is not None:  # None => the bundle had no templates/
@@ -114,7 +139,8 @@ def ingest_snapshot(
         # working directory — and that middle clause means a stray `~/.olav` makes
         # every directory under `~` resolve to `~`. An import that does not say
         # which database it wrote leaves the reader to guess (dev_docs/129).
-        "db_path": str(effective_db_path),
+        "db_path": str(effective_db_path) if effective_db_path is not None else None,
+        "backend": "ducklake" if configured_lake else "duckdb",
         "bundle_id": result.bundle_id,
         "snapshot_id": result.snapshot_id,
         "bundle_sha256": result.bundle_sha256,
@@ -129,7 +155,7 @@ def ingest_snapshot(
         "parse_report": result.parse_report,
         "report_path": result.report_path,
         # None unless the bundle carried templates/. Staged, not installed —
-        # promote with olav.core.ingest.templates.promote().
+        # promote with olav_skills.core.ingest.templates.promote().
         "templates": templates_report,
     }
 
@@ -144,6 +170,16 @@ if __name__ == "__main__":
     # view_builder, topology_engine) logs progress to stdout.  Route that to
     # stderr so machine consumers can `json.loads(stdout)` reliably — the demo
     # e2e wrapper choked on log-polluted stdout for 4/5 bundles (dev_docs/93 #1).
-    with _ctx.redirect_stdout(_sys.stderr):
-        result = ingest_snapshot(**_args)
+    try:
+        with _ctx.redirect_stdout(_sys.stderr):
+            result = ingest_snapshot(**_args)
+    except Exception as _exc:
+        from olav_skills.netops.core.ingest.closure import ClosureError
+        from olav_skills.core.writer_host import WriterHostError
+        from olav_skills.core.pg_writer import PgWriterError
+        from olav_skills.core.ingest_connection import IngestConnectionError
+        result = {"status": "rejected", "error": {"code": _exc.code if isinstance(_exc, (ClosureError, WriterHostError, PgWriterError, IngestConnectionError)) else "INGEST_REQUEST_FAILED", "type": type(_exc).__name__}}
+        if isinstance(_exc, ClosureError) and _exc.task_id:
+            result["task_id"] = _exc.task_id
     print(_json.dumps(result, default=str))
+    _sys.exit(0 if result.get("status") in (None, "succeeded", "task_state") else 1)

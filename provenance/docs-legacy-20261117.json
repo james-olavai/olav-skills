@@ -1,0 +1,553 @@
+{
+  "source_repository": "https://github.com/james-olavai/olav-docs",
+  "source_head": "9aef12c75d8a003d21058c960ff42e26678af9c6",
+  "date": "2026-11-17",
+  "scope": "Public legacy documentation snapshot, preserved byte-for-byte. Display-only historical context is added by docs_hooks, never by rewriting original text.",
+  "files": [
+    {
+      "source": "docs/concepts/agent-harness.en.md",
+      "destination": "docs/legacy/concepts/agent-harness.en.md",
+      "sha256": "8de2f7dc57cd533b9dd5990bbfe17c56bf1f76b0cb3b466facdd9a33e46ae6c8"
+    },
+    {
+      "source": "docs/concepts/agent-harness.zh.md",
+      "destination": "docs/legacy/concepts/agent-harness.zh.md",
+      "sha256": "f9bb70c54ef67485280a643819fd5bd964919877cb9f0bafe7d4015cd5be8388"
+    },
+    {
+      "source": "docs/concepts/agents-and-skills.en.md",
+      "destination": "docs/legacy/concepts/agents-and-skills.en.md",
+      "sha256": "8f96407d0e0d074278daed8bbad26976d3fb6de83af4641998223fc623ce77ea"
+    },
+    {
+      "source": "docs/concepts/agents-and-skills.zh.md",
+      "destination": "docs/legacy/concepts/agents-and-skills.zh.md",
+      "sha256": "c2a1da508d189ca87b03a67a56f25ab1ee2e4ce1d0bdf9d75e9855eb87f5a0ee"
+    },
+    {
+      "source": "docs/concepts/context-budget-harness.en.md",
+      "destination": "docs/legacy/concepts/context-budget-harness.en.md",
+      "sha256": "56359df698f8157cd1b064e79b1469cf2543e7343458e61823883478f22eb3c2"
+    },
+    {
+      "source": "docs/concepts/context-budget-harness.zh.md",
+      "destination": "docs/legacy/concepts/context-budget-harness.zh.md",
+      "sha256": "48a1a648dec162e0a98e3e02d253b4d85dc0438702df5f568995e8c5027d8d82"
+    },
+    {
+      "source": "docs/concepts/continual-learning.en.md",
+      "destination": "docs/legacy/concepts/continual-learning.en.md",
+      "sha256": "2bcd9a972bb020db783ea723f5337ce36d7a81d0919799444bf767ebd9e16393"
+    },
+    {
+      "source": "docs/concepts/continual-learning.zh.md",
+      "destination": "docs/legacy/concepts/continual-learning.zh.md",
+      "sha256": "3a6e05477cf663a404f488420c239f793fd5c72d7eacbc03783f782243fd1cbd"
+    },
+    {
+      "source": "docs/concepts/enterprise-agentic.en.md",
+      "destination": "docs/legacy/concepts/enterprise-agentic.en.md",
+      "sha256": "f3cfdb911621d66939bdfb60b544a81e492f8484999b2f7ac51a1d33e077c7b3"
+    },
+    {
+      "source": "docs/concepts/enterprise-agentic.zh.md",
+      "destination": "docs/legacy/concepts/enterprise-agentic.zh.md",
+      "sha256": "1c78159a3868fd852aaae4e8f4079e460b9195af3dda53204f5ee74ae2f22a5f"
+    },
+    {
+      "source": "docs/concepts/human-in-the-loop.en.md",
+      "destination": "docs/legacy/concepts/human-in-the-loop.en.md",
+      "sha256": "55aeb139137c153efbab4d4a3ff4458f56ffa97fa25aefa921f3d4ef3d96db57"
+    },
+    {
+      "source": "docs/concepts/human-in-the-loop.zh.md",
+      "destination": "docs/legacy/concepts/human-in-the-loop.zh.md",
+      "sha256": "8ba01c7ecaf6040bd8e6831ad8fc1e77b887d765cf4421b74c9b09e6662cb3ff"
+    },
+    {
+      "source": "docs/concepts/memory-architecture.en.md",
+      "destination": "docs/legacy/concepts/memory-architecture.en.md",
+      "sha256": "26fb495d08bb4cbd8a9c458a02985086ec54980c9f723277020fb692ea848738"
+    },
+    {
+      "source": "docs/concepts/memory-architecture.zh.md",
+      "destination": "docs/legacy/concepts/memory-architecture.zh.md",
+      "sha256": "c32abb252768893d89c6d05bda6ede7c09c92ff114d1afc40224b704cbcf9b7e"
+    },
+    {
+      "source": "docs/concepts/security-model.en.md",
+      "destination": "docs/legacy/concepts/security-model.en.md",
+      "sha256": "41cfad7b739bd80ebbc8179edb2318b96d6b38dd5e74e52e3454913680e9540e"
+    },
+    {
+      "source": "docs/concepts/security-model.zh.md",
+      "destination": "docs/legacy/concepts/security-model.zh.md",
+      "sha256": "722e87122de385423c3b6ba68dff365bb317f9b874809ee0460d89a2d5b9e50f"
+    },
+    {
+      "source": "docs/concepts/self-improving-loop.en.md",
+      "destination": "docs/legacy/concepts/self-improving-loop.en.md",
+      "sha256": "3105d5290b66f7e762e9e1cadc75f3dd5504f33eefbbb4c8b179bbabbd093bc4"
+    },
+    {
+      "source": "docs/concepts/self-improving-loop.zh.md",
+      "destination": "docs/legacy/concepts/self-improving-loop.zh.md",
+      "sha256": "093cfb07c4d5c77987a74cae70ef8eaa589d1c238c9de9707f60690f28ecb164"
+    },
+    {
+      "source": "docs/getting-started/first-query.en.md",
+      "destination": "docs/legacy/getting-started/first-query.en.md",
+      "sha256": "902743b93e27860eccc573ad5bec4fc9e7974ad83ca6cc84405aaa3e23df0eeb"
+    },
+    {
+      "source": "docs/getting-started/first-query.zh.md",
+      "destination": "docs/legacy/getting-started/first-query.zh.md",
+      "sha256": "2e7b36834eddefed20314bbb510f16c036db4d618b7d74563ed46897fcb081c7"
+    },
+    {
+      "source": "docs/getting-started/how-it-works.en.md",
+      "destination": "docs/legacy/getting-started/how-it-works.en.md",
+      "sha256": "8a5c689c0102b6609ca9e696288672c3a37b7232e8922c7b1257bc17d9b3c2fa"
+    },
+    {
+      "source": "docs/getting-started/how-it-works.zh.md",
+      "destination": "docs/legacy/getting-started/how-it-works.zh.md",
+      "sha256": "3dc1a7eb747a413acbee56d6871615f70d611ddaa222deefb57f2b011b0539ae"
+    },
+    {
+      "source": "docs/getting-started/installation.en.md",
+      "destination": "docs/legacy/getting-started/installation.en.md",
+      "sha256": "4be40b882ef619469fc2e02e3147bbc83d94f98698605a8aa7c197f0ffb3da42"
+    },
+    {
+      "source": "docs/getting-started/installation.zh.md",
+      "destination": "docs/legacy/getting-started/installation.zh.md",
+      "sha256": "7fc5b52c0b78e759ac32bf2c3455f6f1e358a0f0490e014751e381ea0e7d38a3"
+    },
+    {
+      "source": "docs/guides/audit-and-logs.en.md",
+      "destination": "docs/legacy/guides/audit-and-logs.en.md",
+      "sha256": "4c01cf2f93be985fdd161168994e55e0cb9cd22c33f9f9bb1f4d9b99d7e13175"
+    },
+    {
+      "source": "docs/guides/audit-and-logs.zh.md",
+      "destination": "docs/legacy/guides/audit-and-logs.zh.md",
+      "sha256": "52b3eb49d2bca0c1183bd16086c65e37419eec214eba5805f9c8211c37e4edd3"
+    },
+    {
+      "source": "docs/guides/build-a-skill.en.md",
+      "destination": "docs/legacy/guides/build-a-skill.en.md",
+      "sha256": "aa4bda34ee62edfb135453c5a6749aad9175c0368cf40dd9503678b61474aabf"
+    },
+    {
+      "source": "docs/guides/build-a-skill.zh.md",
+      "destination": "docs/legacy/guides/build-a-skill.zh.md",
+      "sha256": "67606c39dbba8748fd87b902ed2bc444fe4ba1a13e1864801f9dc71cd658cdf8"
+    },
+    {
+      "source": "docs/guides/connect-a-service.en.md",
+      "destination": "docs/legacy/guides/connect-a-service.en.md",
+      "sha256": "5b9351b90b1dfedd684ddfac8873c277132175f7c3645fe001d9f8c60cab3399"
+    },
+    {
+      "source": "docs/guides/connect-a-service.zh.md",
+      "destination": "docs/legacy/guides/connect-a-service.zh.md",
+      "sha256": "10d1eff69ad8b666506da02900629e247648e462737d0a81bc6c54b861fb8803"
+    },
+    {
+      "source": "docs/guides/core-agent.en.md",
+      "destination": "docs/legacy/guides/core-agent.en.md",
+      "sha256": "0607d8981a976653df9cb33f55e3fc57271d62c16a93209a3e31c90f31251752"
+    },
+    {
+      "source": "docs/guides/core-agent.zh.md",
+      "destination": "docs/legacy/guides/core-agent.zh.md",
+      "sha256": "0ddea66937855cac91d2431f67be0dceff1e99178ac9ecae9ea84a3a724cc3c5"
+    },
+    {
+      "source": "docs/guides/creator-agent.en.md",
+      "destination": "docs/legacy/guides/creator-agent.en.md",
+      "sha256": "49fec8264c8a3bb1705f9eee6b10f647d8f073861f3e30707da36dc0d17f478d"
+    },
+    {
+      "source": "docs/guides/creator-agent.zh.md",
+      "destination": "docs/legacy/guides/creator-agent.zh.md",
+      "sha256": "52d7c4531ab79ef00a643a075540102cf0d2dd7ac891a19d34fced685baf7844"
+    },
+    {
+      "source": "docs/guides/extending-memory.en.md",
+      "destination": "docs/legacy/guides/extending-memory.en.md",
+      "sha256": "8325e07553faef66bbce5044200b2d5520a9323ffc8f04772309e441698f0af0"
+    },
+    {
+      "source": "docs/guides/extending-memory.zh.md",
+      "destination": "docs/legacy/guides/extending-memory.zh.md",
+      "sha256": "3a5d937f4a449ed6d046fd39778a560b477acfb42c10d90461f2003bc88bd70d"
+    },
+    {
+      "source": "docs/guides/knowledge-base.en.md",
+      "destination": "docs/legacy/guides/knowledge-base.en.md",
+      "sha256": "f8e52516459532ffabf317d0b2ad580cd779c84601c9cff59e209baafbe80634"
+    },
+    {
+      "source": "docs/guides/knowledge-base.zh.md",
+      "destination": "docs/legacy/guides/knowledge-base.zh.md",
+      "sha256": "f7b6b8341ea5893cac2edf43e26e397b781c3dbe90ba0956497869776a2a9cfd"
+    },
+    {
+      "source": "docs/guides/manage-workspace.en.md",
+      "destination": "docs/legacy/guides/manage-workspace.en.md",
+      "sha256": "36858ae42408db73a7aa4b9992861074370ab55afe798db58636e44934c9a63d"
+    },
+    {
+      "source": "docs/guides/manage-workspace.zh.md",
+      "destination": "docs/legacy/guides/manage-workspace.zh.md",
+      "sha256": "20ab86f8f69226d856bcc817187f4046eec71e51c1fb44ad914f73d2b4a531f5"
+    },
+    {
+      "source": "docs/guides/report-writer.en.md",
+      "destination": "docs/legacy/guides/report-writer.en.md",
+      "sha256": "3ade6d79562372e199cd97e939922e262a2c9df7612b829e157f421c35606449"
+    },
+    {
+      "source": "docs/guides/report-writer.zh.md",
+      "destination": "docs/legacy/guides/report-writer.zh.md",
+      "sha256": "836e4dcdd1d1a0ef3ceedcef83e4919098f6e37dc8be02920b89b4988d6beec6"
+    },
+    {
+      "source": "docs/guides/run-skills-with-any-agent.en.md",
+      "destination": "docs/legacy/guides/run-skills-with-any-agent.en.md",
+      "sha256": "ea47a57022f663076280c10a48fc04c80729f2aba5173dc1c215690ba770958a"
+    },
+    {
+      "source": "docs/guides/run-skills-with-any-agent.zh.md",
+      "destination": "docs/legacy/guides/run-skills-with-any-agent.zh.md",
+      "sha256": "ddb5f2704984c07304e22d7eb6eef0aa399a0522b70941e11a5e42bd13ca6402"
+    },
+    {
+      "source": "docs/guides/scheduling.en.md",
+      "destination": "docs/legacy/guides/scheduling.en.md",
+      "sha256": "d9cb77c57647ad3d6a4f75dc02e4143ad828fb226d7e684c23086635a3f386a1"
+    },
+    {
+      "source": "docs/guides/scheduling.zh.md",
+      "destination": "docs/legacy/guides/scheduling.zh.md",
+      "sha256": "3ac5ca72b4338449d5d0a8d8e572bc2f6023ff319a1fe2255301cd6ee5f48e1e"
+    },
+    {
+      "source": "docs/guides/self-configuration.en.md",
+      "destination": "docs/legacy/guides/self-configuration.en.md",
+      "sha256": "3de88f784f92c0b479310a7ff639592170fd84166c8cdcb80a3015d919744cc7"
+    },
+    {
+      "source": "docs/guides/self-configuration.zh.md",
+      "destination": "docs/legacy/guides/self-configuration.zh.md",
+      "sha256": "12981c90a28a15d214ab675e5e490045819f548974c95e885321e4158862f87e"
+    },
+    {
+      "source": "docs/guides/services.en.md",
+      "destination": "docs/legacy/guides/services.en.md",
+      "sha256": "5e6a325a0e358b43f6c27ea0b86d2c75f2812ade98ac6e2961d312047583243a"
+    },
+    {
+      "source": "docs/guides/services.zh.md",
+      "destination": "docs/legacy/guides/services.zh.md",
+      "sha256": "863731e75862c1ffaf9d8e35a2960d8e2d613138aacbe32461d33ff23e50a0bc"
+    },
+    {
+      "source": "docs/guides/using-agents.en.md",
+      "destination": "docs/legacy/guides/using-agents.en.md",
+      "sha256": "603b2a14b9472454adcd2186726ef4f763898d929c35827e68b4d24294b95adf"
+    },
+    {
+      "source": "docs/guides/using-agents.zh.md",
+      "destination": "docs/legacy/guides/using-agents.zh.md",
+      "sha256": "aff683d1ebf0b151e01205024863f83e3bd4c537e2e3d2346a46cc45e81bc2a5"
+    },
+    {
+      "source": "docs/guides/workflows.en.md",
+      "destination": "docs/legacy/guides/workflows.en.md",
+      "sha256": "aa89011ff2dcb6c569a33d91f0aca434d917a35c8f061356d8f227c8c26c32d6"
+    },
+    {
+      "source": "docs/guides/workflows.zh.md",
+      "destination": "docs/legacy/guides/workflows.zh.md",
+      "sha256": "b54fa754dfbaceeb773c9d14652a343850fb5ef6a120774a3cca0b353a102261"
+    },
+    {
+      "source": "docs/index.en.md",
+      "destination": "docs/legacy/index.en.md",
+      "sha256": "7fdefc3688b3d1071d5c0fb418780adb0b6503d7a8930114dfc5c24923b6c260"
+    },
+    {
+      "source": "docs/index.zh.md",
+      "destination": "docs/legacy/index.zh.md",
+      "sha256": "d9e7871882ae71bf3edfd96b838d783e2359e87104af601796778f0c1d81bccb"
+    },
+    {
+      "source": "docs/netops/audit-agent/index.en.md",
+      "destination": "docs/legacy/netops/audit-agent/index.en.md",
+      "sha256": "b57831358a87fb462ebd447038d1ddc86abbfd108fb49f9dcdb64b3ae23170ee"
+    },
+    {
+      "source": "docs/netops/audit-agent/index.zh.md",
+      "destination": "docs/legacy/netops/audit-agent/index.zh.md",
+      "sha256": "d33bcea4943633eb602b3d78889039b99461929c908a6103a75f6fbeb549f612"
+    },
+    {
+      "source": "docs/netops/concepts/configuration.en.md",
+      "destination": "docs/legacy/netops/concepts/configuration.en.md",
+      "sha256": "e227bcc1ef8c60f9087703249b90fdc64f978e08377b6362878195a1ef31438a"
+    },
+    {
+      "source": "docs/netops/concepts/configuration.zh.md",
+      "destination": "docs/legacy/netops/concepts/configuration.zh.md",
+      "sha256": "80cee501a218d3df2835265316ec7b983cc61af7bd464a97a0ce23f644c1ceaf"
+    },
+    {
+      "source": "docs/netops/concepts/database-schema.en.md",
+      "destination": "docs/legacy/netops/concepts/database-schema.en.md",
+      "sha256": "3efd13a97fee5dd1b166e9c0667bb3eae4880b68396a4755485d69e1cc73b9e7"
+    },
+    {
+      "source": "docs/netops/concepts/database-schema.zh.md",
+      "destination": "docs/legacy/netops/concepts/database-schema.zh.md",
+      "sha256": "f56a3c8fbe9412ceeb3c1159872f2d4a7bf7e62994408a1c56a8e42f383fa3b1"
+    },
+    {
+      "source": "docs/netops/concepts/extensibility.en.md",
+      "destination": "docs/legacy/netops/concepts/extensibility.en.md",
+      "sha256": "838f9a32b903baf83dc32ae24bacdd38830eabf386369ba18619907ae4191e0d"
+    },
+    {
+      "source": "docs/netops/concepts/extensibility.zh.md",
+      "destination": "docs/legacy/netops/concepts/extensibility.zh.md",
+      "sha256": "b8fef7d0d1edca18e2780399ccdf27ba80bd277f568df7baef6ce3d91d4d3927"
+    },
+    {
+      "source": "docs/netops/concepts/index.en.md",
+      "destination": "docs/legacy/netops/concepts/index.en.md",
+      "sha256": "c866224422e019638bf875011ccb5987e76a72d6a43340b78c9e7f8be69c6fc6"
+    },
+    {
+      "source": "docs/netops/concepts/index.zh.md",
+      "destination": "docs/legacy/netops/concepts/index.zh.md",
+      "sha256": "cb484d5c33017146f2affe7454026df5350a5519562f89379a35a1e6536a6b47"
+    },
+    {
+      "source": "docs/netops/core-agent/index.en.md",
+      "destination": "docs/legacy/netops/core-agent/index.en.md",
+      "sha256": "7bd128ff27746c06d06eba22abf49efa8e6f86723ac83e77a872545f93aeb40d"
+    },
+    {
+      "source": "docs/netops/core-agent/index.zh.md",
+      "destination": "docs/legacy/netops/core-agent/index.zh.md",
+      "sha256": "5109ca497cc4268e953e43280ef9eef465fb3c2c293ec5471b879d00b58e93cf"
+    },
+    {
+      "source": "docs/netops/devops-agent/index.en.md",
+      "destination": "docs/legacy/netops/devops-agent/index.en.md",
+      "sha256": "989dc55ab67e2aaef8a1dde12878ea7b27d3ec9d078064353daeb3b56d8ad531"
+    },
+    {
+      "source": "docs/netops/devops-agent/index.zh.md",
+      "destination": "docs/legacy/netops/devops-agent/index.zh.md",
+      "sha256": "1d5009ce4aab3fca23a8eee15e6fa223e1ebe7afce451cf79388c3398650b8b6"
+    },
+    {
+      "source": "docs/netops/infra-agent/index.en.md",
+      "destination": "docs/legacy/netops/infra-agent/index.en.md",
+      "sha256": "f774cbe6ac4afe6ac1bceb098f776a97020b2bf5983ca96b07dba5c5552ea1f8"
+    },
+    {
+      "source": "docs/netops/infra-agent/index.zh.md",
+      "destination": "docs/legacy/netops/infra-agent/index.zh.md",
+      "sha256": "c4c5d442eac075439d77fdc4aaee606c059bebb1e9b51303f2ed82204785d963"
+    },
+    {
+      "source": "docs/netops/netops-agent/analyzer.en.md",
+      "destination": "docs/legacy/netops/netops-agent/analyzer.en.md",
+      "sha256": "3f22e939e19f3243f5f9d4a82dbb138910db7e3f8c87668a36f28e63c85835dc"
+    },
+    {
+      "source": "docs/netops/netops-agent/analyzer.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/analyzer.zh.md",
+      "sha256": "c546d4fa8ed79e9444fdc1acf3b12f5358a60d3fd83a432e44de9f66c06df8d1"
+    },
+    {
+      "source": "docs/netops/netops-agent/collector.en.md",
+      "destination": "docs/legacy/netops/netops-agent/collector.en.md",
+      "sha256": "8a00ca0b5fad5018a27049a869ab105abcde2ea88502fdc483057211329df458"
+    },
+    {
+      "source": "docs/netops/netops-agent/collector.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/collector.zh.md",
+      "sha256": "440281773d76c8297d21923baf70c7dac34c6578bfed2f8d52c0e0bcb90219c6"
+    },
+    {
+      "source": "docs/netops/netops-agent/importer.en.md",
+      "destination": "docs/legacy/netops/netops-agent/importer.en.md",
+      "sha256": "7819f814cde3a4fb3df0e34dc3de5ce9c260d1c1fe21cdf7bc1911a0053a9484"
+    },
+    {
+      "source": "docs/netops/netops-agent/importer.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/importer.zh.md",
+      "sha256": "38b4e4d0d50790547ea30850399ad2a84e974e345ef7474e5f500488ffa5f1ff"
+    },
+    {
+      "source": "docs/netops/netops-agent/index.en.md",
+      "destination": "docs/legacy/netops/netops-agent/index.en.md",
+      "sha256": "efceb1881f6c42b1838fbbd6e747a48ee3b5d0de91b0577b1fd9551d085c858d"
+    },
+    {
+      "source": "docs/netops/netops-agent/index.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/index.zh.md",
+      "sha256": "7a5d2bb06983053585b5f312d4c41d18559c276cbeb3ccb03a982ffb465ecb22"
+    },
+    {
+      "source": "docs/netops/netops-agent/learner.en.md",
+      "destination": "docs/legacy/netops/netops-agent/learner.en.md",
+      "sha256": "86ded6de5492b0ff1fedd7594563d0e65c5aacd8d9c2b1b082d47ef9592100a7"
+    },
+    {
+      "source": "docs/netops/netops-agent/learner.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/learner.zh.md",
+      "sha256": "0b921c230e0e8dd897b4f216e3d6fd8759791230be967e8a2a864a048cb6fb6a"
+    },
+    {
+      "source": "docs/netops/netops-agent/simulator.en.md",
+      "destination": "docs/legacy/netops/netops-agent/simulator.en.md",
+      "sha256": "57d7a84a9245cc5314d1c671d43d6c55a72a78d3ff91d209c0d6cd06985593c3"
+    },
+    {
+      "source": "docs/netops/netops-agent/simulator.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/simulator.zh.md",
+      "sha256": "01ad099cc98e4839cdaabcad4c2744ffb04a80b9cdae4c131f213b5c00f31771"
+    },
+    {
+      "source": "docs/netops/netops-agent/topology.en.md",
+      "destination": "docs/legacy/netops/netops-agent/topology.en.md",
+      "sha256": "a20ee630e46442572033bac7517fea9436de2545eb11dabeb940d20c9a2f4949"
+    },
+    {
+      "source": "docs/netops/netops-agent/topology.zh.md",
+      "destination": "docs/legacy/netops/netops-agent/topology.zh.md",
+      "sha256": "0e74b2b87e01ab6887f36ae4899e603440267102c1fcd9016105522466276505"
+    },
+    {
+      "source": "docs/netops/nom/index.en.md",
+      "destination": "docs/legacy/netops/nom/index.en.md",
+      "sha256": "59e1dda686517427500dca201a7a0566adee594925a0d5f5009780d7e432608d"
+    },
+    {
+      "source": "docs/netops/nom/index.zh.md",
+      "destination": "docs/legacy/netops/nom/index.zh.md",
+      "sha256": "8e504939c70d29fd8ad8e1a23090e2cabc0b243dc85f7952f4289458c5ad596f"
+    },
+    {
+      "source": "docs/netops/quick-start/index.en.md",
+      "destination": "docs/legacy/netops/quick-start/index.en.md",
+      "sha256": "8c11075f4f31c8821615158d1b372346cd46efe964c88d96e9f22ba73f2f067f"
+    },
+    {
+      "source": "docs/netops/quick-start/index.zh.md",
+      "destination": "docs/legacy/netops/quick-start/index.zh.md",
+      "sha256": "896bd4ea5c0a92e6b3908b83c258c745947243b531de444c4e5ed8dbce60b11b"
+    },
+    {
+      "source": "docs/netops/services-agent/index.en.md",
+      "destination": "docs/legacy/netops/services-agent/index.en.md",
+      "sha256": "acc87f5f59e9ada23374671ba3212a4e8937f4900d42063549069d52aca9d91a"
+    },
+    {
+      "source": "docs/netops/services-agent/index.zh.md",
+      "destination": "docs/legacy/netops/services-agent/index.zh.md",
+      "sha256": "fbd9ebfccaf78b47658669678494022f79ce95a445f3da97c67a76becaf28ab3"
+    },
+    {
+      "source": "docs/reference/changelog.en.md",
+      "destination": "docs/legacy/reference/changelog.en.md",
+      "sha256": "663796a498f15433152069ae8027f7555746e6be30a0d6f0e2135fafb2c9c8fd"
+    },
+    {
+      "source": "docs/reference/changelog.zh.md",
+      "destination": "docs/legacy/reference/changelog.zh.md",
+      "sha256": "be9b7d8f4159c8ac1970cad99362ef3bb9a2b8eb6413b31e54c0bf93e08364c4"
+    },
+    {
+      "source": "docs/reference/claim-registry.en.md",
+      "destination": "docs/legacy/reference/claim-registry.en.md",
+      "sha256": "3c0ff771c9bcbf57e83998c768f88a2dcbe9e373ea1ea74241edbc31ff27a18a"
+    },
+    {
+      "source": "docs/reference/claim-registry.zh.md",
+      "destination": "docs/legacy/reference/claim-registry.zh.md",
+      "sha256": "3c8f8703be33d431152cf1c4bc448733f45706716a1fe27ecf732a5bece0e3a0"
+    },
+    {
+      "source": "docs/reference/cli.en.md",
+      "destination": "docs/legacy/reference/cli.en.md",
+      "sha256": "3f727a9153cdcee0a5293e9ddd658fef52d2295b40b3a179db99539d78199b26"
+    },
+    {
+      "source": "docs/reference/cli.zh.md",
+      "destination": "docs/legacy/reference/cli.zh.md",
+      "sha256": "52968ae3a13e52898710d6d3a20df0720ed51b2255be79e2aff8fa5a489b00be"
+    },
+    {
+      "source": "docs/reference/configuration.en.md",
+      "destination": "docs/legacy/reference/configuration.en.md",
+      "sha256": "79ba5e72ab5d6d8a6f01d6aff9aa10c62c714da5ccd485c9d20b583ed2630f66"
+    },
+    {
+      "source": "docs/reference/configuration.zh.md",
+      "destination": "docs/legacy/reference/configuration.zh.md",
+      "sha256": "4e9c1c7c7f6e0b77ce981cb29f0fb74fa8e894ed520b7a89ebef7f91d181f74c"
+    },
+    {
+      "source": "docs/reference/docker.en.md",
+      "destination": "docs/legacy/reference/docker.en.md",
+      "sha256": "500298f34a5e2fc41314cd3222b517588eb2d4a0ee5f6065d51197354f64bda7"
+    },
+    {
+      "source": "docs/reference/docker.zh.md",
+      "destination": "docs/legacy/reference/docker.zh.md",
+      "sha256": "22daf589b2053076d7428aea75d2b650e75b2f0b2b2e4c337280b7d4ad3f25fc"
+    },
+    {
+      "source": "docs/reference/glossary.en.md",
+      "destination": "docs/legacy/reference/glossary.en.md",
+      "sha256": "1507e643ec9c27a2128caf5f8a24b443f9542ae757387ddd6386bfa535a9eca5"
+    },
+    {
+      "source": "docs/reference/glossary.zh.md",
+      "destination": "docs/legacy/reference/glossary.zh.md",
+      "sha256": "2f6fea340ba39d533e66323d03ce146dbb7e02c899819047386e706e41fef3d4"
+    },
+    {
+      "source": "docs/reference/http-api.en.md",
+      "destination": "docs/legacy/reference/http-api.en.md",
+      "sha256": "9850820e6ab89c7920f8a4770d0d686e62703f53dac05522de7e9e0c7e50ffa1"
+    },
+    {
+      "source": "docs/reference/http-api.zh.md",
+      "destination": "docs/legacy/reference/http-api.zh.md",
+      "sha256": "1406dac5b94b6943505a12ddeed246b1e47114bfa5cff1fc66ad89975aeeacaf"
+    },
+    {
+      "source": "docs/reference/users-and-roles.en.md",
+      "destination": "docs/legacy/reference/users-and-roles.en.md",
+      "sha256": "2a95b5c0269b37f446c400eb062dfa0c15099416d704158a4c4cc6ef7796f021"
+    },
+    {
+      "source": "docs/reference/users-and-roles.zh.md",
+      "destination": "docs/legacy/reference/users-and-roles.zh.md",
+      "sha256": "5a5cfe318f29c1ef887b5f6e149f5184a421f971d75fb54565a8af6c0b72ca74"
+    }
+  ],
+  "retained_response_headers": {
+    "source": "docs/_headers",
+    "destination": "docs/_headers",
+    "sha256": "a665d9841bc1afff7f6a279f60ccc7b811614ee95dbac097ff75bd720db8099e"
+  }
+}

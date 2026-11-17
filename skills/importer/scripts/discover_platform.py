@@ -42,7 +42,7 @@ def discover_platform_for_host(host_dir: str) -> dict:
     Returns:
         Dict — see module docstring for shape.
     """
-    from olav.core.ingest.platform_discovery import discover_platform
+    from olav_skills.core.ingest.platform_discovery import discover_platform
 
     r = discover_platform(Path(host_dir))
     return {

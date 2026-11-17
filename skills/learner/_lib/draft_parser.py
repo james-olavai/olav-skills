@@ -192,30 +192,3 @@ def parse_response(text: str) -> tuple[str | None, str]:
     # Strip the marker line from the body so the parser source is clean.
     body = clean[:m.start()] + clean[m.end():]
     return dsl, body.strip()
-
-
-def draft_parser(
-    llm: Any,
-    platform: str,
-    command: str,
-    samples: list[dict[str, Any]],
-    structural_hints: str,
-    prev_code: str | None = None,
-    prev_error: str | None = None,
-) -> tuple[str | None, str]:
-    """Single LLM call → (dsl, source).
-
-    Returns (None, "") when the LLM is unavailable or the response
-    couldn't be parsed; caller should treat as failure + retry.
-    """
-    if llm is None:
-        return None, ""
-    prompt = build_prompt(platform, command, samples, structural_hints,
-                          prev_code=prev_code, prev_error=prev_error)
-    try:
-        response = llm.invoke(prompt)
-        text = response.content if hasattr(response, "content") else str(response)
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("draft_parser: LLM invoke failed: %s", exc)
-        return None, ""
-    return parse_response(text)

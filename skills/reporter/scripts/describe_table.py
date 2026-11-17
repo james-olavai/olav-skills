@@ -30,15 +30,13 @@ def _find_project_root() -> Path:
 
 
 _PROJECT_ROOT = _find_project_root()
-if str(_PROJECT_ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT / "src"))
 
 
 def _db_query(sql: str, params: tuple | None = None) -> list[dict[str, Any]]:
     """Thin DuckDB wrapper that matches execute_sql.db_query's semantics."""
     try:
         import duckdb
-        from olav.core.config import MAIN_DB_PATH
+        from olav_skills.core.config import MAIN_DB_PATH
     except Exception as exc:
         raise RuntimeError(f"describe_table bootstrap failed: {exc}") from exc
 

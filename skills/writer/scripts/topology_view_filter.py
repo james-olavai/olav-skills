@@ -64,7 +64,7 @@ def topology_view(
         or the filter result is zero rows — downstream renderers
         degrade gracefully to a "diagram omitted" note.
     """
-    from olav.core.topology.filter import (
+    from olav_skills.core.topology.filter import (
         build_adjacencies_view,
         build_device_metadata,
     )

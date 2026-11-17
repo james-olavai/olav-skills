@@ -31,10 +31,9 @@ def _find_project_root() -> Path:
     return Path.cwd()
 
 
-sys.path.insert(0, str(_find_project_root() / "src"))
 
 
-from olav.core.config import MAIN_DB_PATH
+from olav_skills.core.config import MAIN_DB_PATH
 
 
 def _get_device_platform(device_name: str) -> str | None:

@@ -27,7 +27,7 @@ def _safe_name(command: str) -> str:
 
 def _templates_dir() -> Path:
     try:
-        from olav.core.config import get_paths_config
+        from olav_skills.core.config import get_paths_config
         return Path(get_paths_config().agent_dir_path) / "templates"
     except Exception:
         return Path.home() / ".olav" / "templates"

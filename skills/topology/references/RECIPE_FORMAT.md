@@ -2,7 +2,7 @@
 
 Each recipe is a file under either:
 
-- `olav-netops/.olav/workspace/topology/recipes/builtin/<protocol>_<vendor>.yaml` (shipped)
+- `olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/<protocol>_<vendor>.yaml` (shipped)
 - `~/.olav/config/recipes/user/<protocol>_<vendor>.yaml` (user / LLM-drafted)
 
 ## Schema (top-level is a single-entry list for consistency with loader)
@@ -59,7 +59,7 @@ dynamic `custom_concepts` Pydantic container (no typed Literal enum).
 
 Recipes declare **which SOURCE field to use**; they do NOT encode canonical
 values. R83.2 moved canonicalization out of the view layer into
-`olav_netops.tools.field_normalizer`, applied when the output is parsed — so
+`olav_skills.netops.tools.field_normalizer`, applied when the output is parsed — so
 `parsed_outputs.parsed_data` already holds canonical states before any view
 reads it, and `rebuild_views` projects columns without rewriting values. A
 source field that still looks raw in the view was raw at ingest time; fix the

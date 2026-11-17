@@ -1,14 +1,9 @@
 ---
 name: writer
 description: Turns the model into something a person keeps — draws the topology to draw.io XML or Mermaid from a scoped adjacency query, and polishes an existing report under exports/ in place.
-allowed-tools:
-  - Bash
-  - Read
-  - Grep
-  - Glob
-requires_packages:
-  - olav>=0.28.0
-  - olav-netops>=0.28.0
+compatibility: Requires Python >=3.11 and the olav-skills Python distribution.
+metadata:
+  runtime: "olav-skills>=0.1.0"
 ---
 
 > **Calling convention in this pack.** These agents were written for the OLAV
@@ -38,8 +33,8 @@ requires_packages:
 > `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
 > connection, and anything mutating is **refused rather than executed** —
 > `status: "requires_approval"`, nothing written. It also caps how many rows reach
-> your context (the full result goes to a CSV under `exports/queries/` when it is
-> large). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
+> your context (an explicit `export_bounded=true` writes only the bounded preview to a
+> CSV under `exports/queries/`). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
 > when no syslog directory was copied along with the database.
 >
 > Tools named in the prose that this pack genuinely does not ship
@@ -185,6 +180,18 @@ it. Reply:
 > "I can only polish existing content or draw a topology diagram from the DB.
 >  `<requested new content>` requires the producing agent — please re-invoke
 >  analyzer with the appropriate request."
+
+## Static SVG from an existing adjacency table
+
+`render_topology_svg(adjacencies_table_markdown, protocol="l2_cdp")` is a pure
+format converter for an already authorized table, using the same column aliases
+as draw.io. Protocol is `l2_cdp`, `bgp`, or `ospf`. It returns a standalone inert
+SVG string; empty, malformed or over-budget input returns an HTML comment with
+`diagram omitted`. Treat that as an explicit omission, never as a valid diagram.
+Limits: 262144 UTF-8 table bytes, 300 nodes, 1000 edges, 256 characters per cell;
+the stdin JSON request is capped at 300000 bytes. No path, metadata, DB, network,
+or template options are accepted. This helper does not add a new DB read or a
+new `draw_topology` output format.
 
 ## Hard rules
 

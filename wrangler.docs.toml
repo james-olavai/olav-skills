@@ -1,0 +1,7 @@
+# Existing documentation app; this file does not deploy anything by itself.
+# Build first with tools/build_docs.py and review site/docs-build-manifest.json.
+name = "olav-docs"
+compatibility_date = "2024-09-23"
+
+[assets]
+directory = "./site"

@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from olav_netops.schemas import (
+from olav_skills.netops.schemas import (
     BGPSession,
     L2Link,
     OSPFAdjacency,
@@ -228,8 +228,11 @@ def query_topology(
         'FULL/DR' etc. for OSPF). Interface names keep their vendor canonical
         form (Junos ``ge-0/0/2.0``, Cisco ``Ethernet0/0``).
     """
+    from olav_skills.netops.core.query import warehouse as _warehouse
+    if _warehouse.configured():
+        return _warehouse.query_topology(concept, snapshot_id)
     import duckdb
-    from olav.core.config import MAIN_DB_PATH
+    from olav_skills.core.config import MAIN_DB_PATH
 
     con = duckdb.connect(str(MAIN_DB_PATH), read_only=True)
     try:
@@ -269,6 +272,12 @@ def query_topology(
         return out
     finally:
         con.close()
+
+
+from olav_skills.netops.core.query import warehouse as _candidate_warehouse
+
+if __name__ == "__main__" and _candidate_warehouse.configured():
+    _candidate_warehouse.candidate_main(query_topology)
 
 
 if __name__ == "__main__":

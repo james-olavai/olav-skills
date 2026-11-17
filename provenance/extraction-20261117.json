@@ -1,0 +1,1842 @@
+{
+  "schema": "olav-skills.source-extraction/v1",
+  "source_repository": "/home/yhvh/code/Olav",
+  "source_head": "36be4eca73c1f838593f829b7bc780b6f4c3edbd",
+  "profile": "native",
+  "pack": "olav-skills",
+  "transformation": "olav.core/tools/platform -> olav_skills; olav_netops -> olav_skills.netops; import/resource paths and plugin groups migrated; checkout src injection removed; standard Agent Skills frontmatter with compatibility and string metadata; on-disk .olav, OLAV_HOME and data schema identifiers unchanged; QA repair removes unused model/embedding/memory implementations and native priming/cache hooks, trims parser_learner to AST validator and learner drafting to deterministic prompt/response helpers",
+  "files": [
+    {
+      "destination": "src/olav_skills/core/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/core/config.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/config.py",
+      "generated_sha256": "d9d5008698b3ecbb022ee5ce881b36e88ea8617ecc49e7a7d730c04ec824c6a6",
+      "source": "/home/yhvh/code/Olav/src/olav/core/config.py",
+      "source_sha256": "d9d5008698b3ecbb022ee5ce881b36e88ea8617ecc49e7a7d730c04ec824c6a6",
+      "promoted_sha256": "77b7627d735726b9575698c5bbff1f7ade641bf265e3f29868d22d46cd7b9db1",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/config.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/db_write.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/db_write.py",
+      "generated_sha256": "1e01de185cb7978cf1f6b172441b057a733038bea77d949ee9075696f99c113e",
+      "source": "/home/yhvh/code/Olav/src/olav/core/db_write.py",
+      "source_sha256": "1e01de185cb7978cf1f6b172441b057a733038bea77d949ee9075696f99c113e",
+      "promoted_sha256": "3e1afd8758e3ed05c2bd4c3180bf9f81ac8a9f695b5a6df43171737365ffda91",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/db_write.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest/bundle_reader.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest/bundle_reader.py",
+      "generated_sha256": "160d6829543ac4c775ceb5e73ec7200964ea45cf2d880cc30f9fa504de64a176",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest/bundle_reader.py",
+      "source_sha256": "160d6829543ac4c775ceb5e73ec7200964ea45cf2d880cc30f9fa504de64a176",
+      "promoted_sha256": "160d6829543ac4c775ceb5e73ec7200964ea45cf2d880cc30f9fa504de64a176",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest/bundle_reader.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest/platform_discovery.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest/platform_discovery.py",
+      "generated_sha256": "d3a14127adb26a2b09e68370b3aba025b27e38a9e0fd2be1ab3c0d25c8578789",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest/platform_discovery.py",
+      "source_sha256": "d3a14127adb26a2b09e68370b3aba025b27e38a9e0fd2be1ab3c0d25c8578789",
+      "promoted_sha256": "b32ea8b3bce1544b310c483fdfa9914c2ad87f90928a51188490d8838b0eed7f",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest/platform_discovery.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest/schema.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest/schema.py",
+      "generated_sha256": "27368335fefeeb1706837e96745a2f94f08557b438c943472bfcfe2353c0a387",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest/schema.py",
+      "source_sha256": "27368335fefeeb1706837e96745a2f94f08557b438c943472bfcfe2353c0a387",
+      "promoted_sha256": "27368335fefeeb1706837e96745a2f94f08557b438c943472bfcfe2353c0a387",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest/schema.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest/templates.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest/templates.py",
+      "generated_sha256": "30d0b41620e464b33e153f5da5a68403bde7a4326cad1426812d2ac776ef3305",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest/templates.py",
+      "source_sha256": "30d0b41620e464b33e153f5da5a68403bde7a4326cad1426812d2ac776ef3305",
+      "promoted_sha256": "3080079469a85103fcd901395ed195cbb12cf203b03f2f8fd9c75bea46ef44bf",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest/templates.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest/validators.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest/validators.py",
+      "generated_sha256": "0c4f78b0a09213048cce5728b838888377ef2e5e404819814a57c5b92b51efe0",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest/validators.py",
+      "source_sha256": "0c4f78b0a09213048cce5728b838888377ef2e5e404819814a57c5b92b51efe0",
+      "promoted_sha256": "0c4f78b0a09213048cce5728b838888377ef2e5e404819814a57c5b92b51efe0",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest/validators.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest_commit_guard.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest_commit_guard.py",
+      "generated_sha256": "550a02657e572a0897691516ac9ec7362ed6947fae84d3c021e6e9012c25ddd8",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest_commit_guard.py",
+      "source_sha256": "550a02657e572a0897691516ac9ec7362ed6947fae84d3c021e6e9012c25ddd8",
+      "promoted_sha256": "550a02657e572a0897691516ac9ec7362ed6947fae84d3c021e6e9012c25ddd8",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest_commit_guard.py",
+      "source_git_status": "?? src/olav/core/ingest_commit_guard.py"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest_connection.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest_connection.py",
+      "generated_sha256": "79daf965eabc0fdda5d16b5252acab36f8584e225937b87078b7b308ab442f94",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest_connection.py",
+      "source_sha256": "79daf965eabc0fdda5d16b5252acab36f8584e225937b87078b7b308ab442f94",
+      "promoted_sha256": "f28931198795a4417b6b3c09bb7c27780d9aac84dc333dc419103df9a4aa867b",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest_connection.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest_manager.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest_manager.py",
+      "generated_sha256": "267655942034ed03fb228470e1ef5f5f2346d9396f25009f19860ce8971fae91",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest_manager.py",
+      "source_sha256": "267655942034ed03fb228470e1ef5f5f2346d9396f25009f19860ce8971fae91",
+      "promoted_sha256": "d2e91455edfc912f412a6b5253f6cf461a7b590c14d9869237f028787fc60500",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest_manager.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/ingest_write.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/ingest_write.py",
+      "generated_sha256": "e86a0a172a28da3528b88bd4988996ff06d6b914cd883f9a1b2bb30a7512717e",
+      "source": "/home/yhvh/code/Olav/src/olav/core/ingest_write.py",
+      "source_sha256": "e86a0a172a28da3528b88bd4988996ff06d6b914cd883f9a1b2bb30a7512717e",
+      "promoted_sha256": "e86a0a172a28da3528b88bd4988996ff06d6b914cd883f9a1b2bb30a7512717e",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/ingest_write.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/pg_writer.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/pg_writer.py",
+      "generated_sha256": "2d9bdd4f610de12f6e06f3269792f323d4eaae5db5dc539493a577bdf3072891",
+      "source": "/home/yhvh/code/Olav/src/olav/core/pg_writer.py",
+      "source_sha256": "2d9bdd4f610de12f6e06f3269792f323d4eaae5db5dc539493a577bdf3072891",
+      "promoted_sha256": "3ca9d05185a1900c82884c545d6db88838acf795f5a39f1a707f391d45fa73cf",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/pg_writer.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/query_result.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/query_result.py",
+      "generated_sha256": "e7ede07c17c8a7ae7973a0e1564582ea5dcd814f53e35fc7eef4683a083e7304",
+      "source": "/home/yhvh/code/Olav/src/olav/core/query_result.py",
+      "source_sha256": "e7ede07c17c8a7ae7973a0e1564582ea5dcd814f53e35fc7eef4683a083e7304",
+      "promoted_sha256": "e655d5d2a7e61c825746049a897767bcae03c3d88b0cd766716662c6e2aca3ae",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/query_result.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/read_connection.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/read_connection.py",
+      "generated_sha256": "7725e073ee87473a7f0500b2835b44c2213e1a646a17f4f42b865fc25611ef13",
+      "source": "/home/yhvh/code/Olav/src/olav/core/read_connection.py",
+      "source_sha256": "7725e073ee87473a7f0500b2835b44c2213e1a646a17f4f42b865fc25611ef13",
+      "promoted_sha256": "5f99a3f9a78dbd3b80ad8ac41763ba538f49c7f571e386c40756c53c20541d33",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/read_connection.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/redaction.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/redaction.py",
+      "generated_sha256": "548fee1c6ad02df48ecff28d93b4a72de4113cafbd243b239cf1a4f2fdcddc5b",
+      "source": "/home/yhvh/code/Olav/src/olav/core/redaction.py",
+      "source_sha256": "548fee1c6ad02df48ecff28d93b4a72de4113cafbd243b239cf1a4f2fdcddc5b",
+      "promoted_sha256": "cdd5c12daae1de121f77298e54871f59867ae1511ceb94900e25115874c4d9d5",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/redaction.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/topology/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/topology/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/core/topology/filter.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/topology/filter.py",
+      "generated_sha256": "805644d805779c19c890d2c467fe5cd7eff2294455d6b981bbc245c3e4d2414c",
+      "source": "/home/yhvh/code/Olav/src/olav/core/topology/filter.py",
+      "source_sha256": "805644d805779c19c890d2c467fe5cd7eff2294455d6b981bbc245c3e4d2414c",
+      "promoted_sha256": "805644d805779c19c890d2c467fe5cd7eff2294455d6b981bbc245c3e4d2414c",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/topology/filter.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/utils.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/utils.py",
+      "generated_sha256": "230d20b4968ee5e6c97ed6ef2a8a43cdfaece58c9b5bbe88347473922667f8a3",
+      "source": "/home/yhvh/code/Olav/src/olav/core/utils.py",
+      "source_sha256": "230d20b4968ee5e6c97ed6ef2a8a43cdfaece58c9b5bbe88347473922667f8a3",
+      "promoted_sha256": "515b35b8596d7bcfedfaa1d2e419e4590d46633016a2193736afff389ca92e53",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/utils.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/workspace.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/workspace.py",
+      "generated_sha256": "9dd6ba35ce4a695fd4fe419a9e8e6be9e661cef648550312c0652bc2e33531c2",
+      "source": "/home/yhvh/code/Olav/src/olav/core/workspace.py",
+      "source_sha256": "9dd6ba35ce4a695fd4fe419a9e8e6be9e661cef648550312c0652bc2e33531c2",
+      "promoted_sha256": "9dd6ba35ce4a695fd4fe419a9e8e6be9e661cef648550312c0652bc2e33531c2",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/workspace.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/writer_domain.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/writer_domain.py",
+      "generated_sha256": "7df1993221c965eef620214d178cc1dfa53dc8a411c35a998265683bd1239121",
+      "source": "/home/yhvh/code/Olav/src/olav/core/writer_domain.py",
+      "source_sha256": "7df1993221c965eef620214d178cc1dfa53dc8a411c35a998265683bd1239121",
+      "promoted_sha256": "7df1993221c965eef620214d178cc1dfa53dc8a411c35a998265683bd1239121",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/writer_domain.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/core/writer_host.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/writer_host.py",
+      "generated_sha256": "6d994a75f46868c525c03b1b603a8facf97398251ab4a85c050cf9d6c3d89354",
+      "source": "/home/yhvh/code/Olav/src/olav/core/writer_host.py",
+      "source_sha256": "6d994a75f46868c525c03b1b603a8facf97398251ab4a85c050cf9d6c3d89354",
+      "promoted_sha256": "0d9a87a2170d312454aa300a7a47d815ad61554fe8f442ffbbd92d2cb1fcbb82",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/writer_host.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/platform/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/platform/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/platform/ingest_base.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/platform/ingest_base.py",
+      "generated_sha256": "39c488b8193e4f0d64e31ba1a6005f711f7e4c01077d74ffb2ccb9d095406ac8",
+      "source": "/home/yhvh/code/Olav/src/olav/platform/ingest_base.py",
+      "source_sha256": "39c488b8193e4f0d64e31ba1a6005f711f7e4c01077d74ffb2ccb9d095406ac8",
+      "promoted_sha256": "7d78166b16f74b075c0d5f63318b971b2eed380e45a41b50f2ded697bd7e72a3",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/platform/ingest_base.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/platform/safety/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/platform/safety/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/platform/safety/permissions.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/platform/safety/permissions.py",
+      "generated_sha256": "76d9f5b6c1783de92d12c13b2fbd2dd93e23777bde91f346daa4884a7c7cdcfb",
+      "source": "/home/yhvh/code/Olav/src/olav/platform/safety/permissions.py",
+      "source_sha256": "76d9f5b6c1783de92d12c13b2fbd2dd93e23777bde91f346daa4884a7c7cdcfb",
+      "promoted_sha256": "3e0468e3be3e8fb47839e4da38513d4fa2f2b8d01c6cb95577f84c2a2b5134f0",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/platform/safety/permissions.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/platform/safety/sandbox_guard.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/platform/safety/sandbox_guard.py",
+      "generated_sha256": "fa249b853588af5106c3ed44a6b21549c836a8e6cdf076c177f69776fca6dfc8",
+      "source": "/home/yhvh/code/Olav/src/olav/platform/safety/sandbox_guard.py",
+      "source_sha256": "fa249b853588af5106c3ed44a6b21549c836a8e6cdf076c177f69776fca6dfc8",
+      "promoted_sha256": "b479b044d9b8b574efb8d5392e8475844a7be6bb175d4c42589369f7f3e0d9f5",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/platform/safety/sandbox_guard.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/platform/sandbox.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/platform/sandbox.py",
+      "generated_sha256": "14713a0e6dfcfe687ea57f3b1c7c3e351ce27e0208e8bbb6aea9ba3f85ae8337",
+      "source": "/home/yhvh/code/Olav/src/olav/platform/sandbox.py",
+      "source_sha256": "14713a0e6dfcfe687ea57f3b1c7c3e351ce27e0208e8bbb6aea9ba3f85ae8337",
+      "promoted_sha256": "fac3df43b72678708f07fc751568086464bc98ea9e141cbd021a0a5a8261844c",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/platform/sandbox.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/tools/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/tools/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/tools/sql_budget.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/tools/sql_budget.py",
+      "generated_sha256": "87e3bf33aeb5c7d14a8a03d60f6c6a1f4ed54aa4b238042105493887383aeb30",
+      "source": "/home/yhvh/code/Olav/src/olav/tools/sql_budget.py",
+      "source_sha256": "87e3bf33aeb5c7d14a8a03d60f6c6a1f4ed54aa4b238042105493887383aeb30",
+      "promoted_sha256": "9fd02dd270b9f017a1a5818641109321ea89f19bd6862f5290133938394af888",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/tools/sql_budget.py",
+      "source_git_status": "?? src/olav/tools/sql_budget.py"
+    },
+    {
+      "destination": "src/olav_skills/tools/sql_policy.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/tools/sql_policy.py",
+      "generated_sha256": "f26d40daa011b576da0cde3b8a22fd6d4f23360a5de369b8365ad7ff0a126aa7",
+      "source": "/home/yhvh/code/Olav/src/olav/tools/sql_policy.py",
+      "source_sha256": "f26d40daa011b576da0cde3b8a22fd6d4f23360a5de369b8365ad7ff0a126aa7",
+      "promoted_sha256": "f26d40daa011b576da0cde3b8a22fd6d4f23360a5de369b8365ad7ff0a126aa7",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/tools/sql_policy.py",
+      "source_git_status": "?? src/olav/tools/sql_policy.py"
+    },
+    {
+      "destination": "src/olav_skills/netops/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/__init__.py",
+      "generated_sha256": "db74cb046cc12523f31c5ec22160df8d42b517cfcb58dac08b62d68d210b349b",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/__init__.py",
+      "source_sha256": "db74cb046cc12523f31c5ec22160df8d42b517cfcb58dac08b62d68d210b349b",
+      "promoted_sha256": "5dd5946101092c3910b86f816259bad6565a97410e891b084d31aec961140aeb",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/__init__.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/__init__.py",
+      "generated_sha256": "4877288187a2cd17a7142619c38418a6ec8205d22d17eaa4e6311000277a539f",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/__init__.py",
+      "source_sha256": "4877288187a2cd17a7142619c38418a6ec8205d22d17eaa4e6311000277a539f",
+      "promoted_sha256": "a16043c3769f8bf95ee0a7115fc49f36f76ed5ea76e86f2f654011953a02a4f2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/__init__.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/commands_sync.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/commands_sync.py",
+      "generated_sha256": "5d75f8a6b7fb3ab0c729e4b06e25224475293b66760ff4f2bd8be81078cdd509",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/commands_sync.py",
+      "source_sha256": "5d75f8a6b7fb3ab0c729e4b06e25224475293b66760ff4f2bd8be81078cdd509",
+      "promoted_sha256": "aa38230a2c6154ef893d386ee08b39c247c7d2e9a1e95c6a8003b5340242689e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/commands_sync.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/config_files.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/config_files.py",
+      "generated_sha256": "6b860ee5ac18d0fdb2c6affa635545fa0a0ded5659fa0619c7377bf6bf7fe047",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/config_files.py",
+      "source_sha256": "6b860ee5ac18d0fdb2c6affa635545fa0a0ded5659fa0619c7377bf6bf7fe047",
+      "promoted_sha256": "9f7d11fdf54fa5c0f780f867b62f788815b2257799ed8c745b5a29ae1aa50e67",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/config_files.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/config_paths.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/config_paths.py",
+      "generated_sha256": "72371c9de03b83bd7c0a428b2d53807c250b4a183675f98186719dfd6f69fabf",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/config_paths.py",
+      "source_sha256": "72371c9de03b83bd7c0a428b2d53807c250b4a183675f98186719dfd6f69fabf",
+      "promoted_sha256": "4459436ba06a198c17977820e70cd4f96a51505074e1ee604cb867414d5cc595",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/config_paths.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/device_etl.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/device_etl.py",
+      "generated_sha256": "fecbaa1b78eb5ed068ad0ff026b2c56fdff9efbcea921db3b54662cc9292e2cb",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/device_etl.py",
+      "source_sha256": "fecbaa1b78eb5ed068ad0ff026b2c56fdff9efbcea921db3b54662cc9292e2cb",
+      "promoted_sha256": "806fc52908e31bbe9df31592b5f6ff29e268b55bdf5182ed42e8fd29f6a9240e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/device_etl.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/diff/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/diff/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/diff/configs.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/diff/configs.py",
+      "generated_sha256": "48955ba18792189992e2876b50cba0da674a4567cba29851eda20d32ffdad5ca",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/diff/configs.py",
+      "source_sha256": "48955ba18792189992e2876b50cba0da674a4567cba29851eda20d32ffdad5ca",
+      "promoted_sha256": "a73fa8a9739a6a45cb0a7a6ce441d4fbc131e49a074a77d090aeba99aba50294",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/diff/configs.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/diff/snapshot_summary.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/diff/snapshot_summary.py",
+      "generated_sha256": "d00e3196e7f2ab01d4d3e9bdec2387884ebfea7265278d356de777065a1ccc75",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/diff/snapshot_summary.py",
+      "source_sha256": "d00e3196e7f2ab01d4d3e9bdec2387884ebfea7265278d356de777065a1ccc75",
+      "promoted_sha256": "37fd5f9587b27be4612a75bf616714460345bc190dc265feb00bfb14e7ddd29c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/diff/snapshot_summary.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/hostname_registry.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/hostname_registry.py",
+      "generated_sha256": "76b6e0c66974565439e2f5098054eed9f0e1ba6e9d5b064916fd49bb644f6cb2",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/hostname_registry.py",
+      "source_sha256": "76b6e0c66974565439e2f5098054eed9f0e1ba6e9d5b064916fd49bb644f6cb2",
+      "promoted_sha256": "76b6e0c66974565439e2f5098054eed9f0e1ba6e9d5b064916fd49bb644f6cb2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/hostname_registry.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/ingest/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/ingest/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/ingest/closure.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/ingest/closure.py",
+      "generated_sha256": "2ddd767f4c4276b584daee09762d6f3d3cd115b548173ba06f14fb319832f112",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/ingest/closure.py",
+      "source_sha256": "2ddd767f4c4276b584daee09762d6f3d3cd115b548173ba06f14fb319832f112",
+      "promoted_sha256": "d8c87c6e5113392753715b9978be720e90ff37dcc1bda8ec44c0fac05ffdd20b",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/ingest/closure.py",
+      "source_git_status": "M olav-netops/src/olav_netops/core/ingest/closure.py"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/ingest/landing.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/ingest/landing.py",
+      "generated_sha256": "916b0a544d2778bb421be746bcf5deecd2bc7adb50cd0deddaf9bd67a8267f6f",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/ingest/landing.py",
+      "source_sha256": "916b0a544d2778bb421be746bcf5deecd2bc7adb50cd0deddaf9bd67a8267f6f",
+      "promoted_sha256": "ac26eba3f0b5574f5b1361e067f508b39b092afcff4c75e800dbb88b5d345d7c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/ingest/landing.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/parse_helpers.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/parse_helpers.py",
+      "generated_sha256": "d99c87bdc90ced3e53f0d0cec482080fde03b0ca4e7e14398c769392e72a4e5d",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parse_helpers.py",
+      "source_sha256": "d99c87bdc90ced3e53f0d0cec482080fde03b0ca4e7e14398c769392e72a4e5d",
+      "promoted_sha256": "72306a90c990ff1e612ade6ebf0ad98dfc95ab9d371dd4ae674a9df182a49a82",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parse_helpers.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/parser_contract.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/parser_contract.py",
+      "generated_sha256": "a55c2ee883820f88677b9bad8ecac380f8e7d0211cda27a1f490a2a001a2aedf",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parser_contract.py",
+      "source_sha256": "a55c2ee883820f88677b9bad8ecac380f8e7d0211cda27a1f490a2a001a2aedf",
+      "promoted_sha256": "d74c02bd9bbb1d7590931d627972baa4fcc48118898e44b77eed950cbc43779e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parser_contract.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/parser_learner.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/parser_learner.py",
+      "generated_sha256": "7943265d14770b1e9518e653db9bff71de985836cec93800c541582ae8e51343",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parser_learner.py",
+      "source_sha256": "7943265d14770b1e9518e653db9bff71de985836cec93800c541582ae8e51343",
+      "promoted_sha256": "41b629d751de289ae2fadc4db0d8d893aaa316a1b31349b4e5b18ee93e08044f",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parser_learner.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/parser_registry.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/parser_registry.py",
+      "generated_sha256": "b13d46390a4c39072908ed7fd41fda032986e4df11f6b7de5c8ae995537bd3f2",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parser_registry.py",
+      "source_sha256": "b13d46390a4c39072908ed7fd41fda032986e4df11f6b7de5c8ae995537bd3f2",
+      "promoted_sha256": "1e3586089e9b1025a96a1a8934d013b42f7d5fb3466efeecb4a0b2973cf0e642",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/parser_registry.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/platform_canonical.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/platform_canonical.py",
+      "generated_sha256": "db9770f2b21abca51492324384cd2d0ecb276a905054b88ef1dcd79f8671d453",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/platform_canonical.py",
+      "source_sha256": "db9770f2b21abca51492324384cd2d0ecb276a905054b88ef1dcd79f8671d453",
+      "promoted_sha256": "ab8c6aa19f2a52c67d3c044e39095e0896c5d2f0c167701cd8cf91e8fca9299e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/platform_canonical.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/platform_profiles.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/platform_profiles.py",
+      "generated_sha256": "436298862c10cbdeb822a488a2ec005a21c445022d8fa05bfce7476ca289ef2b",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/platform_profiles.py",
+      "source_sha256": "436298862c10cbdeb822a488a2ec005a21c445022d8fa05bfce7476ca289ef2b",
+      "promoted_sha256": "dc513e6cdfc8882c1a80dc7ac577fdf3ce58a4642edb23f6374653b3aff966c2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/platform_profiles.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/query/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/query/__init__.py",
+      "generated_sha256": "a58bcb55beb2c2cfedd650dd0d03473e230e3dcabf0cbf7e3e1c3d95ff8cd569",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/__init__.py",
+      "source_sha256": "a58bcb55beb2c2cfedd650dd0d03473e230e3dcabf0cbf7e3e1c3d95ff8cd569",
+      "promoted_sha256": "a58bcb55beb2c2cfedd650dd0d03473e230e3dcabf0cbf7e3e1c3d95ff8cd569",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/__init__.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/query/batch.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/query/batch.py",
+      "generated_sha256": "636c570b50b49a9025df5a9f458ee39dd5492c0a288282e4d56477ca7115cc9e",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/batch.py",
+      "source_sha256": "636c570b50b49a9025df5a9f458ee39dd5492c0a288282e4d56477ca7115cc9e",
+      "promoted_sha256": "a2b10362e305c99892d8bf306c59d8491f4ec8577756707ac216a38f7f65298c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/batch.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/query/evidence.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/query/evidence.py",
+      "generated_sha256": "f2bdb9a2d6416d6fea4b7397a1579bdb8b65d3adf155b2229b3bfcce24006f74",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/evidence.py",
+      "source_sha256": "f2bdb9a2d6416d6fea4b7397a1579bdb8b65d3adf155b2229b3bfcce24006f74",
+      "promoted_sha256": "f2bdb9a2d6416d6fea4b7397a1579bdb8b65d3adf155b2229b3bfcce24006f74",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/evidence.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/query/result_contract.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/query/result_contract.py",
+      "generated_sha256": "c2e3d3a38c23645aeb01f79b5e451bedb77c363de46c125c3b19b080dbb73e3b",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/result_contract.py",
+      "source_sha256": "c2e3d3a38c23645aeb01f79b5e451bedb77c363de46c125c3b19b080dbb73e3b",
+      "promoted_sha256": "289e555e7be84f522128bcb32963e53476b36fc3983b0988bcd10991791ddea1",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/result_contract.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/query/temporal.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/query/temporal.py",
+      "generated_sha256": "11267adb69aa21cedbce0efc5b8110d6bd5a6791326d78660931fbb98a3e9548",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/temporal.py",
+      "source_sha256": "11267adb69aa21cedbce0efc5b8110d6bd5a6791326d78660931fbb98a3e9548",
+      "promoted_sha256": "11267adb69aa21cedbce0efc5b8110d6bd5a6791326d78660931fbb98a3e9548",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/temporal.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/query/warehouse.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/query/warehouse.py",
+      "generated_sha256": "3a7a35f67828376a090576e7db7b7794c730c173de8d15246b5d83becedadf78",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/warehouse.py",
+      "source_sha256": "3a7a35f67828376a090576e7db7b7794c730c173de8d15246b5d83becedadf78",
+      "promoted_sha256": "c8d521bb59218d4259fdae39cb2f30382cd9f700f41fab54ef64aa4389d47178",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/query/warehouse.py",
+      "source_git_status": "M olav-netops/src/olav_netops/core/query/warehouse.py"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/recipe_files.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/recipe_files.py",
+      "generated_sha256": "97d4aa630e432702a305b4a306309da93d6098eac65460624bd72e5c118a2ccb",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/recipe_files.py",
+      "source_sha256": "97d4aa630e432702a305b4a306309da93d6098eac65460624bd72e5c118a2ccb",
+      "promoted_sha256": "e305fe408dfe160cf3bae3018ceec05dd3e00e10200730c351496ac1a3d3df10",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/recipe_files.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/tables.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/tables.py",
+      "generated_sha256": "5dab744a3456adbfc42b21577db48385046b8a938e115bd4d3f11d2884321ce9",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/tables.py",
+      "source_sha256": "5dab744a3456adbfc42b21577db48385046b8a938e115bd4d3f11d2884321ce9",
+      "promoted_sha256": "bfc5e704f737e5d1c29e53f375cc16b6d661202c4cd6a393fe2af743f1f1e4db",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/tables.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/topology_engine.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/topology_engine.py",
+      "generated_sha256": "3326ff32d3d6da38af8956d37b0dff18bd8692edb350ce41bd4a20fa9bdc2953",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/topology_engine.py",
+      "source_sha256": "3326ff32d3d6da38af8956d37b0dff18bd8692edb350ce41bd4a20fa9bdc2953",
+      "promoted_sha256": "d8d52dc9fce94282e335a056535c45ca870b77c548d98bc07a8dd35b98adb405",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/topology_engine.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/topology_intent.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/topology_intent.py",
+      "generated_sha256": "806c92d67374cff3ce51189f8a9ee43f0c588a38a4ee12a86a3318b8695f37da",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/topology_intent.py",
+      "source_sha256": "806c92d67374cff3ce51189f8a9ee43f0c588a38a4ee12a86a3318b8695f37da",
+      "promoted_sha256": "49e69cff3b90a121010264a1ab4bd591681899b92b49f357a077d726237fbddc",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/topology_intent.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/view_builder.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/view_builder.py",
+      "generated_sha256": "231ccbfdf14866a61c0fccf9c52cac654300c602d2da1fbe19cf2e0e5fee1843",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/view_builder.py",
+      "source_sha256": "231ccbfdf14866a61c0fccf9c52cac654300c602d2da1fbe19cf2e0e5fee1843",
+      "promoted_sha256": "849ebb1cc326f44cd87ecd00a7cdb719ce9a7588b3509d666ed0c05dbaf20a25",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/view_builder.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/netops_init/config/backup_only_commands.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/backup_only_commands.yaml",
+      "generated_sha256": "788762d66642b0b06386b4191abe99b19ad4ac6c0fcfe42da6f53a67cfa9ad2a",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/backup_only_commands.yaml",
+      "source_sha256": "788762d66642b0b06386b4191abe99b19ad4ac6c0fcfe42da6f53a67cfa9ad2a",
+      "promoted_sha256": "788762d66642b0b06386b4191abe99b19ad4ac6c0fcfe42da6f53a67cfa9ad2a",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/backup_only_commands.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/netops_init/config/cron_schedules.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/cron_schedules.yaml",
+      "generated_sha256": "5ce2822ac149bc64fa398ce4c3fe46b288ca45a1260538eadccc0acab053477c",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/cron_schedules.yaml",
+      "source_sha256": "5ce2822ac149bc64fa398ce4c3fe46b288ca45a1260538eadccc0acab053477c",
+      "promoted_sha256": "5ce2822ac149bc64fa398ce4c3fe46b288ca45a1260538eadccc0acab053477c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/cron_schedules.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/netops_init/config/discovery_protocols.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/discovery_protocols.yaml",
+      "generated_sha256": "b66114ff56891fca3c6cef99ff14b60251632007290a89f52427c4f4b39ac360",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/discovery_protocols.yaml",
+      "source_sha256": "b66114ff56891fca3c6cef99ff14b60251632007290a89f52427c4f4b39ac360",
+      "promoted_sha256": "b66114ff56891fca3c6cef99ff14b60251632007290a89f52427c4f4b39ac360",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/discovery_protocols.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/netops_init/config/platform_profiles.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/platform_profiles.yaml",
+      "generated_sha256": "532edaee88ab1434300edc4db4e1a3e7acd00035f0215f720696bc976a315bb9",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/platform_profiles.yaml",
+      "source_sha256": "532edaee88ab1434300edc4db4e1a3e7acd00035f0215f720696bc976a315bb9",
+      "promoted_sha256": "532edaee88ab1434300edc4db4e1a3e7acd00035f0215f720696bc976a315bb9",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/platform_profiles.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/netops_init/config/user_commands.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/user_commands.yaml",
+      "generated_sha256": "ff08522e69a1047390f70502fb5b5378ba2fc6ed055f3011479b3cb8a6544380",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/user_commands.yaml",
+      "source_sha256": "ff08522e69a1047390f70502fb5b5378ba2fc6ed055f3011479b3cb8a6544380",
+      "promoted_sha256": "ff08522e69a1047390f70502fb5b5378ba2fc6ed055f3011479b3cb8a6544380",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/netops_init/config/user_commands.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_arista_eos.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_arista_eos.yaml",
+      "generated_sha256": "b8f8892bc58577f0a7766895bcdb7862d7f3e75226a5d932f5b81821cdd07a47",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_arista_eos.yaml",
+      "source_sha256": "b8f8892bc58577f0a7766895bcdb7862d7f3e75226a5d932f5b81821cdd07a47",
+      "promoted_sha256": "b8f8892bc58577f0a7766895bcdb7862d7f3e75226a5d932f5b81821cdd07a47",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_arista_eos.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_cisco_ios.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_cisco_ios.yaml",
+      "generated_sha256": "b2b27d8054464c530afd519ed0281826dc636b21b01760a8117f1e8726c907d2",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_cisco_ios.yaml",
+      "source_sha256": "b2b27d8054464c530afd519ed0281826dc636b21b01760a8117f1e8726c907d2",
+      "promoted_sha256": "b2b27d8054464c530afd519ed0281826dc636b21b01760a8117f1e8726c907d2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_cisco_ios.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_juniper_junos.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_juniper_junos.yaml",
+      "generated_sha256": "d112e200807a70113f880aee27d6cfa39523e02456c7e67af59472b5f57d7a59",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_juniper_junos.yaml",
+      "source_sha256": "d112e200807a70113f880aee27d6cfa39523e02456c7e67af59472b5f57d7a59",
+      "promoted_sha256": "d112e200807a70113f880aee27d6cfa39523e02456c7e67af59472b5f57d7a59",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/bgp_juniper_junos.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/l2_topology.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/l2_topology.yaml",
+      "generated_sha256": "5e2d2187a6aad75dc5bdf9f9e6774500a2fe9e8b4cc6be97858d60c4932abe0b",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/l2_topology.yaml",
+      "source_sha256": "5e2d2187a6aad75dc5bdf9f9e6774500a2fe9e8b4cc6be97858d60c4932abe0b",
+      "promoted_sha256": "5e2d2187a6aad75dc5bdf9f9e6774500a2fe9e8b4cc6be97858d60c4932abe0b",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/l2_topology.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_arista_eos.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_arista_eos.yaml",
+      "generated_sha256": "fa7dab49dc60bf035c58d807b888adeb5de033052981909e41192564a31cb489",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_arista_eos.yaml",
+      "source_sha256": "fa7dab49dc60bf035c58d807b888adeb5de033052981909e41192564a31cb489",
+      "promoted_sha256": "fa7dab49dc60bf035c58d807b888adeb5de033052981909e41192564a31cb489",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_arista_eos.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_cisco_ios.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_cisco_ios.yaml",
+      "generated_sha256": "5ad2ff2f80570830460236570730ae18a1a83c719e58b0ea45a009d077b2c8c6",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_cisco_ios.yaml",
+      "source_sha256": "5ad2ff2f80570830460236570730ae18a1a83c719e58b0ea45a009d077b2c8c6",
+      "promoted_sha256": "5ad2ff2f80570830460236570730ae18a1a83c719e58b0ea45a009d077b2c8c6",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_cisco_ios.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_juniper_junos.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_juniper_junos.yaml",
+      "generated_sha256": "423826449ec3e289722400216dc3830b015712fffb44eedbbe14f9de04b22ba6",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_juniper_junos.yaml",
+      "source_sha256": "423826449ec3e289722400216dc3830b015712fffb44eedbbe14f9de04b22ba6",
+      "promoted_sha256": "423826449ec3e289722400216dc3830b015712fffb44eedbbe14f9de04b22ba6",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/ospf_juniper_junos.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/migrations/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/migrations/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/netops/migrations/v0_22_portable_ingest.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/migrations/v0_22_portable_ingest.py",
+      "generated_sha256": "3bcc686c3d5ac6928e190247fc69ca512c98a402eba8dee874a5a21d4ec63b62",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/migrations/v0_22_portable_ingest.py",
+      "source_sha256": "3bcc686c3d5ac6928e190247fc69ca512c98a402eba8dee874a5a21d4ec63b62",
+      "promoted_sha256": "334be1a40b4be5b1bc92ff04b821c1b472c59b3e965332683511b0181282657b",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/migrations/v0_22_portable_ingest.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/schemas/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/schemas/__init__.py",
+      "generated_sha256": "3a50e319b9294c355ad4954a11d2703680219b495affe20e416161d046086a7f",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/schemas/__init__.py",
+      "source_sha256": "3a50e319b9294c355ad4954a11d2703680219b495affe20e416161d046086a7f",
+      "promoted_sha256": "3b77666257c57b2bea39d0a0e4a9aba5613faf77673e61fc4a72996613e64445",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/schemas/__init__.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/schemas/topology.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/schemas/topology.py",
+      "generated_sha256": "caf14249c8dd6ca9bceb72e03346f844901f3c153c8c9ffadd6f3b6159f8c582",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/schemas/topology.py",
+      "source_sha256": "caf14249c8dd6ca9bceb72e03346f844901f3c153c8c9ffadd6f3b6159f8c582",
+      "promoted_sha256": "caf14249c8dd6ca9bceb72e03346f844901f3c153c8c9ffadd6f3b6159f8c582",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/schemas/topology.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/sim/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/sim/__init__.py",
+      "generated_sha256": "2467a9c0d87ef1f0fc73b1386be341263050c399d0a64e8f7c37546f6ae2fb95",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/sim/__init__.py",
+      "source_sha256": "2467a9c0d87ef1f0fc73b1386be341263050c399d0a64e8f7c37546f6ae2fb95",
+      "promoted_sha256": "ca9e1f0564ef5ae8ceba0d8ddb66f550205ca427af15ec2820de42c961f8f0c3",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/sim/__init__.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/sim/graph_view.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/sim/graph_view.py",
+      "generated_sha256": "ac3ad1d0e77698c4dade78a958855736aca97f3b72cfd3651ebc1d952237bfde",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/sim/graph_view.py",
+      "source_sha256": "ac3ad1d0e77698c4dade78a958855736aca97f3b72cfd3651ebc1d952237bfde",
+      "promoted_sha256": "e082b2fe543eaef0d9bb44d49b4a68546c1cd973de27428fd0aa9796cc48d886",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/sim/graph_view.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/sim/network_model.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/sim/network_model.py",
+      "generated_sha256": "cf2bd23a48fbcbac59c4a53225991fa35cead2306775e8ee106ed2948236ed26",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/sim/network_model.py",
+      "source_sha256": "cf2bd23a48fbcbac59c4a53225991fa35cead2306775e8ee106ed2948236ed26",
+      "promoted_sha256": "d07272240f90686e61600cbf2b81c7fc655380b69b1e6daed1f7c71a18ef307b",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/sim/network_model.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/tools/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/tools/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "promoted_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)"
+    },
+    {
+      "destination": "src/olav_skills/netops/tools/field_normalizer.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/tools/field_normalizer.py",
+      "generated_sha256": "85553daf911b0da41228aa85fc6deb31d83ec0f92134837e988f7c638eab4607",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/tools/field_normalizer.py",
+      "source_sha256": "85553daf911b0da41228aa85fc6deb31d83ec0f92134837e988f7c638eab4607",
+      "promoted_sha256": "85553daf911b0da41228aa85fc6deb31d83ec0f92134837e988f7c638eab4607",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/tools/field_normalizer.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "src/olav_skills/netops/tools/textfsm_parse.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/tools/textfsm_parse.py",
+      "generated_sha256": "8c78a7cd4db12f7651aa312df3546a96f35ecc2b61c3b0f56e5c315ffed60d61",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/tools/textfsm_parse.py",
+      "source_sha256": "8c78a7cd4db12f7651aa312df3546a96f35ecc2b61c3b0f56e5c315ffed60d61",
+      "promoted_sha256": "2940786ba4e1be8121b859e663731f08d9bf74f67688ad7076382c3f41cf7d6c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/tools/textfsm_parse.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/SKILL.md",
+      "generated_sha256": "f4eae3f175c33873a5f6c5c858986ffe02b36b09e1e5f67b70b7bac11360509f",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/SKILL.md",
+      "source_sha256": "dcc7e2c9fea8bd39f915931e829791735422c8d456658a7580f2dc141e3e3ad7",
+      "promoted_sha256": "3345e87e1ae9b4cb1cb4697744049590d63f95a702391ad71ff5eeab373844db",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/SKILL.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/references/bundle_schema.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/references/bundle_schema.guide.yaml",
+      "generated_sha256": "48218f00a48091ac08b22505c4c8c17ae74e88ce8bd024849bf91c5d2ee43aae",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/bundle_schema.guide.yaml",
+      "source_sha256": "48218f00a48091ac08b22505c4c8c17ae74e88ce8bd024849bf91c5d2ee43aae",
+      "promoted_sha256": "48218f00a48091ac08b22505c4c8c17ae74e88ce8bd024849bf91c5d2ee43aae",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/bundle_schema.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/references/platform_signatures.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/references/platform_signatures.guide.yaml",
+      "generated_sha256": "5c0734da61b8ceca7e5eb8e8a995a5415280938c1952e68e9d96a172aeb4e01a",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/platform_signatures.guide.yaml",
+      "source_sha256": "5c0734da61b8ceca7e5eb8e8a995a5415280938c1952e68e9d96a172aeb4e01a",
+      "promoted_sha256": "5c0734da61b8ceca7e5eb8e8a995a5415280938c1952e68e9d96a172aeb4e01a",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/platform_signatures.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/references/rancid_format.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/references/rancid_format.guide.yaml",
+      "generated_sha256": "d24f4f10cf162ac82fccc3c692bb11adb8979ab811c2bc6478c0cbe983d549af",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/rancid_format.guide.yaml",
+      "source_sha256": "d24f4f10cf162ac82fccc3c692bb11adb8979ab811c2bc6478c0cbe983d549af",
+      "promoted_sha256": "d24f4f10cf162ac82fccc3c692bb11adb8979ab811c2bc6478c0cbe983d549af",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/rancid_format.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/references/vendor_dump_heuristics.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/references/vendor_dump_heuristics.guide.yaml",
+      "generated_sha256": "af190f7f6f9f4aa3c8757bfb76e9944737c9a004aff7e9f257b6c68ffddf57f0",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/vendor_dump_heuristics.guide.yaml",
+      "source_sha256": "af190f7f6f9f4aa3c8757bfb76e9944737c9a004aff7e9f257b6c68ffddf57f0",
+      "promoted_sha256": "af190f7f6f9f4aa3c8757bfb76e9944737c9a004aff7e9f257b6c68ffddf57f0",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/references/vendor_dump_heuristics.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/scripts/_bundle_prepare.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/scripts/_bundle_prepare.py",
+      "generated_sha256": "5ccd4edba2320ed8d1286db7acd7e28a9a6c6446d7bb8a727b438200d25757ac",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/_bundle_prepare.py",
+      "source_sha256": "5ccd4edba2320ed8d1286db7acd7e28a9a6c6446d7bb8a727b438200d25757ac",
+      "promoted_sha256": "5ccd4edba2320ed8d1286db7acd7e28a9a6c6446d7bb8a727b438200d25757ac",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/_bundle_prepare.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/scripts/discover_platform.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/scripts/discover_platform.py",
+      "generated_sha256": "39aee03210269889786f3e5b1ebb3ec0ff79365ba46084c7fe32f2ba640dae93",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/discover_platform.py",
+      "source_sha256": "39aee03210269889786f3e5b1ebb3ec0ff79365ba46084c7fe32f2ba640dae93",
+      "promoted_sha256": "df22b8cc8c2e8acb2d6261ed5dee74affe7da2b7e8feca111801abe622c86bec",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/discover_platform.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/scripts/ingest_snapshot.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/scripts/ingest_snapshot.py",
+      "generated_sha256": "e0d3bef213d095ebfa765fa426fdfafe72e15ce2190e671695bf8a438ce19592",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/ingest_snapshot.py",
+      "source_sha256": "e0d3bef213d095ebfa765fa426fdfafe72e15ce2190e671695bf8a438ce19592",
+      "promoted_sha256": "048931a0cd62f277766a0d168503749afa09513eb722d356a8dc67072d60abf2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/ingest_snapshot.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/importer/scripts/ingest_snapshot.py"
+    },
+    {
+      "destination": "skills/importer/scripts/survey_bundle.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/scripts/survey_bundle.py",
+      "generated_sha256": "c809f15ee04d9c303437e523e67446a60b32dbe849e961e556c8b3bde9957126",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/survey_bundle.py",
+      "source_sha256": "c809f15ee04d9c303437e523e67446a60b32dbe849e961e556c8b3bde9957126",
+      "promoted_sha256": "c809f15ee04d9c303437e523e67446a60b32dbe849e961e556c8b3bde9957126",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/survey_bundle.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/importer/scripts/validate_bundle.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/importer/scripts/validate_bundle.py",
+      "generated_sha256": "1da843ee7e8398ed099531b86d3c5d4b7a1684ea1d35aaf511b3a7d48e42f74b",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/validate_bundle.py",
+      "source_sha256": "1da843ee7e8398ed099531b86d3c5d4b7a1684ea1d35aaf511b3a7d48e42f74b",
+      "promoted_sha256": "14960db3aacd43f6a7a9c7b1698bd87cc39d8f0bc962eb60c77ebdc93778bce7",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/importer/scripts/validate_bundle.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/SKILL.md",
+      "generated_sha256": "e5710476f68ef638776b3e985c526b5da86e93e8b6ec7b1160511144d37ee080",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/SKILL.md",
+      "source_sha256": "ae701045816ca05f50374c40ffeb13edd1380d356e07db0efd4acefa8a0624e8",
+      "promoted_sha256": "71a8c515245fd0b39d9ffca8403fe5a331a229eaf0d3d34f3636c68da6991203",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/SKILL.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/_lib/analyze_structure.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/_lib/analyze_structure.py",
+      "generated_sha256": "7e810479b78b8327b07e6b6717de8ec2ada069d3448df26f64634e818f0f1f8a",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/analyze_structure.py",
+      "source_sha256": "7e810479b78b8327b07e6b6717de8ec2ada069d3448df26f64634e818f0f1f8a",
+      "promoted_sha256": "7e810479b78b8327b07e6b6717de8ec2ada069d3448df26f64634e818f0f1f8a",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/analyze_structure.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/_lib/draft_parser.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/_lib/draft_parser.py",
+      "generated_sha256": "c5ff1300347b62e4098717991aedb59b6b780683610ac835da577b3f763fe8c6",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/draft_parser.py",
+      "source_sha256": "c5ff1300347b62e4098717991aedb59b6b780683610ac835da577b3f763fe8c6",
+      "promoted_sha256": "ef3789e3a92fc4cf3d173dd338d76b7ae9eee3bd372ea0f5a5726ede79a55951",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/draft_parser.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/_lib/freeze_parser.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/_lib/freeze_parser.py",
+      "generated_sha256": "18aa973809e9a09d9e0825d84a861b16d6f81396b71ade0686572f21f596d22f",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/freeze_parser.py",
+      "source_sha256": "18aa973809e9a09d9e0825d84a861b16d6f81396b71ade0686572f21f596d22f",
+      "promoted_sha256": "1f5b40e2d801853e0c8c142ea9cc1d711f36cbc1fc6234593f3dd0957def8788",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/freeze_parser.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/_lib/validate_parser.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/_lib/validate_parser.py",
+      "generated_sha256": "3719066ab15123434fd79a1a580d623461e20003cfe7a0c6750ad03780a99678",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/validate_parser.py",
+      "source_sha256": "3719066ab15123434fd79a1a580d623461e20003cfe7a0c6750ad03780a99678",
+      "promoted_sha256": "25d5d70cd187688419acdf245171beac48503e15e7ae69d34e3b84e3a91a3278",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/_lib/validate_parser.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/references/DSL_CHOICE_RULES.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/references/DSL_CHOICE_RULES.md",
+      "generated_sha256": "dae8ff1bd2fcf87734925898d0daf58d9f8cb618fa6dcf1171558bf75bc2bf9a",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/references/DSL_CHOICE_RULES.md",
+      "source_sha256": "dae8ff1bd2fcf87734925898d0daf58d9f8cb618fa6dcf1171558bf75bc2bf9a",
+      "promoted_sha256": "dae8ff1bd2fcf87734925898d0daf58d9f8cb618fa6dcf1171558bf75bc2bf9a",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/references/DSL_CHOICE_RULES.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/references/FROZEN_LAYOUT.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/references/FROZEN_LAYOUT.md",
+      "generated_sha256": "796d9b284d34190364d2508948faa2bdfa2a0cef508a629725aca281ad0fa7b7",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/references/FROZEN_LAYOUT.md",
+      "source_sha256": "796d9b284d34190364d2508948faa2bdfa2a0cef508a629725aca281ad0fa7b7",
+      "promoted_sha256": "796d9b284d34190364d2508948faa2bdfa2a0cef508a629725aca281ad0fa7b7",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/learner/references/FROZEN_LAYOUT.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/scripts/finish_learn.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/scripts/finish_learn.py",
+      "generated_sha256": "41cb6188f4a5461a090386a46063c3209e31c937d9255e16553be14fc1377b41",
+      "source": "/home/yhvh/code/Olav/scripts/skillpack/learner_finish_learn.py",
+      "source_sha256": "41cb6188f4a5461a090386a46063c3209e31c937d9255e16553be14fc1377b41",
+      "promoted_sha256": "41cb6188f4a5461a090386a46063c3209e31c937d9255e16553be14fc1377b41",
+      "source_resolved": "/home/yhvh/code/Olav/scripts/skillpack/learner_finish_learn.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/learner/scripts/prepare_learn.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/learner/scripts/prepare_learn.py",
+      "generated_sha256": "a23c639a76e1d197ef14be688d9cdf32dfd4e95120e70fe0cbb708747ec09f49",
+      "source": "/home/yhvh/code/Olav/scripts/skillpack/learner_prepare_learn.py",
+      "source_sha256": "a23c639a76e1d197ef14be688d9cdf32dfd4e95120e70fe0cbb708747ec09f49",
+      "promoted_sha256": "a23c639a76e1d197ef14be688d9cdf32dfd4e95120e70fe0cbb708747ec09f49",
+      "source_resolved": "/home/yhvh/code/Olav/scripts/skillpack/learner_prepare_learn.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/SKILL.md",
+      "generated_sha256": "ed97c02a52b8c4d001e1c9aff44d89a0b646174d2a574129091bae4b14d55632",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/SKILL.md",
+      "source_sha256": "e475540968dd10bd6a58836117f37af50b07664eeeef614401dd3f06fceb05b7",
+      "promoted_sha256": "625f710dc3ae55d8dc52bc23951d59e10f43b765226898b608918d8845d05e70",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/SKILL.md",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/analyzer/SKILL.md"
+    },
+    {
+      "destination": "skills/analyzer/references/ROUTING_EXPERT_GUIDE.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/ROUTING_EXPERT_GUIDE.md",
+      "generated_sha256": "6999e9949ec03971603a7a70b2cd3afac15ec69997ad6c925ebfc40fc8edb4e1",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/ROUTING_EXPERT_GUIDE.md",
+      "source_sha256": "6999e9949ec03971603a7a70b2cd3afac15ec69997ad6c925ebfc40fc8edb4e1",
+      "promoted_sha256": "6999e9949ec03971603a7a70b2cd3afac15ec69997ad6c925ebfc40fc8edb4e1",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/ROUTING_EXPERT_GUIDE.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/references/change_plan_cli_authoring.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/change_plan_cli_authoring.guide.yaml",
+      "generated_sha256": "7a56497785c3d05144a7d92ae1e40775aaed63536ae4b7d95ebabb21dd81c2dc",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/change_plan_cli_authoring.guide.yaml",
+      "source_sha256": "7a56497785c3d05144a7d92ae1e40775aaed63536ae4b7d95ebabb21dd81c2dc",
+      "promoted_sha256": "7a56497785c3d05144a7d92ae1e40775aaed63536ae4b7d95ebabb21dd81c2dc",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/change_plan_cli_authoring.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/references/discover_routing_config_via_sql.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/discover_routing_config_via_sql.guide.yaml",
+      "generated_sha256": "32cb6b138d8373a4c17b227cb1feeca901f9aacd640ee73a1a156ed4eb1dccae",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/discover_routing_config_via_sql.guide.yaml",
+      "source_sha256": "32cb6b138d8373a4c17b227cb1feeca901f9aacd640ee73a1a156ed4eb1dccae",
+      "promoted_sha256": "32cb6b138d8373a4c17b227cb1feeca901f9aacd640ee73a1a156ed4eb1dccae",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/discover_routing_config_via_sql.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/references/fault_analysis_workflow.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/fault_analysis_workflow.guide.yaml",
+      "generated_sha256": "dda1e8f2ce42bd9c4cb495b43439feb4faac35a34619855f0cc1968418ef454f",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/fault_analysis_workflow.guide.yaml",
+      "source_sha256": "dda1e8f2ce42bd9c4cb495b43439feb4faac35a34619855f0cc1968418ef454f",
+      "promoted_sha256": "dda1e8f2ce42bd9c4cb495b43439feb4faac35a34619855f0cc1968418ef454f",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/fault_analysis_workflow.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/references/plan_act_reflect_workflow.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/plan_act_reflect_workflow.guide.yaml",
+      "generated_sha256": "d5ed1f1c3b9944d88030dbe3ba19a134535c1e4eebb3ac422fc80dd278486aa8",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/plan_act_reflect_workflow.guide.yaml",
+      "source_sha256": "d5ed1f1c3b9944d88030dbe3ba19a134535c1e4eebb3ac422fc80dd278486aa8",
+      "promoted_sha256": "d5ed1f1c3b9944d88030dbe3ba19a134535c1e4eebb3ac422fc80dd278486aa8",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/plan_act_reflect_workflow.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/references/topology_query.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/topology_query.guide.yaml",
+      "generated_sha256": "424e855ec909c7aa196d682c98f3d141746eaedef2b4d58bad529c321197ec20",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/topology_query.guide.yaml",
+      "source_sha256": "424e855ec909c7aa196d682c98f3d141746eaedef2b4d58bad529c321197ec20",
+      "promoted_sha256": "424e855ec909c7aa196d682c98f3d141746eaedef2b4d58bad529c321197ec20",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/topology_query.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "generated_sha256": "5dbfa94c415fc301713e05ada031a2fffd6e296b53ef0a0a1ed238cc0f4581c4",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "source_sha256": "5dbfa94c415fc301713e05ada031a2fffd6e296b53ef0a0a1ed238cc0f4581c4",
+      "promoted_sha256": "5dbfa94c415fc301713e05ada031a2fffd6e296b53ef0a0a1ed238cc0f4581c4",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/scripts/describe_table.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/describe_table.py",
+      "generated_sha256": "21c6f6b59d041f74e2da56e9f0d0315a21590f5b3da24b23dc75f1625526c2f4",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/describe_table.py",
+      "source_sha256": "21c6f6b59d041f74e2da56e9f0d0315a21590f5b3da24b23dc75f1625526c2f4",
+      "promoted_sha256": "2a73f6cc07c6417fd31af1dc2d3194e87a30336e7135f63e73923506f13e7f2e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/describe_table.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/scripts/execute_sql.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/execute_sql.py",
+      "generated_sha256": "1d50ba52e52dbbb48edac2850b6a4e2e59e66e49285648b4275b01958c53b25a",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/scripts/execute_sql.py",
+      "source_sha256": "1d50ba52e52dbbb48edac2850b6a4e2e59e66e49285648b4275b01958c53b25a",
+      "promoted_sha256": "7b341151d305c90b11e3ae9661ced56494800d36e6ee279e7c7b1c26733a7220",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/scripts/execute_sql.py",
+      "source_git_status": "M src/olav/data/workspace/core/scripts/execute_sql.py"
+    },
+    {
+      "destination": "skills/analyzer/scripts/generate_change_plan.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/generate_change_plan.py",
+      "generated_sha256": "132bf6d928ae90bed5b6db727d2a2ed0134a550d0e59202a700f46567d69e7fe",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/generate_change_plan.py",
+      "source_sha256": "132bf6d928ae90bed5b6db727d2a2ed0134a550d0e59202a700f46567d69e7fe",
+      "promoted_sha256": "4ebc20d1ed7fa11994eb350e2592764ea0322400dee4bef9bf3bab0381a9cfb3",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/generate_change_plan.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/scripts/inspect_blast_radius.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/inspect_blast_radius.py",
+      "generated_sha256": "9fa0de61641e05b29313b023b5aa2e6400e4e0ee17dc5b5ea67352b511610c54",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_blast_radius.py",
+      "source_sha256": "9fa0de61641e05b29313b023b5aa2e6400e4e0ee17dc5b5ea67352b511610c54",
+      "promoted_sha256": "92a5cfd7d792993789c7126a9bbe80078f82daf423c658fe856a114ea450d043",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_blast_radius.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/analyzer/scripts/inspect_devices.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/inspect_devices.py",
+      "generated_sha256": "de88066e91bbe4a10fade4f2e80f75f7eae4a49a0174f8e96fbeafce54756175",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_devices.py",
+      "source_sha256": "de88066e91bbe4a10fade4f2e80f75f7eae4a49a0174f8e96fbeafce54756175",
+      "promoted_sha256": "bb4bb510f6d8469fc75e34430d4206964b7cd43fadf7e2652939ba9f4f00ac86",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_devices.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_devices.py"
+    },
+    {
+      "destination": "skills/analyzer/scripts/inspect_interfaces.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/inspect_interfaces.py",
+      "generated_sha256": "205f3fcd999036fca6f8252310ce263247aff0fd6a24e988fd9a504460bf9c67",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_interfaces.py",
+      "source_sha256": "205f3fcd999036fca6f8252310ce263247aff0fd6a24e988fd9a504460bf9c67",
+      "promoted_sha256": "7bc31894bb7692b954d57ae1bd329f15f326f27eec80e05133cf89581f61038f",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_interfaces.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_interfaces.py"
+    },
+    {
+      "destination": "skills/analyzer/scripts/query_batch.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/query_batch.py",
+      "generated_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/query_batch.py",
+      "source_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "promoted_sha256": "b7be81e019fc9168aeeb071342cbed221b3809c5efe66e9ad4006a12f436b6b9",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/analyzer/scripts/query_batch.py",
+      "source_git_status": "?? olav-netops/.olav/workspace/netops/analyzer/scripts/query_batch.py"
+    },
+    {
+      "destination": "skills/analyzer/scripts/search_logs.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/analyzer/scripts/search_logs.py",
+      "generated_sha256": "7a1a835257fcdc1250733d2006263667fbc4fd26486a7738984b6f31fe50c3e6",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/scripts/search_logs.py",
+      "source_sha256": "7a1a835257fcdc1250733d2006263667fbc4fd26486a7738984b6f31fe50c3e6",
+      "promoted_sha256": "82df528ea9f32e79d53fe796967e1d2b5be69caedf0354aa82204c88bcd2d484",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/scripts/search_logs.py",
+      "source_git_status": "M src/olav/data/workspace/core/scripts/search_logs.py"
+    },
+    {
+      "destination": "skills/topology/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/SKILL.md",
+      "generated_sha256": "e2eda89891286c6b1f58e1ab75fe53cd4370b62ad65f4987012855abb653b80f",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/SKILL.md",
+      "source_sha256": "d2e5c7331c6d83a8e0843da4b8719569bd15a57b6e3a23c1e48221fef7e5fdb2",
+      "promoted_sha256": "8fce8ba3a05c6e3e644d99aea3a7b5ba3d1bf15336f6ca1116b20502ad6b0c83",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/SKILL.md",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/topology/SKILL.md"
+    },
+    {
+      "destination": "skills/topology/references/INTENT_FORMAT.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/references/INTENT_FORMAT.md",
+      "generated_sha256": "3e00f3933ed5a3bd2bf76894b9345a0e51aa56a8ef9f8dae8daa5c4b7cfef985",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/references/INTENT_FORMAT.md",
+      "source_sha256": "3e00f3933ed5a3bd2bf76894b9345a0e51aa56a8ef9f8dae8daa5c4b7cfef985",
+      "promoted_sha256": "3e00f3933ed5a3bd2bf76894b9345a0e51aa56a8ef9f8dae8daa5c4b7cfef985",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/references/INTENT_FORMAT.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/topology/references/RECIPE_FORMAT.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/references/RECIPE_FORMAT.md",
+      "generated_sha256": "5751f26e68bb3c6cbb7f092c68c518ec5eb888de9f21729d233c33d4afb2d35a",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/references/RECIPE_FORMAT.md",
+      "source_sha256": "5751f26e68bb3c6cbb7f092c68c518ec5eb888de9f21729d233c33d4afb2d35a",
+      "promoted_sha256": "c68ed2c7bcf6d11aa50ebfb7da393cef06a6545db4394d9dc9175525720e2a9e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/references/RECIPE_FORMAT.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/topology/references/SUPPORTED_BUILTIN.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/references/SUPPORTED_BUILTIN.md",
+      "generated_sha256": "2a731f62d0b4d8cc62b0ae4f11d9f27011313bcfb0b6175c5da66c7d5d357a3e",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/references/SUPPORTED_BUILTIN.md",
+      "source_sha256": "2a731f62d0b4d8cc62b0ae4f11d9f27011313bcfb0b6175c5da66c7d5d357a3e",
+      "promoted_sha256": "2a8986d00212e462bdb603f44761747154b224a0b690b46bea284acc7b49b937",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/references/SUPPORTED_BUILTIN.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/topology/scripts/list_recipes.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/scripts/list_recipes.py",
+      "generated_sha256": "2b6519de0e4dd367228bc5e317468424a13019810cf5ee18962e7d31bcd406e1",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/list_recipes.py",
+      "source_sha256": "2b6519de0e4dd367228bc5e317468424a13019810cf5ee18962e7d31bcd406e1",
+      "promoted_sha256": "56ba9468db752bd8e30084f8fcecdb67dab33596521513cfb7d82e7d7d4f16ce",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/list_recipes.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/topology/scripts/prepare_recipe.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/scripts/prepare_recipe.py",
+      "generated_sha256": "69f9c62860108b30126e4c52812626bb9fd99767247ea64d0c89c77751e075ce",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/prepare_recipe.py",
+      "source_sha256": "69f9c62860108b30126e4c52812626bb9fd99767247ea64d0c89c77751e075ce",
+      "promoted_sha256": "614db66e86b2853ed34f85248404b2e3444a43ff5a19faae9b19330feb76a327",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/prepare_recipe.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/topology/scripts/query_batch.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/scripts/query_batch.py",
+      "generated_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/query_batch.py",
+      "source_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "promoted_sha256": "b7be81e019fc9168aeeb071342cbed221b3809c5efe66e9ad4006a12f436b6b9",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/query_batch.py",
+      "source_git_status": "?? olav-netops/.olav/workspace/netops/topology/scripts/query_batch.py"
+    },
+    {
+      "destination": "skills/topology/scripts/query_topology.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/scripts/query_topology.py",
+      "generated_sha256": "99c9b405d403d2c7ddcc6deb025bc41642957fe3adc6dea4edcc6e5bca2ccab9",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/query_topology.py",
+      "source_sha256": "99c9b405d403d2c7ddcc6deb025bc41642957fe3adc6dea4edcc6e5bca2ccab9",
+      "promoted_sha256": "d14f2896fb28640d8b80a09538053a51e64833074e729395c7033fb5df4dfa69",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/query_topology.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/topology/scripts/query_topology.py"
+    },
+    {
+      "destination": "skills/topology/scripts/rebuild_views.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/scripts/rebuild_views.py",
+      "generated_sha256": "70bdacfccb03155047b1bbcf2ba502a2ba7bc6a818156c7910f512fedbb2b042",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/rebuild_views.py",
+      "source_sha256": "70bdacfccb03155047b1bbcf2ba502a2ba7bc6a818156c7910f512fedbb2b042",
+      "promoted_sha256": "e5936992139c9b5b51a09a5f920715b233ec763bc714648e6d45a6a0f1e23d32",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/rebuild_views.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/topology/scripts/save_recipe.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/topology/scripts/save_recipe.py",
+      "generated_sha256": "ab588aef0b4602644483cd7423a51197de875da064cac33f6c0af3fdde966aad",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/save_recipe.py",
+      "source_sha256": "ab588aef0b4602644483cd7423a51197de875da064cac33f6c0af3fdde966aad",
+      "promoted_sha256": "00adbfcbd7a8e369e000e842819978a6326a49cf46e6db7109697b3d5e2f85c4",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/topology/scripts/save_recipe.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/reporter/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/SKILL.md",
+      "generated_sha256": "5e122ca7be679734ff9f83d18c0b3d8e983e315c3b5b8e28050d44caf76e458c",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/SKILL.md",
+      "source_sha256": "a8b463ee96f447501fbeef640a11a2817e9485e6bdcb465f18c1259d6238d8a1",
+      "promoted_sha256": "2fbe0e5c4fb4629c011738e0ddfd7bec7ad0fae771916d0f9a4d6bd19e38ec14",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/SKILL.md",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/reporter/SKILL.md"
+    },
+    {
+      "destination": "skills/reporter/references/discover_routing_config_via_sql.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/references/discover_routing_config_via_sql.guide.yaml",
+      "generated_sha256": "32cb6b138d8373a4c17b227cb1feeca901f9aacd640ee73a1a156ed4eb1dccae",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/discover_routing_config_via_sql.guide.yaml",
+      "source_sha256": "32cb6b138d8373a4c17b227cb1feeca901f9aacd640ee73a1a156ed4eb1dccae",
+      "promoted_sha256": "32cb6b138d8373a4c17b227cb1feeca901f9aacd640ee73a1a156ed4eb1dccae",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/discover_routing_config_via_sql.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/reporter/references/fault_analysis_workflow.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/references/fault_analysis_workflow.guide.yaml",
+      "generated_sha256": "bfe0541b2a85118ec2b6256ab8ea05f447bb47e6adeabc9b5cabf765fdfe9c84",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/fault_analysis_workflow.guide.yaml",
+      "source_sha256": "bfe0541b2a85118ec2b6256ab8ea05f447bb47e6adeabc9b5cabf765fdfe9c84",
+      "promoted_sha256": "bfe0541b2a85118ec2b6256ab8ea05f447bb47e6adeabc9b5cabf765fdfe9c84",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/fault_analysis_workflow.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/reporter/references/topology_query.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/references/topology_query.guide.yaml",
+      "generated_sha256": "1e3e0e01e929b8f4562dd2bb325c280b256f088ab77b17e698ed801e6917bc90",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/topology_query.guide.yaml",
+      "source_sha256": "1e3e0e01e929b8f4562dd2bb325c280b256f088ab77b17e698ed801e6917bc90",
+      "promoted_sha256": "1e3e0e01e929b8f4562dd2bb325c280b256f088ab77b17e698ed801e6917bc90",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/topology_query.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/reporter/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "generated_sha256": "2bbca43c7357fb82d6fa16b6e654bbd5bef2257c44541206b13ee5e219f9614c",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "source_sha256": "2bbca43c7357fb82d6fa16b6e654bbd5bef2257c44541206b13ee5e219f9614c",
+      "promoted_sha256": "2bbca43c7357fb82d6fa16b6e654bbd5bef2257c44541206b13ee5e219f9614c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/references/troubleshoot_layered_l1_to_l4.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/reporter/scripts/describe_table.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/scripts/describe_table.py",
+      "generated_sha256": "21c6f6b59d041f74e2da56e9f0d0315a21590f5b3da24b23dc75f1625526c2f4",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/describe_table.py",
+      "source_sha256": "21c6f6b59d041f74e2da56e9f0d0315a21590f5b3da24b23dc75f1625526c2f4",
+      "promoted_sha256": "2a73f6cc07c6417fd31af1dc2d3194e87a30336e7135f63e73923506f13e7f2e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/describe_table.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/reporter/scripts/diff_snapshots.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/scripts/diff_snapshots.py",
+      "generated_sha256": "b48f3c6f11b041034edddcadd7217b91f3073e16871b4fd5d4aec30fc4590129",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/diff_snapshots.py",
+      "source_sha256": "b48f3c6f11b041034edddcadd7217b91f3073e16871b4fd5d4aec30fc4590129",
+      "promoted_sha256": "c8841c19469f4c23da6ce30062cbd2a220ddae232adb2b940def5732245c2535",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/diff_snapshots.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/reporter/scripts/diff_snapshots.py"
+    },
+    {
+      "destination": "skills/reporter/scripts/query_batch.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/scripts/query_batch.py",
+      "generated_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/query_batch.py",
+      "source_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "promoted_sha256": "b7be81e019fc9168aeeb071342cbed221b3809c5efe66e9ad4006a12f436b6b9",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/query_batch.py",
+      "source_git_status": "?? olav-netops/.olav/workspace/netops/reporter/scripts/query_batch.py"
+    },
+    {
+      "destination": "skills/reporter/scripts/query_evidence.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/scripts/query_evidence.py",
+      "generated_sha256": "2c8ee35e89993b2981d6c5463bdc39eca063aff6905db1c2baa1b1905f013e90",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/query_evidence.py",
+      "source_sha256": "2c8ee35e89993b2981d6c5463bdc39eca063aff6905db1c2baa1b1905f013e90",
+      "promoted_sha256": "b415f961296083fecc96efccf15d5ae987612fb927cc5b88c08b12df95494d64",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/query_evidence.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/reporter/scripts/query_evidence.py"
+    },
+    {
+      "destination": "skills/reporter/scripts/read_change_plan.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/reporter/scripts/read_change_plan.py",
+      "generated_sha256": "88cffaef7aefe45b006d3e9c595cc860169be5a19129191a16811b2b106440b2",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/read_change_plan.py",
+      "source_sha256": "88cffaef7aefe45b006d3e9c595cc860169be5a19129191a16811b2b106440b2",
+      "promoted_sha256": "88cffaef7aefe45b006d3e9c595cc860169be5a19129191a16811b2b106440b2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/reporter/scripts/read_change_plan.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/writer/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/writer/SKILL.md",
+      "generated_sha256": "52eeed4e3ef7cd49cf692df9915d3ce703f06f8086e9c673c603e98e69fa6bfc",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/SKILL.md",
+      "source_sha256": "e6054f9e975ea0e5ef10933cf6e842fe926daf8592e0673a9950a10c01d78c1a",
+      "promoted_sha256": "f5df5a7732dc92c2335f3e843a4d125efc93530be6c35d3eb4e5a8fa789f3459",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/SKILL.md",
+      "source_git_status": "M src/olav/data/workspace/core/writer/SKILL.md"
+    },
+    {
+      "destination": "skills/writer/scripts/draw_topology.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/writer/scripts/draw_topology.py",
+      "generated_sha256": "4e77acf15727aef7139d06f4d47f25c929bcc349a2abebef3ddde492a4603cc0",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/draw_topology.py",
+      "source_sha256": "4e77acf15727aef7139d06f4d47f25c929bcc349a2abebef3ddde492a4603cc0",
+      "promoted_sha256": "1afaffae3df715a1e1dade039e38c14db97699da8dc3ae71f698c9a64b61bfc1",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/draw_topology.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/writer/scripts/render_topology_drawio.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/writer/scripts/render_topology_drawio.py",
+      "generated_sha256": "70e0bb786393c4f8f3eb8547525a4809ec09d9098f8413879032d99ce2b67f3f",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/render_topology_drawio.py",
+      "source_sha256": "70e0bb786393c4f8f3eb8547525a4809ec09d9098f8413879032d99ce2b67f3f",
+      "promoted_sha256": "70e0bb786393c4f8f3eb8547525a4809ec09d9098f8413879032d99ce2b67f3f",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/render_topology_drawio.py",
+      "source_git_status": "M src/olav/data/workspace/core/writer/scripts/render_topology_drawio.py"
+    },
+    {
+      "destination": "skills/writer/scripts/render_topology_mermaid.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/writer/scripts/render_topology_mermaid.py",
+      "generated_sha256": "fb187ed8f746e1555735b394c971612766b66cab57555f9cf8340a9aa9f8fead",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/render_topology_mermaid.py",
+      "source_sha256": "fb187ed8f746e1555735b394c971612766b66cab57555f9cf8340a9aa9f8fead",
+      "promoted_sha256": "fb187ed8f746e1555735b394c971612766b66cab57555f9cf8340a9aa9f8fead",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/render_topology_mermaid.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/writer/scripts/render_topology_svg.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/writer/scripts/render_topology_svg.py",
+      "generated_sha256": "183c17c750dc9a349d9b9e5332fa25c71ba1117050ed7747ca340bcd510f4308",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/render_topology_svg.py",
+      "source_sha256": "183c17c750dc9a349d9b9e5332fa25c71ba1117050ed7747ca340bcd510f4308",
+      "promoted_sha256": "183c17c750dc9a349d9b9e5332fa25c71ba1117050ed7747ca340bcd510f4308",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/render_topology_svg.py",
+      "source_git_status": "?? src/olav/data/workspace/core/writer/scripts/render_topology_svg.py"
+    },
+    {
+      "destination": "skills/writer/scripts/topology_view_filter.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/writer/scripts/topology_view_filter.py",
+      "generated_sha256": "fbef9937300b1f9255ae82ed82453f4109be69963a4607aae2e5ce8d3966ccd6",
+      "source": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/topology_view_filter.py",
+      "source_sha256": "fbef9937300b1f9255ae82ed82453f4109be69963a4607aae2e5ce8d3966ccd6",
+      "promoted_sha256": "115c815dc06d65ce49241811313f4bd22bd08c50eacab518e6bfebb285eea650",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/data/workspace/core/writer/scripts/topology_view_filter.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/SKILL.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/SKILL.md",
+      "generated_sha256": "8327fda24881f0e2efa75e7c81aecb9706db605d11571b8f75709756ede4fb74",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/SKILL.md",
+      "source_sha256": "cdd56a06f9eed357dc0ce8e252594b3f6d3e3fbdec964d0cfced6b99340dc085",
+      "promoted_sha256": "5ec5dd36fe7d9a1ce2749ce4e32e429335502f6142615690430a9e368008b99a",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/SKILL.md",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/SKILL.md"
+    },
+    {
+      "destination": "skills/netops/references/DB_SCHEMA.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/DB_SCHEMA.md",
+      "generated_sha256": "803f02521d2bd5aebbab3295b32a467d0ba185c918f7bd3b5bdd919574f21604",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/DB_SCHEMA.md",
+      "source_sha256": "803f02521d2bd5aebbab3295b32a467d0ba185c918f7bd3b5bdd919574f21604",
+      "promoted_sha256": "387f763d411a710e66061c6f6f1c199344d6e4316473c0e8b6797807ef593407",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/DB_SCHEMA.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/OUTPUT_EXPORT_RULES.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/OUTPUT_EXPORT_RULES.md",
+      "generated_sha256": "2b7a3bdd069efc8702bf0f8fb9af0239ba3bf7e7ab9f9d48ed5a70afe6cb501c",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/OUTPUT_EXPORT_RULES.md",
+      "source_sha256": "2b7a3bdd069efc8702bf0f8fb9af0239ba3bf7e7ab9f9d48ed5a70afe6cb501c",
+      "promoted_sha256": "2b7a3bdd069efc8702bf0f8fb9af0239ba3bf7e7ab9f9d48ed5a70afe6cb501c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/OUTPUT_EXPORT_RULES.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/SERVICE_DEPLOYMENT.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/SERVICE_DEPLOYMENT.md",
+      "generated_sha256": "5406f18bd38f0da6109d1a4547518e8a4b2b0ee29eca1c8f73f65c6b6bf3ec72",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/SERVICE_DEPLOYMENT.md",
+      "source_sha256": "5406f18bd38f0da6109d1a4547518e8a4b2b0ee29eca1c8f73f65c6b6bf3ec72",
+      "promoted_sha256": "5406f18bd38f0da6109d1a4547518e8a4b2b0ee29eca1c8f73f65c6b6bf3ec72",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/SERVICE_DEPLOYMENT.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/TOOL_PARTITIONING.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/TOOL_PARTITIONING.md",
+      "generated_sha256": "421b92276d1cec4e89b23e01a3d1b94f8d8de45a35cc772d332a3574ac81b8d5",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/TOOL_PARTITIONING.md",
+      "source_sha256": "421b92276d1cec4e89b23e01a3d1b94f8d8de45a35cc772d332a3574ac81b8d5",
+      "promoted_sha256": "421b92276d1cec4e89b23e01a3d1b94f8d8de45a35cc772d332a3574ac81b8d5",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/TOOL_PARTITIONING.md",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/batch_query.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/batch_query.md",
+      "generated_sha256": "7365dd38484b8e3b4627eefe0b8fd59c23a391c5cda16fe095a27e7975578e8e",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/batch_query.md",
+      "source_sha256": "7365dd38484b8e3b4627eefe0b8fd59c23a391c5cda16fe095a27e7975578e8e",
+      "promoted_sha256": "7365dd38484b8e3b4627eefe0b8fd59c23a391c5cda16fe095a27e7975578e8e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/batch_query.md",
+      "source_git_status": "?? olav-netops/.olav/workspace/netops/references/batch_query.md"
+    },
+    {
+      "destination": "skills/netops/references/bgp_path_and_state_reference.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/bgp_path_and_state_reference.guide.yaml",
+      "generated_sha256": "f902562f5ee017062b94ff5ebb17d7ba5d489f5c527b1301162503a26e97ca4e",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/bgp_path_and_state_reference.guide.yaml",
+      "source_sha256": "f902562f5ee017062b94ff5ebb17d7ba5d489f5c527b1301162503a26e97ca4e",
+      "promoted_sha256": "f902562f5ee017062b94ff5ebb17d7ba5d489f5c527b1301162503a26e97ca4e",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/bgp_path_and_state_reference.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/device_count_uses_devices_table.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/device_count_uses_devices_table.guide.yaml",
+      "generated_sha256": "f76c40244982e296160cc619cace7ee719dd458c2e625552e5b7b961bbb156ea",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/device_count_uses_devices_table.guide.yaml",
+      "source_sha256": "f76c40244982e296160cc619cace7ee719dd458c2e625552e5b7b961bbb156ea",
+      "promoted_sha256": "f76c40244982e296160cc619cace7ee719dd458c2e625552e5b7b961bbb156ea",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/device_count_uses_devices_table.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/evidence_query.md",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/evidence_query.md",
+      "generated_sha256": "8b48594c9de012c01bc2732ae535b09eede3a244e2e120dd94cfd1a2aa0ee4c7",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/evidence_query.md",
+      "source_sha256": "8b48594c9de012c01bc2732ae535b09eede3a244e2e120dd94cfd1a2aa0ee4c7",
+      "promoted_sha256": "8b48594c9de012c01bc2732ae535b09eede3a244e2e120dd94cfd1a2aa0ee4c7",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/evidence_query.md",
+      "source_git_status": "?? olav-netops/.olav/workspace/netops/references/evidence_query.md"
+    },
+    {
+      "destination": "skills/netops/references/netbox_csv_export.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/netbox_csv_export.guide.yaml",
+      "generated_sha256": "4e152cc946eb6fd0f66e47ff42580301949a20980641f7ed8c662ee2f7174760",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/netbox_csv_export.guide.yaml",
+      "source_sha256": "4e152cc946eb6fd0f66e47ff42580301949a20980641f7ed8c662ee2f7174760",
+      "promoted_sha256": "4e152cc946eb6fd0f66e47ff42580301949a20980641f7ed8c662ee2f7174760",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/netbox_csv_export.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/output_export_rules.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/output_export_rules.guide.yaml",
+      "generated_sha256": "fad064dcb196c39d914c54f85eeae6cdff43babd18b7e942899616aca71e4209",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/output_export_rules.guide.yaml",
+      "source_sha256": "fad064dcb196c39d914c54f85eeae6cdff43babd18b7e942899616aca71e4209",
+      "promoted_sha256": "fad064dcb196c39d914c54f85eeae6cdff43babd18b7e942899616aca71e4209",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/output_export_rules.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/scope_guard.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/scope_guard.guide.yaml",
+      "generated_sha256": "0dad94f299e1acc850bd73ce95bacdd0f5e3125cb38024e7d3e096b77bacc576",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/scope_guard.guide.yaml",
+      "source_sha256": "0dad94f299e1acc850bd73ce95bacdd0f5e3125cb38024e7d3e096b77bacc576",
+      "promoted_sha256": "0dad94f299e1acc850bd73ce95bacdd0f5e3125cb38024e7d3e096b77bacc576",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/scope_guard.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sql_schema_bgp_views.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sql_schema_bgp_views.guide.yaml",
+      "generated_sha256": "9b868167dc5a40742e3b7784998270b7c53468825b39936a92bd2bcdef332cb4",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_bgp_views.guide.yaml",
+      "source_sha256": "9b868167dc5a40742e3b7784998270b7c53468825b39936a92bd2bcdef332cb4",
+      "promoted_sha256": "9b868167dc5a40742e3b7784998270b7c53468825b39936a92bd2bcdef332cb4",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_bgp_views.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sql_schema_devices_and_topology.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sql_schema_devices_and_topology.guide.yaml",
+      "generated_sha256": "c0540e85809d608afd2e96119de848f239f866c80adb15e88d22fd8584bb36a5",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_devices_and_topology.guide.yaml",
+      "source_sha256": "c0540e85809d608afd2e96119de848f239f866c80adb15e88d22fd8584bb36a5",
+      "promoted_sha256": "c0540e85809d608afd2e96119de848f239f866c80adb15e88d22fd8584bb36a5",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_devices_and_topology.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sql_schema_interface_views.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sql_schema_interface_views.guide.yaml",
+      "generated_sha256": "1a7f3601c62028dbc13e13f8d3c1baa4f5501502381859e539679c4a1b6dd9f9",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_interface_views.guide.yaml",
+      "source_sha256": "1a7f3601c62028dbc13e13f8d3c1baa4f5501502381859e539679c4a1b6dd9f9",
+      "promoted_sha256": "1a7f3601c62028dbc13e13f8d3c1baa4f5501502381859e539679c4a1b6dd9f9",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_interface_views.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sql_schema_ospf_views.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sql_schema_ospf_views.guide.yaml",
+      "generated_sha256": "23c718021ded372de964a6012439620866293d9070162e1d6ff45299b55e36ba",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_ospf_views.guide.yaml",
+      "source_sha256": "23c718021ded372de964a6012439620866293d9070162e1d6ff45299b55e36ba",
+      "promoted_sha256": "23c718021ded372de964a6012439620866293d9070162e1d6ff45299b55e36ba",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_ospf_views.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sql_schema_parsed_outputs.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sql_schema_parsed_outputs.guide.yaml",
+      "generated_sha256": "b0bc69ee3a991e3b8118b99788c3d903ffc2cf12b6dfac4e572121ea89dc774c",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_parsed_outputs.guide.yaml",
+      "source_sha256": "b0bc69ee3a991e3b8118b99788c3d903ffc2cf12b6dfac4e572121ea89dc774c",
+      "promoted_sha256": "b0bc69ee3a991e3b8118b99788c3d903ffc2cf12b6dfac4e572121ea89dc774c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_parsed_outputs.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sql_schema_route_views.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sql_schema_route_views.guide.yaml",
+      "generated_sha256": "3bc734a5f42b5f0e9a82be938e76a6a20055eb9e6f5d5cbb743cad03fe228cdd",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_route_views.guide.yaml",
+      "source_sha256": "3bc734a5f42b5f0e9a82be938e76a6a20055eb9e6f5d5cbb743cad03fe228cdd",
+      "promoted_sha256": "3bc734a5f42b5f0e9a82be938e76a6a20055eb9e6f5d5cbb743cad03fe228cdd",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sql_schema_route_views.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/sub_agent_dispatch.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/sub_agent_dispatch.guide.yaml",
+      "generated_sha256": "118c2097ce8226ebff478b8da9fc0a1bf1616666be8645f4a5a12f67aaceb9d8",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sub_agent_dispatch.guide.yaml",
+      "source_sha256": "118c2097ce8226ebff478b8da9fc0a1bf1616666be8645f4a5a12f67aaceb9d8",
+      "promoted_sha256": "118c2097ce8226ebff478b8da9fc0a1bf1616666be8645f4a5a12f67aaceb9d8",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/sub_agent_dispatch.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/references/unreachable_device_stop.guide.yaml",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/references/unreachable_device_stop.guide.yaml",
+      "generated_sha256": "04ad785173db232e9a642f6ced2c41885b6e29da8c7fde5d8d1b97bd4ae57a44",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/unreachable_device_stop.guide.yaml",
+      "source_sha256": "04ad785173db232e9a642f6ced2c41885b6e29da8c7fde5d8d1b97bd4ae57a44",
+      "promoted_sha256": "04ad785173db232e9a642f6ced2c41885b6e29da8c7fde5d8d1b97bd4ae57a44",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/references/unreachable_device_stop.guide.yaml",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/scripts/diff_configs.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/scripts/diff_configs.py",
+      "generated_sha256": "733d20ed3469bb844aad6d5908f1d8654a4fbe3feb16fefd28c2c9cbfe866a38",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/diff_configs.py",
+      "source_sha256": "733d20ed3469bb844aad6d5908f1d8654a4fbe3feb16fefd28c2c9cbfe866a38",
+      "promoted_sha256": "d845b9ad90dfaf36cd380042dabab4b998a82cdc6b3204b1f34aa55640986c2c",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/diff_configs.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/scripts/diff_snapshots.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/scripts/diff_snapshots.py",
+      "generated_sha256": "72bad9eff9ebaf46f11b767ec4d3f5aa199e688465018aec00ee252df9f5f84c",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/diff_snapshots.py",
+      "source_sha256": "72bad9eff9ebaf46f11b767ec4d3f5aa199e688465018aec00ee252df9f5f84c",
+      "promoted_sha256": "b1b4fdd88aae146cf3aff7baf496a98f63cbe24302490064b66df8fb35b6f512",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/diff_snapshots.py",
+      "source_git_status": "M olav-netops/.olav/workspace/netops/scripts/diff_snapshots.py"
+    },
+    {
+      "destination": "skills/netops/scripts/inspect_blast_radius.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/scripts/inspect_blast_radius.py",
+      "generated_sha256": "9fa0de61641e05b29313b023b5aa2e6400e4e0ee17dc5b5ea67352b511610c54",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/inspect_blast_radius.py",
+      "source_sha256": "9fa0de61641e05b29313b023b5aa2e6400e4e0ee17dc5b5ea67352b511610c54",
+      "promoted_sha256": "92a5cfd7d792993789c7126a9bbe80078f82daf423c658fe856a114ea450d043",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/inspect_blast_radius.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/scripts/query_batch.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/scripts/query_batch.py",
+      "generated_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/query_batch.py",
+      "source_sha256": "6d50b1d62a66e3a9fcdcf888972267db1b5016e973b93b933958ba6340d07a39",
+      "promoted_sha256": "b7be81e019fc9168aeeb071342cbed221b3809c5efe66e9ad4006a12f436b6b9",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/query_batch.py",
+      "source_git_status": "?? olav-netops/.olav/workspace/netops/scripts/query_batch.py"
+    },
+    {
+      "destination": "skills/netops/scripts/read_change_plan.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/scripts/read_change_plan.py",
+      "generated_sha256": "88cffaef7aefe45b006d3e9c595cc860169be5a19129191a16811b2b106440b2",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/read_change_plan.py",
+      "source_sha256": "88cffaef7aefe45b006d3e9c595cc860169be5a19129191a16811b2b106440b2",
+      "promoted_sha256": "88cffaef7aefe45b006d3e9c595cc860169be5a19129191a16811b2b106440b2",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/read_change_plan.py",
+      "source_git_status": "clean-or-ignored"
+    },
+    {
+      "destination": "skills/netops/scripts/search_commands.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/skills/netops/scripts/search_commands.py",
+      "generated_sha256": "0d8c9914bc78c595b8db159d8075e941f2d2c44e5eced3689048b866de59724c",
+      "source": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/search_commands.py",
+      "source_sha256": "0d8c9914bc78c595b8db159d8075e941f2d2c44e5eced3689048b866de59724c",
+      "promoted_sha256": "ca7118ea328c0889098b1dfd2588d77af52072fd557c00ff634c0d0471c95d62",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/.olav/workspace/netops/scripts/search_commands.py",
+      "source_git_status": "clean-or-ignored"
+    }
+  ],
+  "source_dirty_paths": [
+    "M olav-netops/.olav/workspace/netops/SKILL.md",
+    "M olav-netops/.olav/workspace/netops/analyzer/SKILL.md",
+    "M olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_devices.py",
+    "M olav-netops/.olav/workspace/netops/analyzer/scripts/inspect_interfaces.py",
+    "?? olav-netops/.olav/workspace/netops/analyzer/scripts/query_batch.py",
+    "M olav-netops/.olav/workspace/netops/importer/scripts/ingest_snapshot.py",
+    "?? olav-netops/.olav/workspace/netops/references/batch_query.md",
+    "?? olav-netops/.olav/workspace/netops/references/evidence_query.md",
+    "M olav-netops/.olav/workspace/netops/reporter/SKILL.md",
+    "M olav-netops/.olav/workspace/netops/reporter/scripts/diff_snapshots.py",
+    "?? olav-netops/.olav/workspace/netops/reporter/scripts/query_batch.py",
+    "M olav-netops/.olav/workspace/netops/reporter/scripts/query_evidence.py",
+    "M olav-netops/.olav/workspace/netops/scripts/diff_snapshots.py",
+    "?? olav-netops/.olav/workspace/netops/scripts/query_batch.py",
+    "M olav-netops/.olav/workspace/netops/topology/SKILL.md",
+    "?? olav-netops/.olav/workspace/netops/topology/scripts/query_batch.py",
+    "M olav-netops/.olav/workspace/netops/topology/scripts/query_topology.py",
+    "M olav-netops/src/olav_netops/core/ingest/closure.py",
+    "M olav-netops/src/olav_netops/core/query/warehouse.py",
+    "M scripts/gen_olav_skills.py",
+    "?? src/olav/core/ingest_commit_guard.py",
+    "M src/olav/data/workspace/core/scripts/execute_sql.py",
+    "M src/olav/data/workspace/core/scripts/search_logs.py",
+    "M src/olav/data/workspace/core/writer/SKILL.md",
+    "M src/olav/data/workspace/core/writer/scripts/render_topology_drawio.py",
+    "?? src/olav/data/workspace/core/writer/scripts/render_topology_svg.py",
+    "?? src/olav/tools/sql_budget.py",
+    "?? src/olav/tools/sql_policy.py"
+  ],
+  "source_license": {
+    "source": "/home/yhvh/code/Olav/LICENSE",
+    "sha256": "756363a0439470de50881f3d277e8042dbcf1afeea814aa694f9e26e0dcbcdb1",
+    "preserved_copy": "provenance/SOURCE-LICENSE",
+    "root_license_sha256": "756363a0439470de50881f3d277e8042dbcf1afeea814aa694f9e26e0dcbcdb1",
+    "identical": true
+  },
+  "generator_sha256_at_extraction": "7a8f71fcafcd510564f613751db3690f522071e65eae24de8ce6827b6869b275",
+  "source_fixtures": [
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R1/_meta.yaml",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R1/_meta.yaml",
+      "sha256": "bf38a375ef824dbad92a572f94bf3de58f48799d530dd16fee196af076e316c9"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R1/show_version.txt",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R1/show_version.txt",
+      "sha256": "58b83eb3cd3451a0c072ff56c615b4ef79ddfcc784216fbcf0ffc6704516f92e"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R2/_meta.yaml",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R2/_meta.yaml",
+      "sha256": "742bec0aebc053e5720b5b5286c530f68321761099ae5fa61357e6aa59801ce1"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R2/show_ip_bgp_summary.txt",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R2/show_ip_bgp_summary.txt",
+      "sha256": "16a89330026e8c882f7ff515f96cb2503c35c8dd62feb5b0dc979dbb027992e8"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R2/show_ip_interface_brief.txt",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R2/show_ip_interface_brief.txt",
+      "sha256": "90d0dacb5358cffa7cfe3e7b87fff082ae2a8c5ff59f56646f3922819f1607b3"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R2/show_ip_route.txt",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R2/show_ip_route.txt",
+      "sha256": "9ba667db4e463d6adf46f0719f62b5dd3180f4c77c072fe3663ee07a4b5abe8b"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/devices/R2/show_version.txt",
+      "destination": "tests/fixtures/synthetic_2host_bundle/devices/R2/show_version.txt",
+      "sha256": "9b38684d9027e0a5421ae0948d049fd60aa0527915dceeb64da752bfba799a75"
+    },
+    {
+      "source": "/home/yhvh/code/Olav/tests/fixtures/portable_ingest/synthetic_2host_bundle/manifest.yaml",
+      "destination": "tests/fixtures/synthetic_2host_bundle/manifest.yaml",
+      "sha256": "4c9586930d2986564f2657ceb9b2dc6d08846aeda0e245feb80c5d9176e667d4"
+    }
+  ],
+  "test_origin": {
+    "source": "/home/yhvh/code/Olav/tests/integration/test_standalone_pack_workflow.py",
+    "source_sha256": "c8d801c5c8c795a81a6de05b19373f88aae3c6266a6c396407e83a7153aacc66",
+    "destination": "tests/test_source_workflow.py",
+    "adaptations": "new namespace/resources, complete-stdout JSON parser, synthetic bounded SQL and import report assertions"
+  },
+  "standard_skill_specification": "https://agentskills.io/specification",
+  "excluded_after_boundary_review": [
+    {
+      "destination": "src/olav_skills/core/embedder.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/embedder.py",
+      "generated_sha256": "075a57f07e2acbdacec27d86bc50fae8c1f3d790b74d6933db9d07f34270d42c",
+      "source": "/home/yhvh/code/Olav/src/olav/core/embedder.py",
+      "source_sha256": "075a57f07e2acbdacec27d86bc50fae8c1f3d790b74d6933db9d07f34270d42c",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/embedder.py",
+      "source_git_status": "clean-or-ignored",
+      "promoted_sha256_before_removal": "0b88c57195269a070adfb86efcb1976161f80dffa0456c33cc70ef2c46f8b2a9",
+      "reason": "QA source-boundary repair: unsupported model/embedding/memory implementation removed"
+    },
+    {
+      "destination": "src/olav_skills/core/memory/__init__.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/memory/__init__.py",
+      "generated_sha256": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "source": null,
+      "source_sha256": null,
+      "generated_by": "scripts/gen_olav_skills.py:write_vendored_runtime (empty namespace initializer)",
+      "promoted_sha256_before_removal": "edf938d4d870ea54d0724ee43923e637896ccae189150cea03fc6827a9338d3c",
+      "reason": "QA source-boundary repair: unsupported model/embedding/memory implementation removed"
+    },
+    {
+      "destination": "src/olav_skills/core/memory/guide_kb.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav/core/memory/guide_kb.py",
+      "generated_sha256": "4807a3d51f7f27d233d9150c992002f07431d97f5b99ce10abd8e40d5d58aa58",
+      "source": "/home/yhvh/code/Olav/src/olav/core/memory/guide_kb.py",
+      "source_sha256": "4807a3d51f7f27d233d9150c992002f07431d97f5b99ce10abd8e40d5d58aa58",
+      "source_resolved": "/home/yhvh/code/Olav/src/olav/core/memory/guide_kb.py",
+      "source_git_status": "clean-or-ignored",
+      "promoted_sha256_before_removal": "2ff1f645fff771c7288d530fd2516ce3f3e5d029fe4d34b9e4e3697fbc4089fb",
+      "reason": "QA source-boundary repair: unsupported model/embedding/memory implementation removed"
+    },
+    {
+      "destination": "src/olav_skills/netops/core/memory_primer.py",
+      "generated_path": "/tmp/olav-skills-source-20261117/runtime/olav_netops/core/memory_primer.py",
+      "generated_sha256": "b3e2254253a241f0b99ee973983b0d413f9df8ac3577ceeacb5536631093d430",
+      "source": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/memory_primer.py",
+      "source_sha256": "b3e2254253a241f0b99ee973983b0d413f9df8ac3577ceeacb5536631093d430",
+      "source_resolved": "/home/yhvh/code/Olav/olav-netops/src/olav_netops/core/memory_primer.py",
+      "source_git_status": "clean-or-ignored",
+      "promoted_sha256_before_removal": "80e90cfc02d148638e0d8f77f1192b769d89437eb6e7fc89f9f9709a2e074c7b",
+      "reason": "QA source-boundary repair: unsupported model/embedding/memory implementation removed"
+    }
+  ]
+}

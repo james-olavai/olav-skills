@@ -42,8 +42,8 @@ from typing import Any, Literal
 
 import duckdb
 
-from olav.core.config import MAIN_DB_PATH
-from olav_netops.core.query.evidence import (
+from olav_skills.core.config import MAIN_DB_PATH
+from olav_skills.netops.core.query.evidence import (
     DEFAULT_DEADLINE_MS,
     MAX_PAGE_ROWS,
     EvidenceError,
@@ -51,9 +51,9 @@ from olav_netops.core.query.evidence import (
     search,
     search_syslog,
 )
-from olav.core.query_result import char_truncation
-from olav_netops.core.query.result_contract import adapt_evidence
-from olav_netops.core.query.temporal import record_temporal, time_value
+from olav_skills.core.query_result import char_truncation
+from olav_skills.netops.core.query.result_contract import adapt_evidence
+from olav_skills.netops.core.query.temporal import record_temporal, time_value
 
 
 _LOG_GLOB = ".olav/databases/syslogs/*/syslog-*.parquet"
@@ -360,6 +360,7 @@ def query_evidence(
     offset: int | None = None,
     limit: int | None = None,
     deadline_ms: int | None = DEFAULT_DEADLINE_MS,
+    raw_scope: str = "current_labels",
 ) -> dict[str, Any]:
     """Drill into recorded evidence for fault analysis.
 
@@ -433,6 +434,11 @@ def query_evidence(
         >>> query_evidence(source="command_output", pattern="BGP",
         ...                device="R3", snapshot="snap-1", page=1)
     """
+    from olav_skills.netops.core.query import warehouse as _warehouse
+    if _warehouse.configured():
+        return _warehouse.query_evidence(source, pattern, device, time_range, snapshot, commands=commands, ids=ids, date_from=date_from, date_to=date_to, page=page, offset=offset, limit=limit, deadline_ms=deadline_ms, raw_scope=raw_scope)
+    if raw_scope != "current_labels":
+        return _warehouse.failure("INVALID_REQUEST", "raw_scope_requires_candidate")
     # Per-args dedup budget: 3rd identical call returns a fast-fail.
     args_key = (
         source, pattern, device, time_range, snapshot,
@@ -715,6 +721,12 @@ def query_evidence(
     return result
 
 
+from olav_skills.netops.core.query import warehouse as _candidate_warehouse
+
+if __name__ == "__main__" and _candidate_warehouse.configured():
+    _candidate_warehouse.candidate_main(query_evidence)
+
+
 if __name__ == "__main__":
     import json as _json
     import sys as _sys
@@ -728,7 +740,7 @@ if __name__ == "__main__":
     _accepted = (
         "source", "pattern", "device", "time_range", "snapshot",
         "commands", "ids", "date_from", "date_to", "page", "offset", "limit",
-        "deadline_ms",
+        "deadline_ms", "raw_scope",
     )
     try:
         _args = _json.loads(_sys.stdin.read() or "{}")
@@ -760,3 +772,5 @@ if __name__ == "__main__":
                            "error": f"{type(exc).__name__}: {exc}"}))
         _sys.exit(1)
     print(_json.dumps(result, default=str))
+    if result.get("error", {}).get("code") == "INVALID_REQUEST" if isinstance(result.get("error"), dict) else False:
+        _sys.exit(1)

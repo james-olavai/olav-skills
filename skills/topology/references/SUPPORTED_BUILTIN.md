@@ -47,6 +47,6 @@ not find. Do not seed them.
 Use the discovery flow in `SKILL.md` (`prepare_recipe` → draft → `save_recipe` →
 `rebuild_views`). A recipe that proves useful across vendors is worth proposing
 as a shipped default in a PR — together with a Pydantic model in
-`olav_netops.schemas.topology` if the concept is new — but there is no
+`olav_skills.netops.schemas.topology` if the concept is new — but there is no
 auto-loading path for it to plug into, and adding one would re-create what R83.2
 removed.

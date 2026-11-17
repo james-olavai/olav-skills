@@ -16,7 +16,7 @@ match count and the page range, so a short table is never mistaken for "only
 these records".  ``page`` selects further pages; ``limit`` remains the page size.
 
 This is the platform core script, so it stays self-contained: it does not import
-``olav_netops``.  Missing files, permission failures, SQL/budget failures and a
+``olav_skills.netops``.  Missing files, permission failures, SQL/budget failures and a
 genuine zero match are reported differently.
 """
 
@@ -34,7 +34,6 @@ def _find_project_root():
     return Path.cwd()
 
 
-sys.path.insert(0, str(_find_project_root() / "src"))
 
 _logger = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ def _resolve_search_limit(explicit: int | None) -> int:
     if explicit is not None:
         return max(1, min(int(explicit), _SEARCH_LOGS_HARD_MAX))
     try:
-        from olav.core.config import get_llm_config, tier_default
+        from olav_skills.core.config import get_llm_config, tier_default
         tier = get_llm_config().model_tier
         val = tier_default(tier, "search_logs_default_limit", _SEARCH_LOGS_FALLBACK)
         return max(1, min(int(val), _SEARCH_LOGS_HARD_MAX))
@@ -90,7 +89,7 @@ def _resolve_search_limit(explicit: int | None) -> int:
 def _get_log_dir() -> Path:
     """Resolve the syslog Parquet log directory."""
     try:
-        from olav.core.config import DATABASES_DIR
+        from olav_skills.core.config import DATABASES_DIR
         return Path(DATABASES_DIR) / "syslogs"
     except Exception:
         return Path(".olav/databases/syslogs")

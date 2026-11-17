@@ -33,12 +33,11 @@ def _find_project_root():
     return Path.cwd()
 
 
-sys.path.insert(0, str(_find_project_root() / "src"))
 
 import duckdb as _duckdb
 
-from olav.core.config import MAIN_DB_PATH
-from olav.core.query_result import (
+from olav_skills.core.config import MAIN_DB_PATH
+from olav_skills.core.query_result import (
     byte_truncation,
     cell_truncation,
     clamp_cause,
@@ -50,7 +49,7 @@ from olav.core.query_result import (
     row_truncation,
     unknown,
 )
-from olav.tools.sql_budget import (
+from olav_skills.tools.sql_budget import (
     HARD_MAX_CELL_CHARS,
     HARD_MAX_RESPONSE_BYTES,
     HARD_MAX_ROWS,
@@ -145,7 +144,7 @@ def _resolve_context_rows() -> int:
     without a configured tier still get a bounded result set.
     """
     try:
-        from olav.core.config import get_llm_config, tier_default
+        from olav_skills.core.config import get_llm_config, tier_default
         tier = get_llm_config().model_tier
         val = tier_default(tier, "execute_sql_context_rows", _CONTEXT_ROWS_FALLBACK)
         return max(1, int(val))
@@ -156,7 +155,7 @@ def _resolve_context_rows() -> int:
 def _resolve_max_cell_chars() -> int:
     """Tier-aware per-cell character cap (small=800 / medium=2000 / large=8000)."""
     try:
-        from olav.core.config import get_llm_config, tier_default
+        from olav_skills.core.config import get_llm_config, tier_default
         tier = get_llm_config().model_tier
         val = tier_default(tier, "execute_sql_max_cell_chars", 2000)
         return max(200, int(val))
@@ -740,6 +739,55 @@ def _with_contract(payload: dict, block, budget) -> dict:
     )
 
 
+def _candidate_main(params: dict) -> dict:
+    """Administrator candidate read transport; legacy preview, no stable pages."""
+    from dataclasses import replace
+    from olav_skills.core.read_connection import open_read_connection, ReadConnectionError
+    from olav_skills.tools.sql_policy import (load_query_policy, validate_bindings,
+                                       ValidatedSelect, SqlPolicyError)
+    try:
+        allowed = {"query", "sql", "params", "explain_only", "max_rows", "max_cell_chars",
+                   "max_total_bytes", "timeout_ms", "offset"}
+        if not isinstance(params, dict) or set(params) - allowed:
+            raise SqlPolicyError("FORBIDDEN_FIELD")
+        if len(json.dumps(params, ensure_ascii=False).encode("utf-8")) > 65536:
+            raise SqlPolicyError("INPUT_BUDGET_EXCEEDED")
+        policy = load_query_policy()
+        args = DatabaseQueryInput(**params)
+        budget = replace(resolve_budget(default_rows=20, default_cell_chars=2000,
+            overrides={key: getattr(args, key) for key in
+                       ("max_rows", "max_cell_chars", "max_total_bytes", "timeout_ms")},
+            offset=args.offset or 0), memory_limit="256MB", threads=1)
+        if not args.sql or args.explain_only:
+            with open_read_connection() as session:
+                validate_bindings(session.connection, ValidatedSelect(policy.relations, frozenset()), policy)
+                # No samples, native singleton, model, or untrusted DESCRIBE.
+                tables = sorted(f"{schema}.{table}" for schema, table in policy.relations)
+                payload = {"status": "success" if args.explain_only else "needs_sql_generation",
+                           "tables": tables, "schema_context": "Approved base tables: " + ", ".join(tables),
+                           "reader": {"backend": "ducklake", "read_version": session.read_version,
+                                      "policy_version": 1, "transport": "bounded_preview"}}
+                return _finalize_response(payload, budget)
+        result = run_bounded_query(None, args.sql, args.params, budget,
+                                  connection_factory=open_read_connection, query_policy=policy)
+        if result.budget_exceeded:
+            raise SqlBudgetError("budget_exceeded", "query byte budget exceeded")
+        payload = result.as_dict()
+        payload["data"] = _sanitize_rows(result.rows, max_chars=budget.max_cell_chars + len(TRUNCATION_MARKER) + 32)
+        payload["status"] = "success" if result.rows else "empty"
+        payload["reader"] = {"backend": "ducklake", "read_version": result.read_version,
+                             "policy_version": 1, "transport": "bounded_preview"}
+        payload["message"] = "Bounded preview; offset re-executes SQL and is not a stable result page."
+        return _finalize_response(payload, budget)
+    except (SqlPolicyError, ReadConnectionError) as exc:
+        code = exc.code
+    except SqlBudgetError as exc:
+        code = exc.error_type
+    except Exception:
+        code = "INVALID_REQUEST"
+    return {"status": "error", "error_type": code, "error": code}
+
+
 def main(params: dict) -> dict:
     """Execute database query with auto schema exploration.
 
@@ -760,6 +808,15 @@ def main(params: dict) -> dict:
             "status": "success"|"error"
         }
     """
+    # Candidate routing precedes all native SchemaContext/approval paths.
+    from olav_skills.core.read_connection import read_host_config, ReadConnectionError
+    try:
+        configured = read_host_config() is not None
+    except ReadConnectionError:
+        return {"status": "error", "error_type": "WAREHOUSE_UNAVAILABLE", "error": "WAREHOUSE_UNAVAILABLE"}
+    if configured:
+        return _candidate_main(params)
+
     # Validate parameters with Pydantic
     try:
         args = DatabaseQueryInput(**params)

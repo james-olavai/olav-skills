@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "olav-skills"
+version = "0.1.1"
+description = "Standalone deterministic network skills and standard skill resources"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+dependencies = [
+  "duckdb>=1.5.6,<2.0", "pyyaml>=6.0", "pydantic>=2.0", "textfsm>=2.1.0",
+  "ntc-templates>=9.1.0", "networkx>=3.6.1", "netutils>=1.17.1", "netconan>=0.13",
+]
+
+[project.urls]
+Repository = "https://github.com/james-olavai/olav-skills"
+Issues = "https://github.com/james-olavai/olav-skills/issues"
+Documentation = "https://github.com/james-olavai/olav-skills/tree/main/docs"
+
+[project.scripts]
+olav-skills = "olav_skills.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/olav_skills"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "olav_skills/resources/skills"
+"examples" = "olav_skills/examples"
+
+[tool.hatch.build.targets.sdist]
+include = ["/examples", "/src", "/skills", "/tests", "/docs", "/pyproject.toml", "/README.md", "/LICENSE", "/requirements-lean.txt", "/provenance", "/tools"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

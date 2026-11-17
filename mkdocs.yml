@@ -1,0 +1,138 @@
+site_name: Olav Skills
+site_url: https://docs.olavai.com/
+site_description: Network analysis skills and deterministic tools for your existing AI harness.
+repo_url: https://github.com/james-olavai/olav-skills
+repo_name: james-olavai/olav-skills
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+theme:
+  name: material
+  language: en
+  font: false
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+plugins:
+  - search:
+      lang: [en, zh]
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: zh
+          name: 中文
+          build: true
+          nav_translations:
+            Start: 开始
+            Overview: 概览
+            Installation: 安装
+            First offline analysis: 首次离线分析
+            Harness setup: 接入现有 Harness
+            Skills: 技能
+            Navigation and differences: 导航与差异
+            Importer: Importer 导入
+            Analyzer: Analyzer 分析
+            Topology: Topology 拓扑
+            Reporter: Reporter 证据
+            Writer: Writer 图表
+            Learner: Learner 解析扩展
+            Workflows: 工作流
+            Inventory and interfaces: 设备与接口
+            Snapshot and configuration changes: 快照与配置差异
+            Topology artifacts: 拓扑图产物
+            Parser extension: 解析器扩展
+            Data and boundaries: 数据与边界
+            Network data model: 网络数据模型
+            Safety and evidence: 安全与证据
+            Troubleshooting: 故障排查
+            Portable knowledge: Portable 知识包
+            Reference: 参考
+            CLI: 命令行
+            Script protocol: 脚本协议
+            Configuration: 配置
+            Compatibility: 兼容性与验证
+            Project: 项目
+            Migration: 迁移
+            Changelog: 版本记录
+            License: 许可
+            Contributing: 贡献
+            Legacy documentation: 旧平台历史文档
+hooks:
+  - tools/docs_hooks.py
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.inlinehilite
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+nav:
+  - Start:
+      - Overview: index.md
+      - Installation: installation.md
+      - First offline analysis: offline-data.md
+      - Harness setup: harnesses.md
+  - Skills:
+      - Navigation and differences: skills/netops.md
+      - Importer: skills/importer.md
+      - Analyzer: skills/analyzer.md
+      - Topology: skills/topology.md
+      - Reporter: skills/reporter.md
+      - Writer: skills/writer.md
+      - Learner: skills/learner.md
+  - Workflows:
+      - Inventory and interfaces: workflows/inventory.md
+      - Snapshot and configuration changes: workflows/changes.md
+      - Topology artifacts: workflows/topology.md
+      - Parser extension: workflows/parsers.md
+  - Data and boundaries:
+      - Network data model: data-model.md
+      - Safety and evidence: safety.md
+      - Troubleshooting: troubleshooting.md
+      - Portable knowledge: portable.md
+  - Reference:
+      - CLI: reference/cli.md
+      - Script protocol: reference/scripts.md
+      - Configuration: reference/configuration.md
+      - Compatibility: reference/compatibility.md
+  - Project:
+      - Migration: migration.md
+      - Changelog: changelog.md
+      - License: license.md
+      - Contributing: contributing.md
+      - Legacy documentation: legacy-index.md

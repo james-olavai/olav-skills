@@ -1,2 +1,14 @@
 __pycache__/
 *.py[cod]
+.venv/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+.env
+/site/
+/.wrangler/
+.pypirc
+.pypirc_test
+.private/
+credentials.env

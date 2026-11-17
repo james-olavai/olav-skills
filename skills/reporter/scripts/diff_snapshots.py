@@ -34,7 +34,7 @@ Return shape::
     }
 
 Counting and sampling are performed in DuckDB (see
-``olav_netops.core.diff.snapshot_summary``).  This wrapper keeps the legacy
+``olav_skills.netops.core.diff.snapshot_summary``).  This wrapper keeps the legacy
 key-projection EXCEPT semantics and only returns a stable, bounded sample.
 """
 
@@ -45,7 +45,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from olav_netops.core.diff.snapshot_summary import (
+from olav_skills.netops.core.diff.snapshot_summary import (
     TABLES as _TABLES,
     diff_snapshots_summary,
     serialize_result,
@@ -66,7 +66,7 @@ def _find_project_root() -> Path:
 
 def _main_db_path() -> Path:
     try:
-        from olav.core.config import MAIN_DB_PATH
+        from olav_skills.core.config import MAIN_DB_PATH
         return Path(MAIN_DB_PATH)
     except Exception:
         return _find_project_root() / ".olav" / "databases" / "main.duckdb"
@@ -93,6 +93,9 @@ def diff_snapshots(
     Returns:
         Summary dict — see module docstring for shape.
     """
+    from olav_skills.netops.core.query import warehouse as _warehouse
+    if _warehouse.configured():
+        return _warehouse.diff_snapshots(snapshot_id_1, snapshot_id_2, table_name, device)
     return diff_snapshots_summary(
         _main_db_path(),
         snapshot_id_1,
@@ -100,6 +103,12 @@ def diff_snapshots(
         table_name,
         device,
     )
+
+
+from olav_skills.netops.core.query import warehouse as _candidate_warehouse
+
+if __name__ == "__main__" and _candidate_warehouse.configured():
+    _candidate_warehouse.candidate_main(diff_snapshots)
 
 
 if __name__ == "__main__":

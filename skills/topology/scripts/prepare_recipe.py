@@ -176,8 +176,8 @@ def prepare_recipe(protocol: str, vendor: str) -> dict[str, Any]:
         output never parsed need different fixes, so they are different errors.
     """
     import duckdb
-    from olav.core.config import MAIN_DB_PATH
-    from olav_netops.core.topology_intent import intent_to_concept
+    from olav_skills.core.config import MAIN_DB_PATH
+    from olav_skills.netops.core.topology_intent import intent_to_concept
 
     concept = intent_to_concept(protocol)
 

@@ -1,14 +1,9 @@
 ---
 name: importer
 description: Offline snapshot ingest — drops a bundle / rancid backup / vendor dump in and lands it in raw_output_store + structured views.
-allowed-tools:
-  - Bash
-  - Read
-  - Grep
-  - Glob
-requires_packages:
-  - olav>=0.28.0
-  - olav-netops>=0.28.0
+compatibility: Requires Python >=3.11 and the olav-skills Python distribution.
+metadata:
+  runtime: "olav-skills>=0.1.0"
 ---
 
 > **Calling convention in this pack.** These agents were written for the OLAV
@@ -38,8 +33,8 @@ requires_packages:
 > `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
 > connection, and anything mutating is **refused rather than executed** —
 > `status: "requires_approval"`, nothing written. It also caps how many rows reach
-> your context (the full result goes to a CSV under `exports/queries/` when it is
-> large). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
+> your context (an explicit `export_bounded=true` writes only the bounded preview to a
+> CSV under `exports/queries/`). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
 > when no syslog directory was copied along with the database.
 >
 > Tools named in the prose that this pack genuinely does not ship

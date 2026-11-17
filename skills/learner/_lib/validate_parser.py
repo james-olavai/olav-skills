@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def _ast_safety_check(code: str) -> tuple[bool, str]:
     """Delegate to parser_learner's inlined ast_safety_check."""
     try:
-        from olav_netops.core.parser_learner import ast_safety_check
+        from olav_skills.netops.core.parser_learner import ast_safety_check
         return ast_safety_check(code)
     except Exception as exc:
         return False, f"ast_safety_check unavailable: {exc}"
@@ -48,7 +48,7 @@ def _run_python_parser(code: str, samples: list[dict[str, Any]]) -> list[list[di
     Returns a list of per-sample results (None when that sample failed).
     """
     try:
-        from olav.platform.sandbox import execute_in_sandbox
+        from olav_skills.platform.sandbox import execute_in_sandbox
     except Exception as exc:
         logger.debug("validate_parser: sandbox import failed: %s", exc)
         return [None] * len(samples)

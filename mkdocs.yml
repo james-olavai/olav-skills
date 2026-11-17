@@ -9,6 +9,8 @@ site_dir: site
 use_directory_urls: true
 theme:
   name: material
+  logo: assets/olav-mark.png
+  favicon: assets/olav-mark.png
   language: en
   font: false
   palette:
@@ -81,6 +83,8 @@ plugins:
             Legacy documentation: 旧平台历史文档
 hooks:
   - tools/docs_hooks.py
+extra_css:
+  - assets/brand.css
 markdown_extensions:
   - admonition
   - pymdownx.details

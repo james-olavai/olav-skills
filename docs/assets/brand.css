@@ -1,0 +1,6 @@
+/* Preserve the approved mark colors on both Material color schemes. */
+.md-header__button.md-logo img,
+.md-nav__title .md-logo img {
+  background: #fff;
+  border-radius: .25rem;
+}

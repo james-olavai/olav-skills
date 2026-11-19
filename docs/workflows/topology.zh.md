@@ -2,6 +2,8 @@
 
 先运行[离线示例](../offline-data.md)，它已经核对两台设备、一条记录 CDP 边，写入 Mermaid 产物和报告。本流程解释如何在无模型条件下重复并解释绘图步骤。
 
+如果是在网页对话中收到拓扑图，请参阅 [Open WebUI 使用指南](../openwebui.zh.md)，确认图和报告的来源及覆盖范围。
+
 ## 先读关系，再绘图
 
 用 `topology query_topology`、`concept: all` 和导入返回的快照 ID 查询，检查 `absent_layers`；夹具没有 OSPF 来源。L2、BGP、OSPF 是不同层，空或缺失层不能画成已证实不存在关系。

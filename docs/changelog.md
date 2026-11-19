@@ -14,8 +14,9 @@ imports retain new historical raw/provenance within the database transaction.
 Each feature has its own vendor, source, time and completeness limits. These
 are offline recorded observations, never change approval or proof of live
 health. Cache qualification and host acceptance are separate release gates.
-This version has not been uploaded, deployed or automatically exposed through
-Open WebUI. See [candidate review](release-candidate.md).
+This version remains unpublished on PyPI. The separately configured private
+integration controls which capabilities are available in Open WebUI.
+[Candidate review](release-candidate.md) · [Open WebUI guide](openwebui.md)
 
 ## 0.1.1 — 17 November 2026
 

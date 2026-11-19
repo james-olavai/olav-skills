@@ -52,6 +52,7 @@ plugins:
             Installation: 安装
             First offline analysis: 首次离线分析
             Harness setup: 接入现有 Harness
+            Open WebUI guide: Open WebUI 使用指南
             Skills: 技能
             Navigation and differences: 导航与差异
             Importer: Importer 导入
@@ -117,6 +118,7 @@ nav:
       - Candidate review: release-candidate.md
       - First offline analysis: offline-data.md
       - Harness setup: harnesses.md
+      - Open WebUI guide: openwebui.md
   - Skills:
       - Navigation and differences: skills/netops.md
       - Importer: skills/importer.md

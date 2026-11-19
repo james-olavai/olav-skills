@@ -5,6 +5,7 @@ invoke the standalone Python runtime. Your existing harness handles model
 selection, discovery configuration, tool invocation and permissions. The same
 runtime also runs directly from the CLI.
 
+If your administrator has set up the private integration, see how to select your tenant, ask questions and download reports. [Open WebUI guide](openwebui.md)
 
 ## Install with pip, then bind
 

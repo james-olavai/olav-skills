@@ -2,6 +2,8 @@
 
 Run the [offline walkthrough](../offline-data.md) first. It already verifies two hosts and one recorded CDP edge, writes a Mermaid artifact and creates a report. This workflow explains how to repeat and interpret that artifact step without a model.
 
+If you received a diagram in a configured chat, see how to read its coverage in the [Open WebUI guide](../openwebui.md#read-the-scope-of-a-topology-diagram).
+
 ## Read before drawing
 
 Query `topology query_topology` with `concept: all` and the import-returned snapshot ID. Review `absent_layers`; the fixture's OSPF source is absent. L2, BGP and OSPF are different layers, and an empty or missing layer should not be drawn as a verified lack of relationships.

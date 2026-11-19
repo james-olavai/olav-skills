@@ -2,6 +2,8 @@
 
 Question: **“How many devices are in this capture, and what can we actually inspect?”** First run the [offline example](../offline-data.md) in a new home. This workflow uses that home's `import.json`, so no guessed snapshot label or model is required.
 
+For questions about the current inventory and downloads in a configured chat, see the [Open WebUI guide](../openwebui.md#count-devices-and-check-role-coverage).
+
 ## Establish scope and membership
 
 ```sh

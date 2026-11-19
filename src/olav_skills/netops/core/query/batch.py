@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+from olav_skills import state_contracts as states
 from .result_contract import adapt_batch, adapt_diff, diff_limits
 from .temporal import unknown, time_value, snapshot_time, record_temporal, interval
 from olav_skills.netops.core.diff.snapshot_summary import (
@@ -34,11 +35,10 @@ SOURCES = {
     'devices': ('hostname', 'ip_address', 'platform', 'vendor', 'model', 'role'),
     'parsed_outputs': ('device_name', 'command', 'snapshot_id'),
     'raw_output_store': ('device_name', 'command', 'snapshot_id'),
-    'v_show_ip_interface_brief_auto': ('device_name', 'snapshot_id', 'interface', 'ip_address', 'status', 'proto'),
-    'v_show_interfaces_terse_auto': ('device_name', 'snapshot_id', 'interface', 'ip_address', 'link_state', 'proto'),
-    'v_show_ip_bgp_summary_auto': ('device_name', 'snapshot_id', 'bgp_neighbor', 'state_or_prefixes_received'),
-    'v_show_bgp_summary_auto': ('device_name', 'snapshot_id', 'bgp_neighbor', 'state_or_prefixes_received'),
 }
+_HEALTH_SOURCES = {states.view_name(source): source
+                   for group in states.VIEW_SOURCES.values() for source in group}
+SOURCES.update({name: states.view_columns(source) for name, source in _HEALTH_SOURCES.items()})
 FIELDS = {
     'devices': SOURCES['devices'],
     'commands': ('device_name', 'command', 'record_count'),
@@ -151,6 +151,7 @@ class Query:
         self.read_sources = set()
         self._times = {}
         self._loaded_all_times = False
+        self.exact_snapshot_scope = False
 
     def run(self, sql: str, params: list | None = None, cap: int = 1) -> list:
         remaining = int((self.deadline - time.monotonic()) * 1000)
@@ -162,12 +163,15 @@ class Query:
             return rows
         return _run_with_timeout(self.conn, action, timeout_ms=remaining, stage='query_batch')
 
-    def columns(self, source: str) -> list[str]:
+    def column_types(self, source: str) -> dict[str, str]:
         allowed = SOURCES.get(source, ())
         if not allowed:
-            return []
+            return {}
         marks = ','.join('?' for _ in allowed)
-        return [x[0] for x in self.run(f'SELECT column_name FROM information_schema.columns WHERE table_schema=? AND table_name=? AND column_name IN ({marks}) ORDER BY ordinal_position LIMIT 16', ['netops', source, *allowed], 16)]
+        return dict(self.run(f'SELECT column_name,data_type FROM information_schema.columns WHERE table_schema=? AND table_name=? AND column_name IN ({marks}) ORDER BY ordinal_position LIMIT 16', ['netops', source, *allowed], 16))
+
+    def columns(self, source: str) -> list[str]:
+        return list(self.column_types(source))
 
     def require(self, source: str, needed: tuple | list):
         cols = self.columns(source)
@@ -183,15 +187,18 @@ class Query:
         table_names = ['parsed_outputs','raw_output_store'] + (['bundle_ingests'] if bundle_allowed else [])
         marks = ','.join('?' for _ in table_names)
         # Metadata remains inside the same connection/deadline. No device loop.
-        catalog = self.run(f"SELECT table_name,column_name FROM information_schema.columns WHERE table_schema='netops' AND table_name IN ({marks}) AND column_name IN ('snapshot_id','collected_at','captured_at','snapshot_date','ingested_at','updated_at','collector_name') LIMIT 40", table_names, cap=40)
+        catalog = self.run(f"SELECT table_name,column_name,data_type FROM information_schema.columns WHERE table_schema='netops' AND table_name IN ({marks}) AND column_name IN ('snapshot_id','collected_at','captured_at','snapshot_date','ingested_at','updated_at','collector_name') LIMIT 40", table_names, cap=40)
         columns = {}
-        for table, col in catalog:
+        for table, col, dtype in catalog:
+            if self.exact_snapshot_scope and col == 'snapshot_id' and dtype != 'VARCHAR':
+                raise SnapshotDiffError('source_unsupported', f'netops.{table} snapshot_id must be VARCHAR')
             columns.setdefault(table, set()).add(col)
         sources = [t for t in ('parsed_outputs','raw_output_store') if 'snapshot_id' in columns.get(t, ())]
         if not sources:
             raise SnapshotDiffError('source_missing', 'no snapshot-bearing source is available')
-        union = ' UNION '.join(f'SELECT snapshot_id FROM netops.{t}' for t in sources)
-        predicate = ' AND snapshot_id=?' if requested else ''
+        identity = 'snapshot_id COLLATE "binary"' if self.exact_snapshot_scope else 'snapshot_id'
+        union = ' UNION '.join(f'SELECT {identity} AS snapshot_id FROM netops.{t}' for t in sources)
+        predicate = f' AND {identity}=?' if requested else ''
         bind = [requested] if requested else []
         ids = self.run(f'SELECT snapshot_id FROM ({union}) s WHERE snapshot_id IS NOT NULL{predicate} LIMIT 513', bind, cap=513)
         if len(ids) > 512 or any(len(str(r[0])) > 256 for r in ids):
@@ -218,7 +225,7 @@ class Query:
             projection = ','.join(parts)
             # collector-dump stores date-only provenance as midnight timestamp.
             collector = ",bool_or(collector_name='collector-dump')" if 'collector_name' in columns[table] else ',false'
-            rows = self.run(f'SELECT snapshot_id,count(*),{projection}{collector} FROM netops.{table} WHERE TRUE{predicate} GROUP BY snapshot_id LIMIT 513', bind, cap=513)
+            rows = self.run(f'SELECT {identity},count(*),{projection}{collector} FROM netops.{table} WHERE TRUE{predicate} GROUP BY {identity} LIMIT 513', bind, cap=513)
             if len(rows) > 512:
                 raise SnapshotDiffError('source_budget', 'snapshot temporal metadata exceeds bounded source budget')
             for row in rows:
@@ -286,14 +293,15 @@ def _in(col: str, values: list[str], params: list) -> str:
     return f' AND {col} IN ({",".join("?" for _ in values)})'
 
 
-def _scope(a: dict, sid: str) -> tuple[str, list]:
+def _scope(a: dict, sid: str, *, binary: bool = False) -> tuple[str, list]:
     params: list = []
-    dw = _in('hostname', a['devices'], params) + _in('vendor', a['vendors'], params)
+    exact = ' COLLATE "binary"' if binary else ''
+    dw = _in('hostname' + exact, a['devices'], params) + _in('vendor' + exact, a['vendors'], params)
     params.append(sid)
-    pw = _in('p.command', a['commands'], params)
+    pw = _in('p.command' + exact, a['commands'], params)
     return (f'WITH d AS (SELECT * FROM netops.devices WHERE TRUE{dw}), '
             f'p AS (SELECT p.device_name,p.command FROM netops.parsed_outputs p '
-            f'WHERE p.snapshot_id=? AND EXISTS (SELECT 1 FROM d WHERE d.hostname=p.device_name){pw}) ', params)
+            f'WHERE p.snapshot_id{exact}=? AND EXISTS (SELECT 1 FROM d WHERE d.hostname{exact}=p.device_name{exact}){pw}) ', params)
 
 
 def _sample(q: Query, base: str, params: list, a: dict, fields: list[str], order: str) -> tuple[list, int, bool]:
@@ -310,9 +318,11 @@ def _context(q: Query) -> dict:
     entries = []
     for name, allowed in SOURCES.items():
         cols = q.columns(name)
+        required = (states.view_profile(_HEALTH_SOURCES[name], cols) is not None
+                    if name in _HEALTH_SOURCES else set(allowed) <= set(cols))
         entries.append({'source': 'netops.' + name, 'status': 'present' if cols else 'absent',
                         'columns': [c for c in allowed if c in cols],
-                        'required_columns_present': set(allowed) <= set(cols)})
+                        'required_columns_present': required})
     return {'status':'success', 'operation':'context', 'contract_version':1,
             'sources':entries, 'operations':list(OPERATIONS),
             'scope':'host-bound OLAV_HOME/.olav/databases/main.duckdb; source/column capability only; no answer rows or counts',
@@ -320,41 +330,65 @@ def _context(q: Query) -> dict:
             'limits':{'rows':MAX_ROWS,'response_bytes':MAX_BYTES,'cell_chars':MAX_CELL,'timeout_ms':TIMEOUT_MS}}
 
 
+_INTEGER_TYPES = frozenset(('TINYINT','SMALLINT','INTEGER','BIGINT','HUGEINT',
+                            'UTINYINT','USMALLINT','UINTEGER','UBIGINT','UHUGEINT'))
+
+
 def _health(q: Query, a: dict, sid: str, cte: str, params: list) -> dict:
     interface = a['operation'] == 'interface_health'
-    names = ('v_show_ip_interface_brief_auto','v_show_interfaces_terse_auto') if interface else ('v_show_ip_bgp_summary_auto','v_show_bgp_summary_auto')
+    names = states.VIEW_SOURCES['interfaces' if interface else 'bgp']
     parts, sources = [], []
-    for name in names:
-        cols = q.columns(name)
-        required = SOURCES[name]
-        is_view = bool(q.run("SELECT 1 FROM information_schema.tables WHERE table_schema='netops' AND table_name=? AND table_type='VIEW' LIMIT 1",[name]))
-        supported = is_view and set(required) <= set(cols)
-        sources.append({'source':'netops.'+name,'status': 'present' if supported else ('unsupported_columns_or_not_view' if cols else 'absent')})
-        if not supported:
+    for source in names:
+        name = states.view_name(source)
+        columns = q.column_types(name)
+        objects = q.run("SELECT table_type FROM information_schema.tables WHERE table_schema='netops' AND table_name=? LIMIT 1",[name])
+        profile = states.view_profile(source, columns)
+        required = (*states.VIEW_SCOPE, *profile.columns) if profile else ()
+        typed = all(columns[field] == 'VARCHAR' or (
+            field == 'state_or_prefixes_received' and columns[field] in _INTEGER_TYPES
+        ) for field in required)
+        if not objects:
+            status = 'absent'
+        elif objects[0][0] != 'VIEW' or not profile or not typed:
+            status = 'unsupported_columns_or_not_view'
+        else:
+            status = 'present'
+        sources.append({'source':'netops.'+name,'status': status})
+        if status != 'present':
             continue
         if interface:
-            state = 'status' if name == names[0] else 'link_state'
-            part = f"SELECT s.device_name,s.interface,s.ip_address,s.{state} AS status,s.proto, (lower(coalesce(s.{state},''))<>'up' OR lower(coalesce(s.proto,''))<>'up') AS unhealthy FROM netops.{name} s WHERE s.snapshot_id=? AND EXISTS (SELECT 1 FROM d WHERE d.hostname=s.device_name)"
+            admin = 's.admin_state' if profile == states.JUNOS_INTERFACE else 'NULL::VARCHAR'
+            status, second_state = ('s.status', 's.proto') if source == 'interfaces_ios' else ('s.link_state', admin)
+            projection = f's.interface,s.ip_address,{status} AS status,s.proto,{admin} AS admin_state'
+            classification = states.interface_health_sql(status, second_state)
         else:
-            part = f"SELECT s.device_name,s.bgp_neighbor,s.state_or_prefixes_received, NOT (lower(trim(coalesce(CAST(s.state_or_prefixes_received AS VARCHAR),'')))='established' OR regexp_full_match(trim(coalesce(CAST(s.state_or_prefixes_received AS VARCHAR),'')), '[0-9]+')) AS unhealthy FROM netops.{name} s WHERE s.snapshot_id=? AND EXISTS (SELECT 1 FROM d WHERE d.hostname=s.device_name)"
-        parts.append(part)
+            raw = f'CAST(s.{profile.fields[0]} AS VARCHAR)'
+            projection = f's.{profile.identity} AS bgp_neighbor,{raw} AS state_or_prefixes_received'
+            classification = states.bgp_health_sql(raw, profile)
+        parts.append(f'''SELECT s.device_name COLLATE "binary" AS device_name,{projection},
+                         {classification} AS classification FROM netops.{name} s
+                         WHERE s.snapshot_id COLLATE "binary"=?
+                         AND EXISTS (SELECT 1 FROM d WHERE d.hostname COLLATE "binary"=s.device_name COLLATE "binary")''')
     if not parts:
         return {**error('source_missing', 'no supported canonical protocol view; no health verdict available'), 'sources':sources}
     # Only d is needed; p remains a lazy CTE. All unions use identical d scope.
     hp = params + [sid] * len(parts)
     base = cte + ', h AS (' + ' UNION ALL '.join(parts) + ') '
-    totals = q.run(base + 'SELECT count(*),count(DISTINCT device_name),count(*) FILTER (WHERE unhealthy) FROM h', hp)[0]
-    fields = ['device_name','interface','ip_address','status','proto'] if interface else ['device_name','bgp_neighbor','state_or_prefixes_received']
+    totals = q.run(base + """SELECT count(*),count(DISTINCT device_name),
+        count(*) FILTER (WHERE classification='nonhealthy'),count(*) FILTER (WHERE classification='healthy'),
+        count(*) FILTER (WHERE classification='unknown') FROM h""", hp)[0]
+    fields = ['device_name','interface','ip_address','status','proto','admin_state'] if interface else ['device_name','bgp_neighbor','state_or_prefixes_received']
     order = ','.join(f'"{x}" ASC NULLS LAST' for x in fields)
-    rows, n, more = _sample(q, base + 'SELECT '+','.join(fields)+' FROM h WHERE unhealthy', hp, a, fields, order)
-    covered = q.run(base + 'SELECT count(*) FROM d WHERE NOT EXISTS (SELECT 1 FROM h WHERE h.device_name=d.hostname)', hp)[0][0]
+    rows, n, more = _sample(q, base + 'SELECT '+','.join(fields)+" FROM h WHERE classification='nonhealthy'", hp, a, fields, order)
+    covered = q.run(base + 'SELECT count(*) FROM d WHERE NOT EXISTS (SELECT 1 FROM h WHERE h.device_name=d.hostname COLLATE "binary")', hp)[0][0]
     missing = []
     if a['devices']:
         placeholders = ','.join('(?)' for _ in a['devices'])
-        missing = [{'device_name':r[0], 'status':r[1]} for r in q.run(base+f", req(device_name) AS (VALUES {placeholders}) SELECT req.device_name,CASE WHEN NOT EXISTS (SELECT 1 FROM d WHERE d.hostname=req.device_name) THEN 'outside_inventory_filter' ELSE 'no_canonical_records' END FROM req WHERE NOT EXISTS (SELECT 1 FROM h WHERE h.device_name=req.device_name) ORDER BY req.device_name",hp+a['devices'],50)]
+        missing = [{'device_name':r[0], 'status':r[1]} for r in q.run(base+f""", req(device_name) AS (VALUES {placeholders}) SELECT req.device_name,CASE WHEN NOT EXISTS (SELECT 1 FROM d WHERE d.hostname COLLATE "binary"=req.device_name) THEN 'outside_inventory_filter' ELSE 'no_canonical_records' END FROM req WHERE NOT EXISTS (SELECT 1 FROM h WHERE h.device_name=req.device_name) ORDER BY req.device_name""",hp+a['devices'],50)]
     return {'status':'success','sources':sources,'rows':rows,'total_rows':n,'has_more':more,
-            'counts':{'record_count':totals[0],'observed_device_count':totals[1],'unhealthy_count':totals[2], 'healthy_count':totals[0]-totals[2]},
+            'counts':dict(zip(('record_count','observed_device_count','unhealthy_count','healthy_count','unknown_count'), totals)),
             'coverage':{'inventory_devices_without_canonical_records':covered,'complete':covered==0,'requested_devices_without_matches':missing,
+                        'collection_coverage':'unknown',
                         'note':'Canonical views only. A missing view or zero canonical records does not prove underlying parsed/raw data is absent.'}}
 
 
@@ -362,6 +396,8 @@ def _execute(q: Query, a: dict, *, diff_limit_block: dict | None = None) -> dict
     op = a['operation']
     if op == 'context':
         return _context(q)
+    protocol_health = op in ('interface_health', 'bgp_health')
+    q.exact_snapshot_scope = protocol_health
     sid = q.snapshot(a.get('snapshot_id', 'latest')) if op not in ('diff_summary','devices') else None
     if op == 'diff_summary':
         sid1, sid2 = q.snapshot(a['snapshot_id_1']), q.snapshot(a['snapshot_id_2'])
@@ -390,11 +426,15 @@ def _execute(q: Query, a: dict, *, diff_limit_block: dict | None = None) -> dict
         return {'status':'success','operation':op,'snapshot_id':sid,'rows':rows,'total_rows':total,'has_more':more,'temporal':q.temporal(sid) if sid else record_temporal({},scope='inventory'), 'scope':'inventory; explicit snapshot restricts to observed members'}
     q.require('devices', ('hostname','vendor'))
     q.require('parsed_outputs', ('snapshot_id','device_name','command'))
-    cte, params = _scope(a, sid)
+    cte, params = _scope(a, sid, binary=protocol_health)
     response = {'status':'success','operation':op,'snapshot_id':sid,'temporal':q.temporal(sid),
                 'scope':{'devices':a['devices'],'vendors':a['vendors'],'commands':a['commands']},
                 'sources':['netops.devices','netops.parsed_outputs']}
-    if op in ('interface_health','bgp_health'):
+    if protocol_health:
+        for source, scope_fields in (('devices', ('hostname','vendor')), ('parsed_outputs', ('snapshot_id','device_name','command'))):
+            types = q.column_types(source)
+            if any(types.get(field) != 'VARCHAR' for field in scope_fields):
+                return error('source_unsupported', f'netops.{source} has unsupported scope column types')
         return {**response, **_health(q,a,sid,cte,params)}
     if op == 'snapshot_summary':
         counts = q.run(cte+'SELECT (SELECT count(DISTINCT hostname) FROM d), count(DISTINCT device_name), count(DISTINCT command),count(*) FROM p',params)[0]

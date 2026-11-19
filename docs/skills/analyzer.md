@@ -4,7 +4,7 @@ Analyzer exposes recorded metadata, bounded SQL, device/interface inspection, lo
 
 ## Prefer a matching template
 
-`query_batch` supports snapshot statistics, device/command coverage, filtered devices/commands, multi-device summaries, top N, key differences and selected interface/BGP health checks. Start with `{"operation":"context"}` to inspect capabilities, then choose an operation and explicit snapshot. Unsupported intent remains unsupported: do not discard a date/vendor/device filter merely to fit a template.
+`query_batch` supports snapshot statistics, device/command coverage, filtered devices/commands, multi-device summaries, top N, key differences and selected interface/BGP health checks. Prefer a supported template; use `{"operation":"context"}` only when capability inspection is needed, and choose an explicit snapshot. Unsupported intent remains unsupported: do not discard a date/vendor/device filter merely to fit a template.
 
 For native snapshot-scoped device and interface questions, prefer these templates or bounded SQL. The legacy-style `inspect_devices` and `inspect_interfaces` scripts remain in the pack, but their native local paths do not support arbitrary explicit snapshot selection: the former rejects a supplied `snapshot_id`, the latter rejects values other than `latest`. Interface inspection can choose a latest record per device. Those conveniences must not be described as a single historical capture.
 
@@ -25,3 +25,5 @@ Mutations are not executed. External SQL file/network access is refused. An expl
 `search_logs` searches copied local logs; absence of a syslog store is a missing source. `inspect_blast_radius` evaluates removal from a recorded graph and returns exact totals separately from sampled members; it is not reachability simulation. `generate_change_plan` writes a bulk model-pattern plan under `exports/change_plans/`, accepting `model_pattern`, `output_filename`, `upgrade_description` and `bfs_order`. Review its facts, assumptions, device syntax, rollback and post-checks before using any draft.
 
 No simulator or generic report-writing API is supplied. A host can write a reviewed report using its authorized file tools. See [inventory investigation](../workflows/inventory.md), [changes](../workflows/changes.md) and [safety](../safety.md).
+
+`bfs_order` currently sorts stages by role substrings, not graph BFS or dependency validation. The bulk generator uses fixed Cisco IOS templates and image/TFTP placeholders; it does not support mixed-vendor plans, automatic simulation or application. Its artifact is an unreviewed draft requiring operator completion and review.

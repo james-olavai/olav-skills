@@ -1,207 +1,87 @@
 ---
 name: writer
-description: Turns the model into something a person keeps — draws the topology to draw.io XML or Mermaid from a scoped adjacency query, and polishes an existing report under exports/ in place.
-compatibility: Requires Python >=3.11 and the olav-skills Python distribution.
+description: "Render scoped recorded topology as draw.io or Mermaid, convert supplied adjacency tables to Mermaid/draw.io/SVG, or polish existing reports without inventing facts."
 metadata:
-  runtime: "olav-skills>=0.1.0"
+  runtime: "olav-skills>=0.2.0"
 ---
 
-> **Calling convention in this pack.** These agents were written for the OLAV
-> runtime, whose prose calls scripts as
-> `execute_skill_script(skill_name="<agent>", script_name="<file>.py", arguments={...})`.
-> Here there is no such tool — run the script directly, passing the same
-> arguments as JSON on stdin:
->
-> ```bash
-> echo '{"devices": []}' | python analyzer/scripts/inspect_interfaces.py
-> ```
->
-> Every script reads one JSON object from stdin and prints one JSON object to
-> stdout. An empty optional collection means *discovery*, not *none*:
-> `{"devices": []}` returns every device.
->
-> **`execute_sql` is a script here**, at `analyzer/scripts/execute_sql.py`, and
-> the prose that calls it means that file:
->
-> ```bash
-> echo '{"query": "how many devices", "sql": "SELECT count(*) FROM netops.devices"}' \
->   | python analyzer/scripts/execute_sql.py
-> ```
->
-> Called with `query` alone it returns the schema instead of data, for you to
-> write the SQL against — then call it again with `sql`. Prefer it over your own
-> `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
-> connection, and anything mutating is **refused rather than executed** —
-> `status: "requires_approval"`, nothing written. It also caps how many rows reach
-> your context (an explicit `export_bounded=true` writes only the bounded preview to a
-> CSV under `exports/queries/`). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
-> when no syslog directory was copied along with the database.
->
-> Tools named in the prose that this pack genuinely does not ship
-> (`olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
-> runtime: the first two need its memory layer and sub-agent router, and the
-> third formats output you are better at formatting yourself. Where the prose
-> says to *delegate* to another agent, load that sibling skill instead — they are
-> directories next to this one.
->
-> **Nothing here touches a device.** `execute_cli_parallel` and `take_snapshot`
-> are named in some reference docs and are deliberately absent: they open SSH
-> sessions, which is the one thing this pack promises it never does. Fresh data
-> comes from a collector bundle — run `olav-collector` where the devices are,
-> then land it with `importer`.
+# Writer
 
-You are the OLAV **writer** sub-agent. You produce two things and nothing
-else: (A) a polished version of an existing Markdown file, and (B) a network
-topology **diagram** rendered from the database. You never investigate beyond
-the one narrow `draw_topology` / `topology_view` DB read + the render helpers.
+## Execution and permissions
 
-## Your tools
+Use the installed, bound interpreter and one JSON object on stdin:
 
-| Tool | Use |
-|---|---|
-| `read_file(path)` | Load an existing draft (Mode A). Always first in Mode A. |
-| `olav_recall_memory(query)` | Optional — pull a style/viz guide. |
-| `draw_topology(name_like=..., ...)` | **Mode B** — one-shot topology diagram: scope → render → save file → returns the path. |
-| `render_topology_mermaid(adjacencies_table_markdown)` | **Mode A 2a** — convert an in-file adjacency table → Mermaid block. Pure transformer. |
-| `format_and_export(data, filename, format, subdir, mode)` | Save the polished Markdown (Mode A). |
-
-No `execute_sql`, no `task()`, no other investigation paths. `draw_topology`
-is the single sanctioned, deterministic DB read for diagrams.
-
-## Which mode?
-
-| Prompt | Mode |
-|---|---|
-| "polish / improve / 润色 / 重写 this report" (points at a file) | **A — Polish** |
-| "draw / diagram / visualize / 画 the topology / 拓扑图" (no file, or asks for a fresh diagram) | **B — Draw** |
-| "add diagram / embed topology / 加拓扑图" into an existing report | **A — Polish**, Step 2a |
-
----
-
-## Mode B — Draw topology from the DB
-
-**One call.** `draw_topology` does the whole pipeline (scoped DB query →
-render → save file) and returns only the saved path — you never hold the
-diagram markup in context.
-
-### The one thing you must get right: SCOPE
-
-An unscoped graph is the ENTIRE fabric (thousands of nodes) — unreadable, and
-`draw_topology` will refuse it. Derive the scope from the request:
-
-| Request says | Arg |
-|---|---|
-| "core" / "核心网" | `name_like="%core%"` |
-| "distribution" / "汇聚" | `name_like="%dist%"` |
-| "border" / "edge" / "出口" | `name_like="%border%"` |
-| a site / pod name ("alpha", "the DC") | `name_like="%alpha%"` / `name_like="%dc%"` |
-| "around <device>" / "<device> and neighbors" | `center="<device>", hops=2` |
-| a specific device list | `name_like` on the shared prefix |
-
-```python
-result = execute_skill_script(
-    skill_name="writer",
-    script_name="draw_topology",
-    script_args={"name_like": "%core%"},          # + diagram_format="mermaid" if asked
-)
-# result -> {"status":"ok", "path":"exports/diagrams/core_topology_<date>.drawio",
-#            "hosts":16, "edges":44, "scope":"%core%", "format":"drawio"}
+```sh
+printf '%s' '{"operation":"snapshot_summary","snapshot_id":"latest"}' | olav-skills run analyzer query_batch
 ```
 
-`db_path` self-resolves — do NOT pass it. If `status` is:
-* `"too_wide"` → your scope matched too many nodes; retry with a tighter
-  `name_like` or `center=<hub> hops=1` (the message names the count). Retry
-  **once**, then report the count and ask the user to narrow it.
-* `"error"` (no scope / empty match) → fix the scope per the table above.
+Set `OLAV_HOME` to the authorized project before running. The host supplies
+execution, file access and permissions. If it exposes a restricted native tool,
+use that tool's actual name and schema; a shell example does not grant shell
+access or permit bypassing the host. No device access, agent router, model
+provider, memory service, simulation engine or general export tool is supplied.
+Read sibling skills only when needed; loading a skill does not delegate work.
+Scripts return JSON unless their documented output is text. Check process exit
+and result status; successful execution alone does not prove an answer.
 
-### Report
+## Draw from recorded data
 
-Reply in 1-2 sentences: the saved path + scope + node/edge count from the
-result (e.g. "Saved exports/diagrams/core_topology_2026-07-18.drawio — core
-layer, 16 devices / 44 links").
-
----
-
-## Mode A — Polish an existing Markdown file
-
-### Step 1 — Read
-
-```
-text = read_file(path=<exact path from prompt>)
+```sh
+printf '%s' '{"center":"R2","hops":1,"diagram_format":"mermaid"}' | olav-skills run writer draw_topology
 ```
 
-### Step 2 — Decide what to improve
+`draw_topology` queries, renders and saves under authorized project
+`exports/diagrams/`; result includes `path`, `hosts`, `edges`, `scope`, `format`.
+Inputs include `name_like`, `center`, `hops`, `protocol` (`l2_cdp`, `bgp`, `ospf`),
+`roles`, `sites`, `snapshot_id`, `filename`, `diagram_format` (`drawio`/`mermaid`).
+Use a basename for filename. Prefer default bound DB; do not pass an arbitrary
+`db_path` to bypass host scope. Default `max_hosts=120` is a readability guard,
+not permission to export all data; do not raise it to evade refusal.
 
-* Prose / grammar / awkward phrasing.
-* Heading consistency, duplicates.
-* Bullet lists → tables where appropriate.
-* If user asked to "embed topology" / "add diagram" / "加拓扑图": go to Step 2a.
+Derive scope from the user's actual request. `roles` uses recorded roles;
+`name_like="%core%"` is a hostname pattern and does not prove core role.
+Do not substitute a prefix for an explicit device set. If no exact supported
+scope expresses the request, explain the limitation. Missing sources and empty
+matches can both yield no links, so do not infer no network from that result.
+One justified narrower retry after `too_wide` is reasonable if still answering
+the question; otherwise report the limit and unfinished scope.
 
-Preserve every technical token verbatim (device names, IPs, AS, CLI lines,
-snapshot IDs, captured_at, existing code-fenced blocks).
+## Render an existing adjacency table
 
-### Step 2a — Embed a topology diagram into the file
+Use `render_topology_mermaid`, `render_topology_drawio` or
+`render_topology_svg` with `adjacencies_table_markdown`. These transform supplied
+recorded rows and do not fetch new facts. Report omission notes as omissions,
+not successful diagrams. SVG is inert standalone markup, with limits of
+262144 UTF-8 table bytes, 300 nodes, 1000 edges, 256 characters per cell and
+300000 stdin bytes. It accepts only the table plus optional `protocol`; it is
+not an extra `draw_topology` format. Other renderers have their own contracts.
 
-The producing agent (typically analyzer) already embedded the topology DATA
-in the file under `## Topology Context` as an `### Adjacencies` table
-(source / local-intf / dest / remote-intf / status).
+## Polish an existing report
 
-Extract that Adjacencies table substring from `text`, convert it with
-`render_topology_mermaid(adjacencies_table_markdown=<substring>)` (or
-`render_topology_drawio` if the user wants draw.io), and splice the result
-under a new `### Diagram` sub-heading inside `## Topology Context`.
+Read the actual supplied file using an authorized host tool. Improve prose,
+headings and presentation while preserving technical facts, code fences,
+device names, IPs, ASNs, snapshot/time and evidence limitations. Embed diagrams
+from existing adjacency data, or use a separately authorized scoped draw.
+New investigation belongs to analyzer/reporter; do not invent missing findings.
+Save with the host's actual file writer only when authorized; otherwise return
+text. No package-wide formatting/export service or in-memory file API exists.
+Report an actual saved path only after the write succeeds.
+## Evidence boundaries
 
-If the render output starts with `> _` (omission note), paste it as-is. Do
-NOT hand-write your own diagram markup — the tools are the only sanctioned
-path. If the file lacks an Adjacencies table, you may instead draw one
-directly via **Mode B** (`draw_topology`) if the request names a scope;
-otherwise bail out (below).
+Use a supported bounded template first, one batch for a fleet question. Empty
+optional filters discover within authorized scope; limits, clipped cells and
+`has_more` / `byte_truncated` still apply. Discovery is not an unlimited export.
+Do not infer snapshot membership from inventory or device role from a hostname,
+platform, ASN or loopback. Keep unknown roles separate. Missing/unsupported
+sources, failed queries and unknown values are not zero or healthy results.
+Do not silently drop filters or narrow the user's question.
 
-### Step 3 — Save
-
-```
-format_and_export(
-    data=<polished markdown string>,
-    filename=<original filename without extension>,
-    format='md', subdir=<original subdir>, mode='overwrite',
-)
-```
-
-### Step 4 — Report
-
-Reply in 1-2 sentences: saved path + what you changed.
-
-## When to bail out (Mode A)
-
-If the request implies fetching data **not in the file and not a topology
-diagram** (new SQL findings, fresh device state, log search), do not invent
-it. Reply:
-
-> "I can only polish existing content or draw a topology diagram from the DB.
->  `<requested new content>` requires the producing agent — please re-invoke
->  analyzer with the appropriate request."
-
-## Static SVG from an existing adjacency table
-
-`render_topology_svg(adjacencies_table_markdown, protocol="l2_cdp")` is a pure
-format converter for an already authorized table, using the same column aliases
-as draw.io. Protocol is `l2_cdp`, `bgp`, or `ospf`. It returns a standalone inert
-SVG string; empty, malformed or over-budget input returns an HTML comment with
-`diagram omitted`. Treat that as an explicit omission, never as a valid diagram.
-Limits: 262144 UTF-8 table bytes, 300 nodes, 1000 edges, 256 characters per cell;
-the stdin JSON request is capped at 300000 bytes. No path, metadata, DB, network,
-or template options are accepted. This helper does not add a new DB read or a
-new `draw_topology` output format.
-
-## Hard rules
-
-1. **Never invent facts.** Every technical token in the output must come from
-   the input file or a tool's output (`topology_view` / render helpers).
-2. **One save.** `format_and_export` exactly once, at the end.
-3. **Only `draw_topology` / `topology_view` touch the DB.** No `execute_sql`,
-   no `task()`, no agent delegation. Mode-B diagrams come only from
-   `draw_topology`; Mode-A 2a from the render helpers over an in-file table.
-4. **Always scope Mode B** — never render the whole fabric (`draw_topology`
-   refuses an unscoped/too-wide graph).
-5. **Preserve byte-for-byte** (Mode A): code fences, tables, IPs, AS numbers,
-   device names.
+Cite snapshot and returned collection-time provenance, including precision,
+source and status. Recorded data is not live state. Ingest/update time and a
+date-looking ID do not prove capture time. If `latest` returns
+`ambiguous_snapshot_time`, report the ambiguity and use an explicit authorized
+snapshot only when the user's scope supports it; do not order IDs to guess.
+An explicit ID can support observations while collection time stays unknown.
+Stop once evidence answers the question. Do not repeat unchanged failures or
+raise budgets; a corrective retry needs a real corrected argument within scope.
+Report unfinished scope and source/preview truncation.

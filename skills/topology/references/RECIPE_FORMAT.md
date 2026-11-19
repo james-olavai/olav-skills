@@ -1,16 +1,16 @@
 # Recipe YAML format (agent-facing)
 
-Each recipe is a file under either:
-
-- `olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/<protocol>_<vendor>.yaml` (shipped)
-- `~/.olav/config/recipes/user/<protocol>_<vendor>.yaml` (user / LLM-drafted)
+Recipes are persisted by `save_recipe` under the bound project's config
+`recipes/user/` directory and in `view_recipes`. Use the returned paths instead
+of assuming a global home. Shipped historical built-in recipe files are not
+seeded; built-in query layers use per-command views (see SUPPORTED_BUILTIN.md).
 
 ## Schema (top-level is a single-entry list for consistency with loader)
 
 ```yaml
 - command: "show bgp summary"           # verbatim CLI command (must match parsed_outputs.command)
   concept: bgp_neighbors                # canonical category; pre-defined or user-extended
-  vendor_hint: cisco_ios                # one of: cisco_ios, juniper_junos, arista_eos, universal
+  vendor_hint: cisco_ios                # one of: cisco_ios, cisco_nxos, juniper_junos, arista_eos, universal
   field_mappings:                       # canonical_name -> source JSON key in parsed_data
     neighbor_ip: neighbor_ip
     neighbor_as: neighbor_as
@@ -21,16 +21,13 @@ Each recipe is a file under either:
   filter_expr: ""                       # optional WHERE fragment (rarely used)
 ```
 
-## Canonical concepts (ship list)
+## Concepts and consumers
 
-| concept | produces view | schema |
-|---|---|---|
-| `bgp_neighbors` | `v_bgp_neighbors_auto` | `BGPSession` |
-| `ospf_neighbors` | `v_ospf_neighbors_auto` | `OSPFAdjacency` |
-| `topology_l2` | `v_l2_links_auto` (from `topology_links`) | `L2Link` |
-
-User-extended concepts produce `v_<concept>_auto` views and use the
-dynamic `custom_concepts` Pydantic container (no typed Literal enum).
+A custom concept produces `netops.v_<concept>_auto` when rebuild succeeds.
+It must be queried through bounded SQL: the packaged `query_topology` accepts
+only bgp/ospf/l2/all and does not expose arbitrary custom concepts. The field
+names below describe common built-in typed records, not a promise that saving
+a recipe wires it into those records or automatically validates that schema.
 
 ## Canonical field names (expected by Pydantic schemas)
 

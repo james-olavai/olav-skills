@@ -130,7 +130,10 @@ def parser() -> argparse.ArgumentParser:
     commands = result.add_subparsers(dest="command", required=True)
     commands.add_parser("version")
     commands.add_parser("list")
-    commands.add_parser("doctor")
+    doctor = commands.add_parser("doctor")
+    doctor.add_argument("--data", action="store_true", help="inspect explicitly selected native project data read-only")
+    doctor.add_argument("--project", type=Path, help="absolute authorized project root; requires --data")
+    doctor.add_argument("--snapshot-id", help="exact snapshot label; requires --data; no latest aliases")
     export = commands.add_parser("export")
     export.add_argument("destination", type=Path)
     install = commands.add_parser("install")
@@ -153,6 +156,13 @@ def main(argv: list[str] | None = None) -> int:
             root = resource_root()
             print(json.dumps({"version": __version__, "python": interpreter(), "skills": [{"name": skill, "path": str(root / skill), "scripts": sorted(p.name for p in (root / skill / "scripts").glob("*.py") if not p.name.startswith("_"))} for skill in SKILLS]}, indent=2))
         elif args.command == "doctor":
+            if args.data:
+                from .readiness import data_doctor, serialize
+                result = data_doctor(args.project, args.snapshot_id)
+                print(serialize(result))
+                return 2 if result["status"] == "error" else 0
+            if args.project is not None or args.snapshot_id is not None:
+                raise ValueError("--project and --snapshot-id require doctor --data")
             missing = [name for name in DEPENDENCIES if importlib.util.find_spec(name) is None]
             root = resource_root()
             missing_skills = [name for name in SKILLS if not (root / name / "SKILL.md").is_file()]

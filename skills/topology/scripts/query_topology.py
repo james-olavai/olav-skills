@@ -35,13 +35,7 @@ from olav_skills.netops.schemas import (
 
 
 def _view_exists(con: Any, view: str) -> bool:
-    """True when ``netops.<view>`` is in the catalogue.
-
-    Per-command views exist only for commands the snapshot actually carried,
-    so "which layers can I answer about" is a property of the data, not of the
-    schema. Asking first turns a missing command into a reported gap instead of
-    a ``CatalogException``.
-    """
+    """Check database-global catalogue presence, not snapshot collection coverage."""
     return bool(con.execute(
         "SELECT 1 FROM information_schema.tables "
         "WHERE table_schema = 'netops' AND table_name = ? LIMIT 1",
@@ -50,19 +44,10 @@ def _view_exists(con: Any, view: str) -> bool:
 
 
 def _latest_snapshot(con: Any) -> str | None:
-    """Return the most recent snapshot_id that has L2 topology data.
+    """Select an ID with the existing L2-first, descending-ID heuristic.
 
-    Why L2 instead of BGP: collection runs may produce partial
-    snapshots (e.g., a re-run that only refreshed BGP summary). The
-    "alphabetically latest" snapshot can therefore be thin — no L2,
-    no OSPF, no BGP summary — and the LLM gets a sparse view that
-    looks like the network is empty. Picking the latest snapshot
-    that actually has L2 rows is a good proxy for "rich, complete
-    collection" since L2 (LLDP/CDP) is the broadest data layer.
-
-    2026-05-10 fix: original picked latest from any view, returned
-    a thin snapshot on demo7 that hid all L2/OSPF data. Now scans
-    L2 view first; falls back to BGP if no L2 snapshot exists.
+    This compatibility selector does not establish collection time, completeness
+    or snapshot command coverage. Explicit IDs avoid this implicit selection.
     """
     try:
         row = con.execute(
@@ -160,23 +145,13 @@ def _fetch_ospf(con: Any, snapshot_id: str) -> list[OSPFAdjacency]:
     rows = con.execute(sql, [snapshot_id]).fetchall()
     out: list[OSPFAdjacency] = []
     for r in rows:
-        # Vendor casing varies (Cisco IOS prints "Full/DR" while the
-        # OspfState literal expects "FULL/DR"). Normalize: if the
-        # state contains "/" it's a composite form like "FULL/DR" —
-        # uppercase the whole thing; otherwise it's a single word
-        # like "Full" — title-case.
-        state_raw = (r[5] or "").strip()
-        state = state_raw.upper() if "/" in state_raw else state_raw.title()
-        # 2-Way special: literal is "2-Way" (title-case form) not "2-WAY"
-        if state.replace("-", "").upper() == "2WAY" and "/" not in state_raw:
-            state = "2-Way"
         out.append(OSPFAdjacency(
             device=r[0],
             neighbor_id=r[1],
             neighbor_ip=r[2],
             interface=r[3],
             area=r[4],
-            state=state,
+            state=r[5],
             dead_time=r[6],
         ))
     return out
@@ -210,50 +185,68 @@ def query_topology(
     concept: Literal["bgp", "ospf", "l2", "all"] = "all",
     snapshot_id: str | None = None,
 ) -> dict:
-    """Query network topology via ARCH-28 views + Pydantic schema.
+    """Read recorded topology and describe native layer scope explicitly.
 
-    Args:
-        concept: Which layer to return. ``"all"`` includes BGP + OSPF + L2.
-        snapshot_id: Specific snapshot to query. ``None`` = latest.
-
-    Returns:
-        JSON-serializable dict matching ``TopologySnapshot``, plus
-        ``absent_layers``: the requested layers whose source view is not in
-        this database, i.e. whose command was never collected. An empty
-        ``bgp_sessions`` means "no sessions"; an empty one **with** ``"bgp"``
-        in ``absent_layers`` means "nobody asked the device". Those are
-        different findings and used to look identical.
-
-        State values are canonical ('Established' for BGP; 'Full' /
-        'FULL/DR' etc. for OSPF). Interface names keep their vendor canonical
-        form (Junos ``ge-0/0/2.0``, Cisco ``Ethernet0/0``).
+    Native result_contract v1 distinguishes unrequested, unavailable, empty and
+    returned rows. Catalogue presence and SELECT row counts do not establish
+    snapshot collection coverage. Legacy warehouse delegation retains its own
+    contract and is not labeled as native.
     """
     from olav_skills.netops.core.query import warehouse as _warehouse
     if _warehouse.configured():
         return _warehouse.query_topology(concept, snapshot_id)
+    if not isinstance(concept, str) or concept not in ("bgp", "ospf", "l2", "all"):
+        raise ValueError("concept must be one of: bgp, ospf, l2, all")
     import duckdb
     from olav_skills.core.config import MAIN_DB_PATH
 
     con = duckdb.connect(str(MAIN_DB_PATH), read_only=True)
     try:
         snap = snapshot_id or _latest_snapshot(con)
-        if snap is None:
-            return TopologySnapshot(snapshot_id="none").model_dump()
-
-        bgp: list[BGPSession] = []
-        ospf: list[OSPFAdjacency] = []
-        l2: list[L2Link] = []
-        absent: list[str] = []
-
-        #: The view each layer cannot be answered without.
+        requested = [layer for layer in ("bgp", "ospf", "l2")
+                     if concept in (layer, "all")]
         required = {
             "bgp": "v_show_ip_bgp_summary_auto",
             "ospf": "v_show_ip_ospf_neighbor_auto",
             "l2": "v_l2_links_auto",
         }
+        layers: dict[str, dict] = {}
+        absent: list[str] = []
         for layer, view in required.items():
-            if concept in (layer, "all") and not _view_exists(con, view):
-                absent.append(layer)
+            state = {
+                "requested": layer in requested,
+                "source_view": "not_checked",
+                "result_state": "not_requested",
+                "row_count": None,
+                "collection_coverage": "unknown",
+            }
+            if layer in requested:
+                if snap is None:
+                    state.update(result_state="unavailable", reason="snapshot_unavailable")
+                elif not _view_exists(con, view):
+                    state.update(source_view="absent", result_state="unavailable",
+                                 reason="source_view_absent")
+                    absent.append(layer)
+                else:
+                    state["source_view"] = "available"
+            layers[layer] = state
+
+        contract = {
+            "schema": "olav.topology-result/v1",
+            "backend": "native",
+            "effective_concept": concept,
+            "requested_layers": requested,
+            "resolved_snapshot_id": snap,
+            "layers": layers,
+        }
+        if snap is None:
+            out = TopologySnapshot(snapshot_id="none").model_dump(mode="json")
+            out.update(absent_layers=absent, result_contract=contract)
+            return out
+
+        bgp: list[BGPSession] = []
+        ospf: list[OSPFAdjacency] = []
+        l2: list[L2Link] = []
 
         if concept in ("bgp", "all"):
             bgp = _fetch_bgp(con, snap)
@@ -268,7 +261,12 @@ def query_topology(
             ospf_adjacencies=ospf,
             l2_links=l2,
         ).model_dump(mode="json")
+        for layer, rows in (("bgp", bgp), ("ospf", ospf), ("l2", l2)):
+            state = layers[layer]
+            if state["requested"] and state["source_view"] == "available":
+                state.update(result_state="rows" if rows else "empty", row_count=len(rows))
         out["absent_layers"] = absent
+        out["result_contract"] = contract
         return out
     finally:
         con.close()

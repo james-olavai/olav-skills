@@ -67,6 +67,9 @@ plugins:
             Parser extension: 解析器扩展
             Data and boundaries: 数据与边界
             Network data model: 网络数据模型
+            Data readiness: 数据能力体检
+            Recorded state differences: 记录状态差异
+            Plan pre-check: 计划预检查
             Safety and evidence: 安全与证据
             Troubleshooting: 故障排查
             Portable knowledge: Portable 知识包
@@ -77,6 +80,8 @@ plugins:
             Compatibility: 兼容性与验证
             Project: 项目
             Migration: 迁移
+            Candidate review: 候选审阅
+            Cache introspection: 缓存内省
             Changelog: 版本记录
             License: 许可
             Contributing: 贡献
@@ -109,6 +114,7 @@ nav:
   - Start:
       - Overview: index.md
       - Installation: installation.md
+      - Candidate review: release-candidate.md
       - First offline analysis: offline-data.md
       - Harness setup: harnesses.md
   - Skills:
@@ -126,12 +132,31 @@ nav:
       - Parser extension: workflows/parsers.md
   - Data and boundaries:
       - Network data model: data-model.md
+      - Data readiness: data-readiness.md
       - Safety and evidence: safety.md
       - Troubleshooting: troubleshooting.md
       - Portable knowledge: portable.md
   - Reference:
       - CLI: reference/cli.md
       - Script protocol: reference/scripts.md
+      - Cache introspection: reference/introspection-cache.md
+      - Recorded state differences: reference/state-diff.md
+      - Plan pre-check: reference/plan-precheck.md
+      - Native state contracts: reference/native-contracts.md
+      - Historical configuration diff: reference/config-diff.md
+      - Recorded route changes: reference/route-changes.md
+      - Interface counter deltas: reference/counter-deltas.md
+      - One-time audits: reference/audit-profiles.md
+      - Report citation checks: reference/report-citations.md
+      - Topology content changes: reference/topology-changes.md
+      - Historical topology paths: reference/topology-paths.md
+      - Metric baselines: reference/metric-baselines.md
+      - OSPF observations: reference/ospf-analysis.md
+      - Audit evidence readiness: reference/evidence-readiness.md
+      - Parser lifecycle: reference/parser-lifecycle.md
+      - Full file export: reference/full-export.md
+      - Evidence delivery: reference/evidence-delivery.md
+      - Investigation recipes: reference/investigation-recipes.md
       - Configuration: reference/configuration.md
       - Compatibility: reference/compatibility.md
   - Project:

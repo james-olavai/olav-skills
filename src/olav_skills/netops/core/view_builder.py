@@ -101,7 +101,7 @@ _MIDNIGHT_AWARE_RE = "[0-9]{4}-[0-9]{2}-[0-9]{2}[T ]00:00:00(Z|[+]00:00)"
 _MIDNIGHT_NAIVE_RE = "[0-9]{4}-[0-9]{2}-[0-9]{2}[T ]00:00:00"
 
 
-def _table_columns(con: Any, table: str) -> list[str]:
+def _table_columns(con: Any, table: str, *, strict: bool = False) -> list[str]:
     """Columns of ``netops.<table>``, or [] when the table is absent.
 
     Column introspection keeps this adapter tolerant of old/new databases:
@@ -109,15 +109,19 @@ def _table_columns(con: Any, table: str) -> list[str]:
     table never implies a fabricated time.  No metadata table is assumed.
     """
     try:
+        catalog_filter = "AND table_catalog = current_database()" if strict else ""
         rows = con.execute(
-            """
+            f"""
             SELECT column_name FROM information_schema.columns
              WHERE table_schema = 'netops' AND table_name = ?
+             {catalog_filter}
              ORDER BY ordinal_position
             """,
             [table],
         ).fetchall()
     except Exception as exc:  # noqa: BLE001
+        if strict:
+            raise
         logger.debug("view_builder: column introspection for %s failed: %s", table, exc)
         return []
     return [str(r[0]) for r in rows]
@@ -158,7 +162,7 @@ def _capture_union(parsed_cols: list[str], raw_cols: list[str]) -> str:
     return "\nUNION ALL\n".join(parts)
 
 
-def build_snapshots_view(con: Any) -> dict[str, int]:
+def build_snapshots_view(con: Any, *, strict: bool = False) -> dict[str, int]:
     """Create / refresh ``netops.v_snapshots_auto``.
 
     Capture and ingestion are separate concepts.  A snapshot's capture time
@@ -210,11 +214,13 @@ def build_snapshots_view(con: Any) -> dict[str, int]:
     the default view is raw/parsed-only and safe without it.
     """
     try:
-        parsed_cols = _table_columns(con, "parsed_outputs")
+        parsed_cols = _table_columns(con, "parsed_outputs", strict=strict)
         if not parsed_cols or "snapshot_id" not in parsed_cols:
+            if strict:
+                raise ValueError("netops.parsed_outputs.snapshot_id is unavailable")
             logger.debug("build_snapshots_view: netops.parsed_outputs/snapshot_id is absent")
             return {}
-        raw_cols = _table_columns(con, "raw_output_store")
+        raw_cols = _table_columns(con, "raw_output_store", strict=strict)
         capture_union = _capture_union(parsed_cols, raw_cols)
         source_totals_parts = [
             "SELECT snapshot_id, 'parsed_outputs' AS capture_table, "
@@ -620,6 +626,8 @@ def build_snapshots_view(con: Any) -> dict[str, int]:
         n = con.execute("SELECT COUNT(*) FROM netops.v_snapshots_auto").fetchone()[0]
         return {"v_snapshots_auto": int(n)}
     except Exception as exc:
+        if strict:
+            raise
         logger.warning("build_snapshots_view failed: %s", exc)
         return {}
 
@@ -763,7 +771,7 @@ def select_latest_snapshot(con: Any, *, snapshot_ids: list[str] | None = None) -
     }
 
 
-def build_l2_topology_view(con: Any) -> dict[str, int]:
+def build_l2_topology_view(con: Any, *, strict: bool = False) -> dict[str, int]:
     """Create / refresh ``netops.v_l2_links_auto``.
 
     Pure column-rename projection of ``netops.topology_links`` —  no
@@ -789,6 +797,8 @@ def build_l2_topology_view(con: Any) -> dict[str, int]:
         n = con.execute("SELECT COUNT(*) FROM netops.v_l2_links_auto").fetchone()[0]
         return {"v_l2_links_auto": int(n)}
     except Exception as exc:
+        if strict:
+            raise
         logger.warning("build_l2_topology_view failed: %s", exc)
         return {}
 
@@ -815,7 +825,7 @@ def build_l2_topology_view(con: Any) -> dict[str, int]:
 # can ``SELECT col FROM v_show_ip_interface_brief_auto WHERE status LIKE '%down%'``
 # without any LATERAL+json_each gymnastics.
 
-def build_per_command_views(con: Any) -> dict[str, int]:
+def build_per_command_views(con: Any, *, strict: bool = False) -> dict[str, int]:
     """Auto-create ``v_<safe_command>_auto`` views from parsed_outputs.
 
     Iterates every distinct command that has at least one parsed row,
@@ -855,6 +865,8 @@ def build_per_command_views(con: Any) -> dict[str, int]:
             """
         ).fetchall()
     except Exception as exc:
+        if strict:
+            raise
         logger.warning("build_per_command_views: parsed_outputs scan failed: %s", exc)
         return results
 
@@ -870,6 +882,8 @@ def build_per_command_views(con: Any) -> dict[str, int]:
         if not view_suffix:
             continue
         view_name = f"v_{view_suffix}_auto"
+        if strict and (view_name in results or view_name in {"v_snapshots_auto", "v_l2_links_auto"}):
+            raise ValueError(f"ambiguous generated view name: {view_name}")
 
         cmd_lit = command.replace("'", "''")
         struct_lit = structure.replace("'", "''")
@@ -906,6 +920,8 @@ def build_per_command_views(con: Any) -> dict[str, int]:
             count = con.execute(f"SELECT COUNT(*) FROM netops.{view_name}").fetchone()[0]
             results[view_name] = int(count)
         except Exception as exc:  # noqa: BLE001
+            if strict:
+                raise
             logger.debug(
                 "build_per_command_views: skipping %s (cmd=%r): %s",
                 view_name, command, exc,
@@ -995,24 +1011,44 @@ def _is_state_like_col(name: str) -> bool:
     return bool(_STATE_COL_PATTERN.search(n))
 
 
-def _column_cardinalities(con: Any, source: str, cols: list[str], controlled: bool) -> dict:
+def _profile_identifier(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _profile_literal(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _profile_fingerprint_sql(quoted_column: str, *, native: bool) -> str:
+    text = f"CAST({quoted_column} AS VARCHAR)"
+    if native:
+        normalized = f"regexp_replace(lower({text}), '[^a-z0-9 ]', '', 'g')"
+        words = f"regexp_split_to_array({normalized}, '\\s+')"
+        tokens = f"list_sort(list_distinct({words}))"
+    else:
+        normalized = f"lower(regexp_replace({text}, '[^a-z0-9 ]', '', 'g'))"
+        words = f"regexp_split_to_array({normalized}, '\\s+')"
+        tokens = f"list_distinct(list_sort({words}))"
+    return f"array_to_string({tokens}, ' ')"
+
+
+def _column_cardinalities(con: Any, source: str, cols: list[str], *, strict: bool) -> dict:
     """Distinct-count for every candidate column, single scan, with fallback.
 
     ``source`` is an already-quoted FROM relation — either ``netops."v_x_auto"``
     or the raw name of a per-call TEMP table materialised from that view.
     Returns ``{column: distinct_count}``.  A single combined probe is used
     first (one scan instead of one per column); on failure in a non-controlled
-    connection it degrades to one probe per column, preserving the legacy
-    per-column fault isolation.  In a controlled (ducklake) connection failures
-    propagate, matching the rest of the value-profile path.
+    connection it degrades to one probe per column. A refresh requiring
+    complete profile coverage propagates SQL failures.
     """
     def _probe(col: str):
         try:
             return con.execute(
-                f'SELECT COUNT(DISTINCT "{col}") FROM {source}'
+                f'SELECT COUNT(DISTINCT {_profile_identifier(col)}) FROM {source}'
             ).fetchone()[0]
         except Exception as exc:
-            if controlled:
+            if strict:
                 raise
             logger.debug("value_profile: cardinality probe %s.%s failed: %s",
                          source, col, exc)
@@ -1021,11 +1057,11 @@ def _column_cardinalities(con: Any, source: str, cols: list[str], controlled: bo
     if len(cols) == 1:
         return {cols[0]: _probe(cols[0])}
     try:
-        expr = ", ".join(f'COUNT(DISTINCT "{c}")' for c in cols)
+        expr = ", ".join(f'COUNT(DISTINCT {_profile_identifier(c)})' for c in cols)
         row = con.execute(f'SELECT {expr} FROM {source}').fetchone()
         return dict(zip(cols, row))
     except Exception as exc:
-        if controlled:
+        if strict:
             raise
         logger.debug("value_profile: single-pass cardinality for %s failed: %s",
                      source, exc)
@@ -1048,9 +1084,9 @@ def _materialize_profile_columns(con: Any, view_name: str, cols: list[str]) -> s
     value-profile loop's fault model.
     """
     tmp = f"_ow143_vp_{uuid.uuid4().hex}"
-    col_list = ", ".join(f'"{c}"' for c in cols)
+    col_list = ", ".join(map(_profile_identifier, cols))
     con.execute(
-        f'CREATE TEMP TABLE {tmp} AS SELECT {col_list} FROM netops."{view_name}"'
+        f'CREATE TEMP TABLE {tmp} AS SELECT {col_list} FROM netops.{_profile_identifier(view_name)}'
     )
     return tmp
 
@@ -1083,9 +1119,11 @@ def _profile_view_legacy(
     after the controlled branch has already raised on materialisation failure.
     """
     for col in cols:
+        quoted = _profile_identifier(col)
+        source = f"netops.{_profile_identifier(view_name)}"
         try:
             n = con.execute(
-                f'SELECT COUNT(DISTINCT "{col}") FROM netops."{view_name}"'
+                f"SELECT COUNT(DISTINCT {quoted}) FROM {source}"
             ).fetchone()[0]
         except Exception as exc:  # noqa: BLE001
             logger.debug("value_profile: cardinality probe %s.%s failed: %s",
@@ -1099,21 +1137,14 @@ def _profile_view_legacy(
                 {insert_verb} netops.value_profile
                     (view_name, column_name, value, freq, fingerprint, cluster_id)
                 WITH raw AS (
-                    SELECT "{col}" AS value, COUNT(*) AS freq,
-                           array_to_string(
-                               list_distinct(list_sort(
-                                   regexp_split_to_array(
-                                       lower(regexp_replace(
-                                           CAST("{col}" AS VARCHAR),
-                                           '[^a-z0-9 ]', '', 'g')),
-                                       '\\s+'))),
-                               ' ') AS fingerprint
-                    FROM netops."{view_name}"
-                    WHERE "{col}" IS NOT NULL
-                    GROUP BY "{col}"
+                    SELECT {quoted} AS value, COUNT(*) AS freq,
+                           {_profile_fingerprint_sql(quoted, native=True)} AS fingerprint
+                    FROM {source}
+                    WHERE {quoted} IS NOT NULL
+                    GROUP BY {quoted}
                 )
-                SELECT '{view_name}' AS view_name,
-                       '{col}'      AS column_name,
+                SELECT {_profile_literal(view_name)} AS view_name,
+                       {_profile_literal(col)} AS column_name,
                        value, freq, fingerprint,
                        dense_rank() OVER (ORDER BY fingerprint) AS cluster_id
                   FROM raw
@@ -1131,25 +1162,19 @@ def _profile_insert_sql(tmp: str, view_name: str, col: str, insert_verb: str) ->
     the native fallback when the batched statement fails, so a failing column can
     still be skipped without losing the other columns of the same view.
     """
+    quoted = _profile_identifier(col)
     return f"""
     {insert_verb} netops.value_profile
         (view_name, column_name, value, freq, fingerprint, cluster_id)
     WITH raw AS (
-        SELECT "{col}" AS value, COUNT(*) AS freq,
-               array_to_string(
-                   list_distinct(list_sort(
-                       regexp_split_to_array(
-                           lower(regexp_replace(
-                               CAST("{col}" AS VARCHAR),
-                               '[^a-z0-9 ]', '', 'g')),
-                           '\\s+'))),
-                   ' ') AS fingerprint
+        SELECT {quoted} AS value, COUNT(*) AS freq,
+               {_profile_fingerprint_sql(quoted, native=True)} AS fingerprint
         FROM {tmp}
-        WHERE "{col}" IS NOT NULL
-        GROUP BY "{col}"
+        WHERE {quoted} IS NOT NULL
+        GROUP BY {quoted}
     )
-    SELECT '{view_name}' AS view_name,
-           '{col}'      AS column_name,
+    SELECT {_profile_literal(view_name)} AS view_name,
+           {_profile_literal(col)} AS column_name,
            value, freq, fingerprint,
            dense_rank() OVER (ORDER BY fingerprint) AS cluster_id
       FROM raw
@@ -1161,6 +1186,8 @@ def _profile_insert_batch_sql(
     view_name: str,
     cols: list[str],
     insert_verb: str,
+    *,
+    native: bool,
 ) -> str:
     """One INSERT statement for every low-cardinality column of a view.
 
@@ -1170,25 +1197,18 @@ def _profile_insert_batch_sql(
     per-column ``dense_rank() OVER (ORDER BY fingerprint)`` (each column ranks
     its own fingerprints from 1).
     """
-    branches = [
-        f"""
-        SELECT '{col}' AS column_name,
-               "{col}" AS value,
-               array_to_string(
-                   list_distinct(list_sort(
-                       regexp_split_to_array(
-                           lower(regexp_replace(
-                               CAST("{col}" AS VARCHAR),
-                               '[^a-z0-9 ]', '', 'g')),
-                           '\\s+'))),
-                   ' ') AS fingerprint,
+    branches = []
+    for col in cols:
+        quoted = _profile_identifier(col)
+        branches.append(f"""
+        SELECT {_profile_literal(col)} AS column_name,
+               {quoted} AS value,
+               {_profile_fingerprint_sql(quoted, native=native)} AS fingerprint,
                COUNT(*) AS freq
         FROM {tmp}
-        WHERE "{col}" IS NOT NULL
-        GROUP BY "{col}"
-        """
-        for col in cols
-    ]
+        WHERE {quoted} IS NOT NULL
+        GROUP BY {quoted}
+        """)
     union = "\nUNION ALL\n".join(branches)
     return f"""
     {insert_verb} netops.value_profile
@@ -1196,7 +1216,7 @@ def _profile_insert_batch_sql(
     WITH per_col AS (
         {union}
     )
-    SELECT '{view_name}' AS view_name,
+    SELECT {_profile_literal(view_name)} AS view_name,
            column_name,
            value,
            freq,
@@ -1206,7 +1226,9 @@ def _profile_insert_batch_sql(
     """
 
 
-def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int]:
+def build_value_profile(
+    con: Any, *, max_cardinality: int = 30, view_names: list[str] | None = None,
+) -> dict[str, int]:
     """Profile every low-cardinality categorical column in the auto-views.
 
     Iterates ``information_schema.views`` for ``v_%_auto`` views in
@@ -1225,30 +1247,38 @@ def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int
     """
     from olav_skills.core.ingest_write import is_ducklake
     controlled = is_ducklake(con)
+    # Native finalisation supplies the successfully rebuilt views explicitly.
+    # A partial scan cannot back a newly published introspection cache.
+    strict = controlled or view_names is not None
     insert_verb = "INSERT INTO" if controlled else "INSERT OR REPLACE INTO"
     _ensure_value_profile_table(con)
 
     con.execute("DELETE FROM netops.value_profile")  # full refresh per init
-    views = con.execute(
-        """
-        SELECT table_name FROM information_schema.views
-         WHERE table_schema='netops' AND table_name LIKE 'v_%_auto'
-        """
-    ).fetchall()
-    view_names = [r[0] for r in views]
+    if view_names is None:
+        views = con.execute(
+            """
+            SELECT table_name FROM information_schema.views
+             WHERE table_schema='netops' AND table_name LIKE 'v_%_auto'
+            """
+        ).fetchall()
+        view_names = [r[0] for r in views]
+        catalog_filter = ""
+    else:
+        catalog_filter = "AND table_catalog = current_database()"
 
     for view_name in view_names:
         try:
             cols = con.execute(
-                """
+                f"""
                 SELECT column_name FROM information_schema.columns
                  WHERE table_schema='netops' AND table_name = ?
                    AND data_type IN ('VARCHAR', 'TEXT')
+                   {catalog_filter}
                 """,
                 [view_name],
             ).fetchall()
         except Exception as exc:
-            if controlled:
+            if strict:
                 raise
             logger.debug("value_profile: column scan for %s failed: %s", view_name, exc)
             continue
@@ -1267,13 +1297,12 @@ def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int
         # typed column errors (e.g. CAST('invalid' AS INTEGER)::VARCHAR) even
         # though sibling columns are still readable.  That is NOT equivalent to
         # the old per-column scan failure — r6 wrongly skipped the whole view.
-        # On the native path we fall back to the legacy per-column probe/insert
-        # so the still-readable columns keep their profiles; controlled keeps
-        # its strict fail-fast semantics (never degrade around the error).
+        # The legacy fallback keeps any readable columns on standalone calls.
+        # Full refreshes must fail closed rather than publish a partial cache.
         try:
             tmp = _materialize_profile_columns(con, view_name, candidate_cols)
         except Exception as exc:  # noqa: BLE001
-            if controlled:
+            if strict:
                 raise
             logger.debug(
                 "value_profile: materialise %s failed, falling back to "
@@ -1284,18 +1313,18 @@ def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int
             )
             continue
         try:
-            cardinality = _column_cardinalities(con, tmp, candidate_cols, controlled)
+            cardinality = _column_cardinalities(con, tmp, candidate_cols, strict=strict)
             profile_cols = [c for c in candidate_cols
                             if cardinality.get(c) and cardinality.get(c) <= max_cardinality]
             if profile_cols:
                 try:
                     con.execute(
                         _profile_insert_batch_sql(
-                            tmp, view_name, profile_cols, insert_verb,
+                            tmp, view_name, profile_cols, insert_verb, native=not controlled,
                         )
                     )
                 except Exception as exc:  # noqa: BLE001
-                    if controlled:
+                    if strict:
                         raise
                     logger.debug(
                         "value_profile: batch insert %s failed, per-column "
@@ -1315,7 +1344,7 @@ def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int
             #   * a primary exception is always preserved — a failed DROP is
             #     only debug-logged, never re-raised over it;
             #   * with no primary exception, a failed DROP is a real failure:
-            #     controlled raises (never claims success), native logs a
+            #     a strict refresh raises, a legacy scan logs a
             #     warning.  The random per-call name means no later call can
             #     reuse the leftover relation, and DuckDB drops TEMP tables on
             #     connection close, so no cross-task object survives.
@@ -1324,7 +1353,7 @@ def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int
                 _drop_profile_temp(con, tmp)
             except Exception as drop_exc:  # noqa: BLE001
                 if not primary:
-                    if controlled:
+                    if strict:
                         raise
                     logger.warning(
                         "value_profile: failed to drop temp %s after profiling "
@@ -1340,19 +1369,26 @@ def build_value_profile(con: Any, *, max_cardinality: int = 30) -> dict[str, int
     return {"value_profile_rows": int(rows)}
 
 
-def build_introspection_cache(con: Any) -> dict[str, int]:
+def build_introspection_cache(
+    con: Any, *, view_names: list[str] | None = None,
+) -> dict[str, int]:
     """Single-row JSON-bag table summarising the fleet + views + values.
 
-    Replaces 4-6 separate introspection queries on every NL question
-    with one ``SELECT * FROM netops.introspection_cache``.
-
-    The JSON columns are intentionally pre-aggregated (not lazy
-    sub-selects) — querying this table is O(1) once it's built.
-    Refreshed on every ``finalise_ingest`` call.
+    The native finaliser supplies the successful view set, with the old
+    cache already invalidated before it starts changing the derived views.
     """
+    from olav_skills.core.ingest_write import is_ducklake
+    controlled = is_ducklake(con)
+    if not controlled and view_names is None:
+        con.execute("DROP TABLE IF EXISTS netops.introspection_cache")
+    scope_filter = (
+        "AND v.table_catalog = current_database() AND v.table_name IN ?"
+        if view_names is not None else ""
+    )
+    catalog_join = "AND c.table_catalog = v.table_catalog" if view_names is not None else ""
     try:
         con.execute(
-            """
+            f"""
             CREATE OR REPLACE TABLE netops.introspection_cache AS
             SELECT
                 (SELECT json_group_array(json_object(
@@ -1376,8 +1412,10 @@ def build_introspection_cache(con: Any) -> dict[str, int]:
                          JOIN information_schema.columns c
                               ON c.table_schema = v.table_schema
                              AND c.table_name = v.table_name
+                             {catalog_join}
                          WHERE v.table_schema = 'netops'
                            AND v.table_name LIKE 'v_%_auto'
+                           {scope_filter}
                          ORDER BY v.table_name, c.ordinal_position
                      )
                      SELECT view_name,
@@ -1406,12 +1444,12 @@ def build_introspection_cache(con: Any) -> dict[str, int]:
                                                                               AS value_distributions,
 
                 NOW() AS refreshed_at
-            """
+            """,
+            [view_names] if view_names is not None else [],
         )
         return {"introspection_cache_rows": 1}
     except Exception as exc:
-        from olav_skills.core.ingest_write import is_ducklake
-        if is_ducklake(con):
+        if controlled:
             raise
         logger.warning("build_introspection_cache failed: %s", exc)
         return {}
@@ -1438,49 +1476,37 @@ def finalise_ingest(con: Any, *, defer_external: bool = False) -> dict[str, Any]
           "introspection": {"introspection_cache_rows": 1},
         }
 
-    Failures in either layer log at WARN but don't raise — view
-    building is advisory; raw ``parsed_outputs`` queries always work.
+    Native cache refresh failure leaves no row to reuse. Transaction
+    boundaries belong to the caller, including rollback after a DuckDB
+    error aborts a borrowed transaction.
     """
+    from olav_skills.core.ingest_write import is_ducklake
+    controlled = is_ducklake(con)
     out: dict[str, Any] = {"snapshots": {}, "l2": {}, "per_command": {}, "value_profile": {}, "introspection": {}}
+    if not controlled:
+        con.execute("DROP TABLE IF EXISTS netops.introspection_cache")
+
     try:
-        out["snapshots"] = build_snapshots_view(con)
+        out["snapshots"] = build_snapshots_view(con, strict=not controlled)
+        out["l2"] = build_l2_topology_view(con, strict=not controlled)
+        out["per_command"] = build_per_command_views(con, strict=not controlled)
+        view_names = (
+            None if controlled else sorted(out["snapshots"] | out["l2"] | out["per_command"])
+        )
+        out["value_profile"] = build_value_profile(con, view_names=view_names)
     except Exception as exc:
-        from olav_skills.core.ingest_write import is_ducklake
-        if is_ducklake(con):
+        if controlled:
             raise
-        logger.warning("finalise_ingest: build_snapshots_view failed: %s", exc)
-    try:
-        out["l2"] = build_l2_topology_view(con)
-    except Exception as exc:
-        from olav_skills.core.ingest_write import is_ducklake
-        if is_ducklake(con):
-            raise
-        logger.warning("finalise_ingest: build_l2_topology_view failed: %s", exc)
-    try:
-        out["per_command"] = build_per_command_views(con)
-    except Exception as exc:
-        from olav_skills.core.ingest_write import is_ducklake
-        if is_ducklake(con):
-            raise
-        logger.warning("finalise_ingest: build_per_command_views failed: %s", exc)
-    # R83.3: profile + cache run AFTER per-command views exist (they
-    # scan those views for categorical distributions).  Both depend on
-    # netops.devices being populated — so the caller must run
-    # populate_devices BEFORE finalise_ingest.
-    try:
-        out["value_profile"] = build_value_profile(con)
-    except Exception as exc:
-        from olav_skills.core.ingest_write import is_ducklake
-        if is_ducklake(con):
-            raise
-        logger.warning("finalise_ingest: build_value_profile failed: %s", exc)
-    try:
-        out["introspection"] = build_introspection_cache(con)
-    except Exception as exc:
-        from olav_skills.core.ingest_write import is_ducklake
-        if is_ducklake(con):
-            raise
-        logger.warning("finalise_ingest: build_introspection_cache failed: %s", exc)
+        logger.warning("finalise_ingest: introspection sources or profile failed: %s", exc)
+        try:
+            con.execute("DROP TABLE IF EXISTS netops.value_profile")
+        except Exception:
+            # DuckDB can abort a borrowed transaction on a statement error.
+            # Leave rollback to its owner and propagate the original error.
+            logger.debug("finalise_ingest: could not discard incomplete value profile", exc_info=True)
+            raise exc from None
+    else:
+        out["introspection"] = build_introspection_cache(con, view_names=view_names)
     if defer_external:
         out["external"] = {"state": "deferred"}
         return out

@@ -1,137 +1,142 @@
 ---
 name: topology
-description: Topology from the recorded snapshot — BGP, OSPF, CDP/LLDP and L2 adjacency as queryable views. For a protocol with no builtin recipe, `prepare_recipe` gathers the evidence and hands you the drafting job; the YAML you write is frozen and reused.
-compatibility: Requires Python >=3.11 and the olav-skills Python distribution.
+description: "Query recorded BGP, OSPF and CDP/LLDP graph relationships or bounded path candidates. For neighbor-state diagnoses and evidence freshness use analyzer."
 metadata:
-  runtime: "olav-skills>=0.1.0"
+  runtime: "olav-skills>=0.2.0"
 ---
 
-> **Calling convention in this pack.** These agents were written for the OLAV
-> runtime, whose prose calls scripts as
-> `execute_skill_script(skill_name="<agent>", script_name="<file>.py", arguments={...})`.
-> Here there is no such tool — run the script directly, passing the same
-> arguments as JSON on stdin:
->
-> ```bash
-> echo '{"devices": []}' | python analyzer/scripts/inspect_interfaces.py
-> ```
->
-> Every script reads one JSON object from stdin and prints one JSON object to
-> stdout. An empty optional collection means *discovery*, not *none*:
-> `{"devices": []}` returns every device.
->
-> **`execute_sql` is a script here**, at `analyzer/scripts/execute_sql.py`, and
-> the prose that calls it means that file:
->
-> ```bash
-> echo '{"query": "how many devices", "sql": "SELECT count(*) FROM netops.devices"}' \
->   | python analyzer/scripts/execute_sql.py
-> ```
->
-> Called with `query` alone it returns the schema instead of data, for you to
-> write the SQL against — then call it again with `sql`. Prefer it over your own
-> `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
-> connection, and anything mutating is **refused rather than executed** —
-> `status: "requires_approval"`, nothing written. It also caps how many rows reach
-> your context (an explicit `export_bounded=true` writes only the bounded preview to a
-> CSV under `exports/queries/`). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
-> when no syslog directory was copied along with the database.
->
-> Tools named in the prose that this pack genuinely does not ship
-> (`olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
-> runtime: the first two need its memory layer and sub-agent router, and the
-> third formats output you are better at formatting yourself. Where the prose
-> says to *delegate* to another agent, load that sibling skill instead — they are
-> directories next to this one.
->
-> **Nothing here touches a device.** `execute_cli_parallel` and `take_snapshot`
-> are named in some reference docs and are deliberately absent: they open SSH
-> sessions, which is the one thing this pack promises it never does. Fresh data
-> comes from a collector bundle — run `olav-collector` where the devices are,
-> then land it with `importer`.
+# Topology
 
-## Bounded query templates first
+## Execution and permissions
 
-Use `execute_skill_script(skill_name="topology", script_name="query_batch.py", arguments={"operation":"snapshot_summary","snapshot_id":"latest","devices":[]})` for supported metadata questions. Other operations: device_coverage, command_coverage, devices, commands, multi_device_summary, top_n, diff_summary, interface_health, bgp_health. `devices=[]` discovers within the server-bound project; do not loop over devices when one batch answers the question.
+Use the installed, bound interpreter and one JSON object on stdin:
 
-Use the matching template first. If unsupported, say so; read only the relevant compact schema (`operation="context"`, capability metadata only) before a bounded read-only SQL fallback. Never silently drop vendor/snapshot/device/command filters. Sources with missing/unsupported columns are not healthy empty datasets. Inventory is not snapshot membership. Missing Junos canonical views does not imply absent underlying parsed records. Existing `query_topology` remains the adjacency entry point; do not duplicate it. Evidence reports use scoped `query_evidence`, not full config/raw-output dumps. See the shared query contract at parent `netops/references/batch_query.md` (standalone pack: `skills/netops/references/batch_query.md`).
+```sh
+printf '%s' '{"operation":"snapshot_summary","snapshot_id":"latest"}' | olav-skills run analyzer query_batch
+```
 
+Set `OLAV_HOME` to the authorized project before running. The host supplies
+execution, file access and permissions. If it exposes a restricted native tool,
+use that tool's actual name and schema; a shell example does not grant shell
+access or permit bypassing the host. No device access, agent router, model
+provider, memory service, simulation engine or general export tool is supplied.
+Read sibling skills only when needed; loading a skill does not delegate work.
+Scripts return JSON unless their documented output is text. Check process exit
+and result status; successful execution alone does not prove an answer.
 
+## Select the evidence question
 
+For neighbor-state interpretation or suspected stuck sessions, use analyzer's
+[OSPF contract](../analyzer/references/ospf_analysis.md) and `analyze_ospf`.
+Use this skill for graph relationships. A single transition state does not
+establish persistence or cause; an unknown verdict must remain unknown in the
+first conclusion. Resolve a named capture from the authorized catalog or
+actual metadata, rather than treating its label as `latest`.
 
-# Topology agent — system prompt
+## Recorded relationships
 
-You are the `topology` sub-agent. Answer network-relationship queries
-(BGP sessions, OSPF adjacencies, CDP/LLDP L2 links, and user-declared
-extensions like BFD / HSRP / VRRP / ISIS) via frozen SQL views.
+```sh
+printf '%s' '{"concept":"all"}' | olav-skills run topology query_topology
+```
 
-## Core workflow
+Use `concept` = `bgp`, `ospf`, `l2` or `all`, pinning `snapshot_id` when known.
+The script reads prebuilt views. Native output has
+`result_contract.schema="olav.topology-result/v1"`, `backend="native"`,
+`effective_concept`, ordered `requested_layers` and `resolved_snapshot_id`.
+Interpret each `layers.bgp/ospf/l2` state before the compatibility arrays:
 
-For any query like "show me BGP neighbors" / "what OSPF adjacencies on R1":
+- `not_requested`: layer not queried, source `not_checked`, count null.
+- `unavailable`: no usable snapshot or required view; count null, with reason
+  `snapshot_unavailable` or `source_view_absent`.
+- `empty`: requested, view available, zero rows in the selected query scope.
+- `rows`: requested, view available, `row_count` returned records.
 
-1. Call `query_topology(concept=..., snapshot_id=None)` — returns
-   canonical typed data as a `TopologySnapshot` dict
-2. Format the result table / markdown / diagram as requested
-3. Return to the orchestrator
+`collection_coverage` is always `unknown` in this version. A database-global
+view being available does not prove collection in this snapshot; `empty` does
+not prove a protocol is absent or has no sessions. `absent_layers` lists only
+requested layers lacking the required view, not uncollected device commands.
+If no snapshot can be resolved, the outer ID is `none`, the contract ID is null
+and requested layers are unavailable with no view check. Invalid concepts fail.
+Older results without this contract and legacy warehouse output do not establish
+native layer scope. See [built-in sources](references/SUPPORTED_BUILTIN.md).
 
-**Zero LLM calls on normal queries.** Views are pre-built when data lands —
-`netops_init` Stage 3.7 on a live collection, `ingest_snapshot` on an offline
-bundle; your script just reads them.
+For inventory, coverage or health use `query_batch` and the
+[query contract](../netops/references/batch_query.md). Adjacency remains the
+job of `query_topology`. Use writer for diagrams.
 
-**Read `absent_layers` before you interpret an empty layer.** A layer listed
-there has no source view in this database, i.e. its command was never
-collected. `bgp_sessions: []` alone means no sessions; `bgp_sessions: []` with
-`"bgp"` in `absent_layers` means nobody asked the devices — say which one it
-is, and name the command to collect rather than reporting "no BGP".
+## Device, interface and address identity
 
-## Handling unknown / new protocols
+Keep L2 device/interface edges separate from protocol peers identified only by
+address. Associate a peer address with a named device/interface only when the
+returned evidence explicitly records address ownership or supplies a verified
+mapping for that scope. A neighbor address, hostname, platform, ASN or one L2
+adjacency does not establish that mapping. Management/loopback addresses do not
+identify a link endpoint unless evidence explicitly binds them to it.
 
-When the user asks about a protocol NOT in the built-in set (BGP / OSPF /
-CDP-LLDP), check `list_recipes()` for coverage — it returns
-`{"recipes": [...], "table_present": bool}`, and `table_present: false` means
-this database was never seeded, which is not the same as "no coverage for that
-protocol":
+A same-subnet claim additionally needs the actual endpoint IPs and masks/prefixes
+or an explicit verified subnet mapping. Address resemblance or L2 connectivity
+alone proves neither subnet membership nor shared addressing. If those facts
+are missing, leave the peer unassociated; do not state a speculative association
+and then try to retract it with an unknown caveat. See
+[identity evidence](references/SUPPORTED_BUILTIN.md).
 
-- **Coverage complete** → normal path (`query_topology`)
-- **Missing for declared intent** (from `~/.olav/config/topology.yaml`) →
-  you may run the discovery flow:
-  1. `prepare_recipe(protocol, vendor)` — the candidate commands, one real
-     parsed sample, and `instructions`: the drafting brief
-  2. **Draft the YAML yourself** from `instructions`. The mappings' values must
-     be keys that appear in the sample — that is why the sample is there. (If
-     this runtime has an LLM endpoint configured, `discover_recipe(protocol,
-     vendor)` does steps 1–2 in one call and returns the YAML; without an
-     endpoint it returns the same `instructions` for you to work from. Either
-     way the drafting is a model's job, not the script's.)
-  3. `save_recipe(yaml_text)` — validates, dry-runs against the current
-     snapshot, persists + writes the user YAML file. It creates `view_recipes`
-     if this database has never had one, so no seeding step is needed.
-  4. `rebuild_views(concept=protocol)` — materializes `netops.v_<concept>_auto`
-     and returns its row count. Check `skipped` too: a recipe whose source
-     command is absent from the snapshot is reported there, not raised.
-  5. Report the view name + row count to the caller, which has `execute_sql`.
-     **Do not** call `query_topology` for a custom concept — it knows only
-     `bgp` / `ospf` / `l2` / `all` and returns an *empty* snapshot for
-     anything else, which reads as "no data" rather than "not supported".
-  **Do this only if the user explicitly opts in.** Otherwise report the
-  gap and suggest adding to `topology.yaml`.
+Draw the relationships actually established by the requested scope. A known L2
+edge can be delivered without identifying every protocol peer. If entity names
+are unspecified, bounded discovery within the authorized inventory may provide
+candidates; candidates do not establish snapshot membership or a connection.
+Host-supplied candidates have the same limits and do not override explicit user
+entities. If candidates cannot resolve the scope, report the gap. Do not expand
+a connection diagram into unrelated protocol exploration to fill address gaps,
+or ask for hostnames already established in the context.
 
-## Recipe format rules (for draft phase)
+## Other protocols: opt-in recipe writes
 
-See `references/RECIPE_FORMAT.md` for full spec. Key points:
+Read [recipe format](references/RECIPE_FORMAT.md) only when extending coverage.
+`list_recipes` reports existing recipes; `table_present=false` means unseeded,
+not corrupt. If coverage is missing, explain it. Only with authorized local
+recipe/database writes:
 
-- `field_mappings` is `{canonical_name: source_json_field}`
-- `vendor_hint` is one of `cisco_ios`/`juniper_junos`/`arista_eos`/`universal`
-- Prefer conservative state canonicalization — map numerics to `Established`
-  only for BGP; keep OSPF role suffixes (`FULL/BDR`) intact
-- Never write Python code — only declarative YAML
+1. `prepare_recipe` with `protocol` and `vendor` returns candidate commands,
+   a parsed sample and drafting instructions.
+2. Draft declarative YAML yourself from actual sample keys. No model provider
+   or automatic discovery engine is supplied by the package.
+3. `save_recipe` with `recipe_yaml` validates/dry-runs and persists it. Check
+   errors and zero-row results; do not force unexplained mappings.
+4. `rebuild_views` with `concept` materializes the view; inspect `skipped` and
+   row counts. A missing command is a gap, not healthy empty coverage.
+5. Query the resulting custom view with authorized bounded analyzer SQL.
+   `query_topology` does not support arbitrary concepts; do not use its empty
+   result as evidence for a custom protocol.
 
-## Anti-patterns
+`field_mappings` maps canonical names to real source JSON fields; vendor hints
+are `cisco_ios`, `cisco_nxos`, `juniper_junos`, `arista_eos` or `universal`. Keep OSPF role
+suffixes; numeric prefix counts establish BGP only. Do not seed historical
+built-in recipe files or write Python ETL as a substitute.
+## Evidence boundaries
 
-- ❌ Calling `query_topology` after every user keyword — re-query only when
-  snapshot changes
-- ❌ Generating a recipe without first checking `list_recipes` for existing
-  coverage
-- ❌ Writing Python ETL — stay in YAML
-- ❌ Silent acceptance of `save_recipe` failures — if the dry-run reports
-  zero rows, discuss with the user before forcing
+Use a supported bounded template first, one batch for a fleet question. Empty
+optional filters discover within authorized scope; limits, clipped cells and
+`has_more` / `byte_truncated` still apply. Discovery is not an unlimited export.
+Do not infer snapshot membership from inventory or device role from a hostname,
+platform, ASN or loopback. Keep unknown roles separate. Missing/unsupported
+sources, failed queries and unknown values are not zero or healthy results.
+Do not silently drop filters or narrow the user's question.
+
+Cite snapshot and returned collection-time provenance, including precision,
+source and status. Recorded data is not live state. Ingest/update time and a
+date-looking ID do not prove capture time. If `latest` returns
+`ambiguous_snapshot_time`, report the ambiguity and use an explicit authorized
+snapshot only when the user's scope supports it; do not order IDs to guess.
+An explicit ID can support observations while collection time stays unknown.
+Stop once evidence answers the question. Do not repeat unchanged failures or
+raise budgets; a corrective retry needs a real corrected argument within scope.
+Report unfinished scope and source/preview truncation.
+
+## Unreleased historical path candidate
+
+For paths between named devices in a recorded neighbor graph, read
+[historical topology paths](references/topology_paths.md) and use `inspect_path`
+with an exact snapshot. Preserve interfaces, parallel links and enumeration
+limits. A graph candidate does not prove forwarding, ECMP or operational failover.
+Missing or incomplete discovery must not become a claim of no network path.
+This local candidate is absent from published 0.1.1.

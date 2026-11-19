@@ -2,6 +2,8 @@
 
 本指南针对已安装的 `olav-skills` 0.1.1，可通过 PyPI 或审阅过的 wheel 获取。合成示例不需要模型、设备连接或凭据。先完成[安装](installation.md)；示例使用 POSIX shell，请替换为实际绝对 venv 路径及新的分析目录。
 
+持有经审阅的 0.2.0 wheel 时，可在同一合成示例上追加精确快照体检和变更草案预检。[候选版上手](release-candidate.md)
+
 ## 执行完整合成示例
 
 wheel 和 sdist 包含 `examples/synthetic_walkthrough.py` 及 `examples/synthetic_2host_bundle`；安装 wheel 后位于 `olav_skills/examples`。在源码目录外执行已安装副本：
@@ -62,7 +64,7 @@ export OLAV_HOME=/absolute/path/to/new-synthetic-analysis
 "$SKILLS_PYTHON" -I -B -c 'import json,os; from pathlib import Path; sid=json.loads((Path(os.environ["OLAV_HOME"])/"import.json").read_text())["snapshot_id"]; print(json.dumps({"source":"command_output","pattern":"Hostname","device":"R1","commands":["show version"],"snapshot":sid,"limit":5}))' | "$SKILLS_PYTHON" -I -B -m olav_skills run reporter query_evidence
 ```
 
-协议层缺失是采集缺口，不证明没有邻居。快照 ID 或默认 `latest` 不能证明采集瞬间或实时性。优先显式 ID，并将真实采集时间来源写入报告。
+拓扑来源缺失时，对应协议层的关系仍为未知。优先使用精确快照 ID，并将真实采集时间证据写入报告。快照标签和默认 `latest` 都无法确定数据的采集时刻或新鲜度。
 
 ## 使用自己的离线采集
 

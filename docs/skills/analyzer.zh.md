@@ -4,7 +4,7 @@ Analyzer 提供记录元数据、有界 SQL、设备/接口检查、本地日志
 
 ## 优先匹配模板
 
-`query_batch` 支持快照统计、设备/命令覆盖、过滤设备/命令、多设备汇总、Top N、标识键差异及部分接口/BGP 健康检查。先用 `{"operation":"context"}` 查看能力，再选操作和显式快照。未支持意图应保留不支持，不能为了套模板丢掉日期/厂商/设备条件。
+`query_batch` 支持快照统计、设备/命令覆盖、过滤设备/命令、多设备汇总、Top N、标识键差异及部分接口/BGP 健康检查。优先选择支持的模板；仅在需要核对能力时用 `{"operation":"context"}`，并选定显式快照。未支持意图应保留不支持，不能为了套模板丢掉日期/厂商/设备条件。
 
 原生历史快照的设备与接口问题，优先使用模板或有界 SQL。包中仍有旧风格 `inspect_devices` 和 `inspect_interfaces`，但本地原生路径不支持任意显式快照：前者拒绝给定 `snapshot_id`，后者拒绝 `latest` 之外的值。接口检查可能逐设备选最新记录，不能将这种便利入口写成同一历史采集。
 
@@ -25,3 +25,5 @@ printf '%s\n' '{"sql":"SELECT hostname, role FROM netops.devices ORDER BY hostna
 `search_logs` 搜索已复制的本地日志；没有 syslog 存储是来源缺失。`inspect_blast_radius` 计算记录图中移除元素的影响，精确总量与样本成员分开，不是可达性模拟。`generate_change_plan` 根据型号模式在 `exports/change_plans/` 写批量计划，参数有 `model_pattern`、`output_filename`、`upgrade_description`、`bfs_order`。草案使用前须审阅事实、假设、设备语法、回退和后检查。
 
 包中没有模拟器或通用报告写入 API。宿主可通过获授权文件工具写审阅后的报告。另见[设备调查](../workflows/inventory.md)、[变更](../workflows/changes.md)及[安全](../safety.md)。
+
+`bfs_order` 当前按角色子串排阶段，并非图 BFS 或依赖验证。批量生成器固定使用 Cisco IOS 模板，含镜像/TFTP 占位值，不支持混合厂商或自动模拟、上线；产物仅为待人工补全和审阅的草案。

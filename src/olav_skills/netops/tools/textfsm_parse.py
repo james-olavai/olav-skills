@@ -1,12 +1,13 @@
 """olav_skills.netops.tools.textfsm_parse — universal CLI output parser.
 
-Three-tier priority chain (ARCH-25 / ARCH-27 / GLUE-AUDIT G7):
+Explicitly activated versions select the managed parser, including when it
+returns no rows. Otherwise use the legacy priority chain:
 
     Priority 0  — PaC (Python) parser from .olav/templates/parsers/
                   (ARCH-25 — LLM-learned Python `parse()` functions)
     Priority 1  — Custom TextFSM from .olav/templates/<platform>/
                   (auto_learn output + user-seeded templates)
-    Priority 2  — ntc-templates built-in library
+    Priority 2  — packaged command-specific parser, then ntc-templates
 
 The first tier that returns a non-empty result wins. Failures at each
 tier are logged at WARNING (no silent drops — GLUE-AUDIT G12).
@@ -28,6 +29,7 @@ from __future__ import annotations
 import logging
 import hashlib
 import io
+from ipaddress import ip_address, ip_interface
 import re
 from pathlib import Path
 from typing import Any
@@ -135,6 +137,89 @@ def _try_custom_textfsm(platform: str, command: str, raw_output: str, *, trace=N
     return None
 
 
+# This source is embedded so the same module hash that the importer closure
+# records also binds the default template. Local parser overrides still win.
+_JUNOS_TERSE_TEMPLATE = r"""Value INTERFACE (\S+)
+Value ADMIN_STATE ((?i:up|down|testing|dormant|unknown|notpresent|lowerlayerdown|-))
+Value LINK_STATE ((?i:up|down|testing|dormant|unknown|notpresent|lowerlayerdown|-))
+Value PROTO ((?i:inet|inet6|aenet|eth-switch|multiservice|mpls|tnp|iso|vpls|ccc|bridge))
+Value IP_ADDRESS ((?:[0-9]{1,3}(?:\.[0-9]{1,3}){3}|[0-9A-Fa-f:.]*:[0-9A-Fa-f:.]+)(?:%[\w./:-]+)?(?:/\d+)?)
+
+Start
+  ^\s*$$
+  ^Interface\s+Admin\s+Link\s+Proto\s+Local(?:\s+Remote)?\s*$$ -> Terse
+  ^. -> Error
+
+Terse
+  ^${INTERFACE}\s+${ADMIN_STATE}\s+${LINK_STATE}\s+${PROTO}\s+${IP_ADDRESS}(?:\s+.*)?$$ -> Record
+  ^${INTERFACE}\s+${ADMIN_STATE}\s+${LINK_STATE}\s+${PROTO}(?:\s+-->\s+\S+)?\s*$$ -> Record
+  ^${INTERFACE}\s+${ADMIN_STATE}\s+${LINK_STATE}\s*$$ -> Record
+  ^\s+${PROTO}\s+${IP_ADDRESS}(?:\s+.*)?$$ -> Record
+  ^\s+${IP_ADDRESS}(?:\s+.*)?$$ -> Record
+  ^\s+${PROTO}(?:\s+-->\s+\S+)?\s*$$ -> Record
+  ^\s*$$
+  ^. -> Error
+"""
+
+
+def _junos_input_bounded(raw_output: str) -> bool:
+    # Check characters before UTF-8 encoding to bound the temporary allocation.
+    size = 1024 * 1024
+    if len(raw_output) > size or raw_output.count("\n") > 16_384:
+        logger.warning("parse_output: native Junos summary input exceeds its parser budget")
+        return False
+    try:
+        bytes_len = len(raw_output.encode("utf-8"))
+    except UnicodeError:
+        logger.warning("parse_output: native Junos summary input is not valid Unicode")
+        return False
+    lines = raw_output.splitlines()
+    if bytes_len > size or len(lines) > 16_384 or any(len(line) > 4_096 for line in lines):
+        logger.warning("parse_output: native Junos summary input exceeds its parser budget")
+        return False
+    return True
+
+
+def _try_junos_terse(raw_output: str, *, trace=None) -> list[dict] | None:
+    import textfsm
+
+    try:
+        fsm = textfsm.TextFSM(io.StringIO(_JUNOS_TERSE_TEMPLATE))
+        parsed = fsm.ParseText(raw_output)
+    except textfsm.TextFSMError:
+        # TextFSM's error includes the captured line. Keep it out of logs.
+        logger.warning("parse_output: packaged Junos terse parser rejected an unsupported line")
+        return None
+    if len(parsed) > 4_096:
+        logger.warning("parse_output: packaged Junos terse row budget exceeded")
+        return None
+    rows = []
+    parent = None
+    family = ""
+    for interface, admin, link, proto, ip in parsed:
+        if ip:
+            try:
+                ip_interface(ip)
+            except ValueError:
+                logger.warning("parse_output: packaged Junos terse parser found an unsupported local address")
+                return None
+        if interface:
+            parent, family = (interface, admin, link), proto
+        elif parent is None or (not proto and not family):
+            logger.warning("parse_output: packaged Junos terse parser found an unbound continuation")
+            return None
+        elif proto:
+            family = proto
+        rows.append(dict(zip(
+            ("interface", "admin_state", "link_state", "proto", "ip_address"),
+            (*parent, family, ip),
+        )))
+    if rows and trace is not None:
+        trace({"tier": "package_textfsm", "template_id": "juniper_junos_show_interfaces_terse",
+               "template_sha256": hashlib.sha256(_JUNOS_TERSE_TEMPLATE.encode()).hexdigest()})
+    return rows or None
+
+
 # ── Tier 2: ntc-templates built-in ───────────────────────────────────────
 
 # ntc-templates filename aliases: some CLI commands don't map 1:1 to the
@@ -154,6 +239,61 @@ _NTC_FILENAME_ALIASES: dict[str, str] = {
     "show bgp all summary":    "show_ip_bgp_summary",
 }
 
+_JUNOS_BGP_PEER = re.compile(r"^([0-9A-Fa-f:.]+)[ \t]+(?=(?:\d+[ \t]+){5})", re.M)
+_JUNOS_BGP_SUMMARY = re.compile(r"^Groups:[ \t]+\d+[ \t]+Peers:[ \t]+(\d+)[ \t]+Down peers:", re.M)
+_UPTIME_FRAGMENT = re.compile(r"(?:\d+(?:[wdhms]\d*)+|\d+(?::\d+){1,2})", re.I)
+
+
+def _junos_bgp_rows(fsm, raw_output: str) -> list[list]:
+    """Keep peer records separate when NTC relies on implicit EOF Record.
+
+    In a Junos summary a down peer can have no following routing table row.
+    Without a record boundary, the next peer overwrites its TextFSM values.
+    """
+    peers = list(_JUNOS_BGP_PEER.finditer(raw_output))
+    summary = _JUNOS_BGP_SUMMARY.findall(raw_output)
+    if len(peers) > 4_096 or (peers and peers[0].start() > 4_096):
+        logger.warning("parse_output: native Junos BGP peer budget exceeded")
+        return []
+    if len(summary) != 1 or summary[0].lstrip("0") != str(len(peers)).lstrip("0"):
+        logger.warning("parse_output: native Junos BGP peer lines do not match one summary")
+        return []
+    if not peers:
+        return []
+    header = raw_output[:peers[0].start()]
+    peer_index = fsm.header.index("PEER_IP")
+    state_index = fsm.header.index("STATE")
+    last_flap_index = fsm.header.index("LAST_FLAP")
+    records = []
+    for index, match in enumerate(peers):
+        end = peers[index + 1].start() if index + 1 < len(peers) else len(raw_output)
+        first, sep, tail = raw_output[match.start():end].partition("\n")
+        tokens = first.split()
+        if len(tokens) < 8:
+            logger.warning("parse_output: native Junos BGP peer line lacks uptime or state")
+            return []
+        try:
+            ip_address(tokens[0])
+        except ValueError:
+            logger.warning("parse_output: native Junos BGP peer address is unsupported")
+            return []
+        tokens[0] = tokens[0].lower()  # NTC's peer regex accepts lowercase hex.
+        # The NTC template expects two fields for Last Up/Down. Junos can emit a single
+        # uptime token. Pad the parser input and clear the padding in the row.
+        single_uptime = len(tokens) == 8 or not _UPTIME_FRAGMENT.fullmatch(tokens[7])
+        if single_uptime:
+            tokens.insert(6, "-")
+        # The template expects a space past the state token, including at EOF.
+        fsm.Reset()
+        rows = fsm.ParseText(header + " ".join(tokens) + " " + sep + tail)
+        if len(rows) != 1 or rows[0][peer_index] != tokens[0] or rows[0][state_index] != tokens[8]:
+            logger.warning("parse_output: native Junos BGP template failed to bind one peer and state")
+            return []
+        if single_uptime:
+            rows[0][last_flap_index] = ""
+        records.extend(rows)
+    return records
+
 
 def _try_ntc_templates(platform: str, command: str, raw_output: str, *, trace=None) -> list[dict] | None:
     """Fall back to the ntc-templates built-in library."""
@@ -165,7 +305,8 @@ def _try_ntc_templates(platform: str, command: str, raw_output: str, *, trace=No
         return None
 
     templates_dir = Path(ntc_templates.__file__).parent / "templates"
-    safe = _NTC_FILENAME_ALIASES.get(command.strip().lower(), _safe_cmd(command))
+    junos_bgp = platform == "juniper_junos" and command.strip().lower() == "show bgp summary"
+    safe = _safe_cmd(command) if junos_bgp else _NTC_FILENAME_ALIASES.get(command.strip().lower(), _safe_cmd(command))
     template_path = templates_dir / f"{platform}_{safe}.textfsm"
     if not template_path.exists():
         return None
@@ -173,8 +314,11 @@ def _try_ntc_templates(platform: str, command: str, raw_output: str, *, trace=No
     try:
         template_bytes = template_path.read_bytes()
         fsm = textfsm.TextFSM(io.StringIO(template_bytes.decode("utf-8")))
-        rows = fsm.ParseText(raw_output)
+        rows = _junos_bgp_rows(fsm, raw_output) if junos_bgp else fsm.ParseText(raw_output)
     except Exception as exc:
+        if junos_bgp:
+            logger.warning("parse_output: installed Junos BGP template rejected the summary")
+            return None
         # Upstream ntc-templates parser bugs (State Error / Rule Line N
         # mismatches) are ours to neither fix nor block on — drop to
         # debug so collection stays quiet.  The raw output still lands
@@ -232,14 +376,32 @@ def parse_output(
         )
         return None
 
+    from olav_skills.parser_lifecycle import parse_active
+
+    active = parse_active(_templates_base().parent, plat, command, raw_output)
+    if active is not None:
+        rows, identity = active
+        if trace is not None:
+            trace(identity)
+        return rows or None
+
     # Tier 0 — PaC Python parser
     rows = _try_pac_parser(plat, command, raw_output, trace=trace) if trace is not None else _try_pac_parser(plat, command, raw_output)
     if rows is None:
         # Tier 1 — custom TextFSM
         rows = _try_custom_textfsm(plat, command, raw_output, trace=trace) if trace is not None else _try_custom_textfsm(plat, command, raw_output)
     if not rows:
-        # Tier 2 — ntc-templates
-        rows = _try_ntc_templates(plat, command, raw_output, trace=trace) if trace is not None else _try_ntc_templates(plat, command, raw_output)
+        # Tier 2 — fixed Junos terse profile or the installed NTC template.
+        cmd = command.strip().lower()
+        if plat == "juniper_junos" and cmd in {"show interfaces terse", "show bgp summary"}:
+            if not _junos_input_bounded(raw_output):
+                return None
+            if cmd == "show interfaces terse":
+                rows = _try_junos_terse(raw_output, trace=trace)
+            else:
+                rows = _try_ntc_templates(plat, command, raw_output, trace=trace)
+        else:
+            rows = _try_ntc_templates(plat, command, raw_output, trace=trace) if trace is not None else _try_ntc_templates(plat, command, raw_output)
 
     if rows is None or not rows:
         return None

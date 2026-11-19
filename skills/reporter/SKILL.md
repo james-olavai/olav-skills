@@ -1,282 +1,147 @@
 ---
 name: reporter
-description: Investigation and blast radius from the recorded snapshot — gather SQL evidence, search logs, synthesise findings into a report under exports/reports/, or simulate a device or link failure over the graph to see what it takes with it.
-compatibility: Requires Python >=3.11 and the olav-skills Python distribution.
+description: "Investigate recorded network evidence, compare snapshots and explain graph impact or pre-check a supplied change plan. Produce sourced findings with explicit gaps."
 metadata:
-  runtime: "olav-skills>=0.1.0"
+  runtime: "olav-skills>=0.2.0"
 ---
 
-> **Calling convention in this pack.** These agents were written for the OLAV
-> runtime, whose prose calls scripts as
-> `execute_skill_script(skill_name="<agent>", script_name="<file>.py", arguments={...})`.
-> Here there is no such tool — run the script directly, passing the same
-> arguments as JSON on stdin:
->
-> ```bash
-> echo '{"devices": []}' | python analyzer/scripts/inspect_interfaces.py
-> ```
->
-> Every script reads one JSON object from stdin and prints one JSON object to
-> stdout. An empty optional collection means *discovery*, not *none*:
-> `{"devices": []}` returns every device.
->
-> **`execute_sql` is a script here**, at `analyzer/scripts/execute_sql.py`, and
-> the prose that calls it means that file:
->
-> ```bash
-> echo '{"query": "how many devices", "sql": "SELECT count(*) FROM netops.devices"}' \
->   | python analyzer/scripts/execute_sql.py
-> ```
->
-> Called with `query` alone it returns the schema instead of data, for you to
-> write the SQL against — then call it again with `sql`. Prefer it over your own
-> `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
-> connection, and anything mutating is **refused rather than executed** —
-> `status: "requires_approval"`, nothing written. It also caps how many rows reach
-> your context (an explicit `export_bounded=true` writes only the bounded preview to a
-> CSV under `exports/queries/`). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
-> when no syslog directory was copied along with the database.
->
-> Tools named in the prose that this pack genuinely does not ship
-> (`olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
-> runtime: the first two need its memory layer and sub-agent router, and the
-> third formats output you are better at formatting yourself. Where the prose
-> says to *delegate* to another agent, load that sibling skill instead — they are
-> directories next to this one.
->
-> **Nothing here touches a device.** `execute_cli_parallel` and `take_snapshot`
-> are named in some reference docs and are deliberately absent: they open SSH
-> sessions, which is the one thing this pack promises it never does. Fresh data
-> comes from a collector bundle — run `olav-collector` where the devices are,
-> then land it with `importer`.
+# Reporter
 
-**Tables this agent reads** (`main.duckdb`):
+For OSPF neighbor-state questions use analyzer's
+[OSPF analysis](../analyzer/references/ospf_analysis.md). For evidence readiness
+read [the policy contract](../analyzer/references/evidence_readiness.md): without
+both an explicit as-of and maximum age, ask for the missing policy before
+calling the checker. Keep unknown verdicts in the main conclusion.
 
-- `netops.devices`
-- `netops.topology_links`
-- `netops.parsed_outputs`
-- `netops.raw_output_store`
-- `netops.commands`
-- `netops.v_show_ip_bgp_summary_auto`
-- `netops.v_show_ip_bgp_neighbors_auto`
-- `netops.v_bgp_neighbors_auto`
-- `netops.v_show_ip_ospf_neighbor_auto`
-- `netops.v_show_ip_interface_brief_auto`
-- `netops.v_show_interfaces_auto`
-- `netops.v_show_interfaces_terse_auto`
-- `netops.v_l2_links_auto`
-- `netops.v_show_logging_auto`
+## Execution and permissions
 
-## Bounded query templates first
+Use the installed, bound interpreter and one JSON object on stdin:
 
-Use `execute_skill_script(skill_name="reporter", script_name="query_batch.py", arguments={"operation":"snapshot_summary","snapshot_id":"latest","devices":[]})` for supported metadata questions. Other operations: device_coverage, command_coverage, devices, commands, multi_device_summary, top_n, diff_summary, interface_health, bgp_health. `devices=[]` discovers within the server-bound project; do not loop over devices when one batch answers the question.
-
-Use the matching template first. If unsupported, say so; read only the relevant compact schema (`operation="context"`, capability metadata only) before a bounded read-only SQL fallback. Never silently drop vendor/snapshot/device/command filters. Sources with missing/unsupported columns are not healthy empty datasets. Inventory is not snapshot membership. Missing Junos canonical views does not imply absent underlying parsed records. Existing `query_topology` remains the adjacency entry point; do not duplicate it. Evidence reports use scoped `query_evidence`, not full config/raw-output dumps. See the shared query contract at parent `netops/references/batch_query.md` (standalone pack: `skills/netops/references/batch_query.md`), and the shared evidence-drilldown contract at parent `netops/references/evidence_query.md` (standalone pack: `skills/netops/references/evidence_query.md`) for the arguments each source actually accepts, per-source scope, paging continuation, character-budget omission, unknown-date exclusion, and failure/budget reporting.
-
-`query_evidence` takes `source`, `pattern`, `device`, `snapshot`, `commands`, `ids`, `date_from`/`date_to`, `page`/`offset`/`limit`; syslog rejects `commands`/`ids`; `search_logs` (platform core script) takes `query`, `hours`, `severity`, `host`, `page`, `limit`, `date_from`/`date_to` — no offset, command or ID aliases. Narrow only within the user's question: if a broad query cannot finish, report the partial/unfinished scope instead of silently narrowing it and claiming the result is exhaustive.
-
-
-
-# Reporter — investigation + blast-radius
-
-You read network state via SQL and evidence queries, emit a **Markdown report**.
-The markdown IS the deliverable — no downstream pipeline.
-
-## Tools
-
-| Tool | When |
-|---|---|
-| `execute_sql(sql=...)` | State lookup: device facts, BGP/OSPF/interface, cross-view JOIN. |
-| `olav_recall_memory(query=...)` | Phase 0: recall investigation guides + past failures for this topology/protocol. |
-| `describe_table(table_name=..., include_samples=True)` | For unfamiliar views — once per view; skip stable tables (consult injected schema guide). |
-| `query_evidence(source=..., pattern=..., device=...)` | Log/syslog/config text search. `source` ∈ {`syslog`, `command_output`, `config`}. |
-| `diff_snapshots(snapshot_id_1=..., snapshot_id_2="latest", ...)` | Row-level diff between snapshots. |
-| `inspect_blast_radius(remove_devices=..., remove_links=...)` | NetworkX what-if connectivity loss. |
-| `format_and_export(data=<MD>, filename=..., format="md", subdir="reports", mode="append")` | Write to `exports/reports/`. Always `mode='append'`. |
-| `read_file(path=...)` | Read file before any write — avoid duplicate headers. |
-
-For config-layer evaluation (BGP compat, reachability), delegate via `task("sim", ...)`.
-
-## Mode routing
-
-| Prompt | Mode |
-|---|---|
-| "investigate / why / 故障 / audit / deep research" | Workflow D — Investigation Report |
-| "blast radius / what if X fails / decommission" | Mode C — Blast Radius |
-| "pre-check / light-verify the change plan at <path>" | Mode V — Plan Pre-check |
-
-## Mode V — Plan Pre-check (lightweight verification)
-
-Bounded sanity check of a drafted change plan against CURRENT state —
-the fast tier before Batfish formal verification. Budget: ≤4 SQL/evidence
-queries + 1 blast-radius call. Return your verdict TEXT directly (no
-report file).
-
-1. Read the plan — NOT with `read_file` (it cannot see files on disk):
-   `execute_skill_script(skill_name="reporter",
-   script_name="read_change_plan.py", args={"path": "<the plan path from
-   the prompt>"})` — extract: devices, interfaces, IPs/subnets, protocol/AS.
-2. Verify against state (ONE query each, only what the plan claims):
-   - devices exist in `netops.devices`
-   - target interface exists and its current IP/status doesn't conflict
-     (`netops.v_show_interfaces_auto`)
-   - proposed subnet not already in use
-3. `inspect_blast_radius(remove_devices=[<the device the plan protects
-   or removes>])` — the impact number the plan should be citing.
-4. Verdict — one of:
-   - `PRE-CHECK PASS` + 3-5 evidence bullets (include the blast-radius count)
-   - `PRE-CHECK CONCERNS` + what conflicts (wrong interface, IP in use,
-     device not found, plan cites no/wrong impact number)
-
-## Write mechanics (always ON)
-
-Before any write, call `read_file` to check what's already in the file.
-Write only what's **missing** — never duplicate a header or section that already exists.
-
-```python
-# Before first write — check current state
-existing = read_file(path="exports/reports/<topic>_<YYYY-MM-DD>.md")
-
-# Initialize (only if empty)
-format_and_export(
-    data=f"# <Topic>\n_Generated {captured_at}; Snapshot {snap_id}_\n\n## Question\n{user_prompt}\n\n",
-    filename="<topic>_<YYYY-MM-DD>", format="md", subdir="reports", mode="append",
-)
-
-# After each tool call — append next missing section
-format_and_export(
-    data=f"\n## Step {N}: {what_you_did}\n**Tool**: ...\n**Rows ({len(rows)})**:\n\n{markdown_table}\n\n**Reflection**: {takeaway}\n",
-    filename="<topic>_<YYYY-MM-DD>", format="md", subdir="reports", mode="append",
-)
-
-# Final synthesis (append, not overwrite)
-format_and_export(
-    data="\n## Synthesis\n<conclusion>\n\n## Recommendations\n- ...\n\n## Caveats\n- ...\n",
-    filename="<topic>_<YYYY-MM-DD>", format="md", subdir="reports", mode="append",
-)
+```sh
+printf '%s' '{"operation":"snapshot_summary","snapshot_id":"latest"}' | olav-skills run analyzer query_batch
 ```
 
-Rules: read before write · one append per step · truncate tables at 20 rows ·
-same filename throughout · no duplicate `#` headers · final synthesis also append.
+Set `OLAV_HOME` to the authorized project before running. The host supplies
+execution, file access and permissions. If it exposes a restricted native tool,
+use that tool's actual name and schema; a shell example does not grant shell
+access or permit bypassing the host. No device access, agent router, model
+provider, memory service, simulation engine or general export tool is supplied.
+Check exit and result status; execution success alone does not prove an answer.
 
-## Workflow D — Investigation
+## Investigation
 
-### Evidence budget — the network-engineer's stopping rule
+Use `query_batch` for supported summaries, then relevant bounded SQL via
+analyzer only where needed. Read [batch query](../netops/references/batch_query.md)
+for template semantics, and [evidence query](../netops/references/evidence_query.md)
+before `olav-skills run reporter query_evidence` searches. Evidence accepts
+`source`, `pattern`, `device`, `snapshot`, `commands`, `ids`, date and paging
+keys according to source; analyzer `search_logs` has a different schema.
 
-An investigation is bounded, not open-ended. A network engineer gathers the
-few pieces of evidence the question actually needs, forms the verdict, and
-writes it up — they do NOT keep querying "just in case". Do the same:
+Start from the actual question and known device names. Read the
+[layered troubleshooting guide](references/troubleshoot_layered_l1_to_l4.guide.yaml)
+when protocol diagnosis needs L1/link, L2, L3/IGP and overlay correlation.
+Consult [routing guidance](../analyzer/references/ROUTING_EXPERT_GUIDE.md) for
+protocol reasoning. A hypothesis is not a finding until evidence supports it.
+Cross-layer contradictions deserve attention; absent sources stay gaps.
 
-- **Budget: ≤ ~8 evidence queries total.** The question drives the scope, not
-  the schema. Ask: *what would prove or disprove this?* Gather exactly that.
-- **DONE signal:** the moment you can state the verdict with evidence, **stop
-  querying and write the Synthesis (Phase 5).** More queries past that point
-  are timeout, not rigor — small local models die here by cross-checking
-  something they already answered.
-- **Never re-run a query you've already run** (Batfish/SQL are deterministic;
-  the answer won't change). If sim/`task` already answered the config-layer
-  question, do NOT re-derive it in SQL — cite sim's verdict and move on.
-- **This count is a stopping rule, not the execution budget.** Timeout/memory,
-  permission, schema/SQL and missing-source failures keep their category and
-  unfinished scope; a failed query is never zero matches. Never raise or disable
-  a safety budget, never retry indefinitely or fall back to raw dumps. One
-  bounded corrective retry only for a real correctable argument/scope issue;
-  on a budget failure, stop and report (or ask for a smaller authorized scope).
-- **Routing config** (OSPF process / EIGRP AS / BGP ASN): get it with ONE
-  `regexp_extract` per the `discover_routing_config_via_sql` guide. NEVER
-  `SELECT raw_output` / `substr(raw_output…)` — that floods context and loops.
+Aim for a small evidence set (roughly eight queries for a focused investigation),
+not a mandatory sequence. Stop when the supported verdict is clear. This is a
+reasoning guide, not a substitute for deadlines or truncation reporting.
+Never repeatedly fetch full config/raw text, repeat deterministic failures or
+change filters just to obtain a reassuring answer.
 
-**Phase 0**: `olav_recall_memory` for this investigation type. Then collect
-snapshot context, device inventory, and topology. Consult your injected
-`topology_query` guide for standard SQL patterns and stable table columns.
+## Comparisons and graph impact
 
-**Phase 0a**: For unfamiliar views, consult your injected `schema_introspection`
-guide. Use `describe_table` for views not listed as stable.
+`diff_snapshots` compares returned recorded rows; pin source and target and
+report both time provenances. `query_batch`'s `diff_summary` compares identity
+keys, not content. `inspect_blast_radius` is available under analyzer/netops;
+it models graph connectivity loss, not Batfish, policy or live reachability.
+Validate target names and `validation_warnings` before interpreting counts.
 
-**Phase 1**: Plan L1→L4 bottom-up. Consult your injected `troubleshoot_layered`
-guide for the L1-L4 question sequence and protocol-specific first steps
-(BGP Idle/Active, OSPF Init/ExStart, BFD Down, etc.).
+For content-level changes, the unreleased candidate adds
+`olav-skills run reporter compare_state`; read its
+[scope and source contract](references/state_changes.md) first. Pin both
+snapshot IDs and the supported source. Historical per-command views may hide
+older records; this comparison uses its documented historical source instead.
+Record changes and missing coverage do not prove network outages.
 
-**Phase 2**: Act one stage at a time. Fill `WHERE device IN (...)` with real
-names from Phase 0. Do NOT call the same SQL twice.
+## Supplied-plan pre-check
 
-**Phase 3**: Reflect after each query. If empty/sparse, was the filter too
-narrow? Re-scope once — never twice.
+The unreleased candidate provides analyzer's deterministic
+`olav-skills run analyzer check_change_plan`; read the
+[pre-check contract](../analyzer/references/plan_precheck.md) for structured
+inputs versus Markdown-only checks. Preserve each pass/fail/unknown finding and
+its source; a completed check is not approval to execute.
 
-**Phase 4 — Synthesise** (cross-layer first): Walk each layer pair: L1↔L3,
-L3↔L4, IGP↔EGP. Look for contradictions (L1 down + L4 Established;
-BGP loopback peer with no IGP route; ACL blocking peer transit). Cross-layer
-anomalies are usually Critical or Major.
+`read_change_plan` reads a plan within its supported exports path. Inspect its
+actual arguments before use. Compare claimed devices, interfaces, IP/subnets
+and protocol against bounded captured evidence; graph impact is optional when
+relevant. Report `PRE-CHECK CONCERNS` for conflicts or missing evidence, and a
+qualified `PRE-CHECK PASS` only for checks actually completed. A captured-state
+sanity check is not formal config verification or approval to execute.
 
-**Phase 5 — Emit report**:
-```markdown
-# <Topic>
-_Generated <YYYY-MM-DD>; data sources: execute_sql + query_evidence + sim_
+## Deliver the report
 
-## Executive Summary   ← 3-5 bullets, cross-layer first
-## Scope & Method
-## Layered Health
-### L1 — Physical / Link
-### L2 — Data Link      (omit if irrelevant)
-### L3 — Network / IGP
-### L4 — Services / Overlay
-## Cross-Layer Anomalies
-## Findings (ranked by severity)
-### Finding N — <claim>
-- **Severity**: Critical / Major / Minor
-- **Layer**: L<n> / cross-layer
-- **Evidence**: device=..., value=..., source=execute_sql on `netops.v_...`
-- **Why it matters**: 1-2 sentences
-## Risks & Recommendations
-## Appendix: raw evidence table
-| layer | device | object | state | observed | source-view |
-```
+Include conclusion, scope/method, evidence-backed findings, severity, risks and
+recommendations, and source gaps. Each finding cites device/object, observed
+value, source and snapshot/time. Use a concise evidence table; preserve source
+IDs and truncation/date exclusions. Distinguish inference from observation.
+Return Markdown directly, or use an authorized host writer and state the actual
+file path. For selected reviewed files, read
+[evidence delivery](references/evidence_delivery.md) before `evidence_bundle`.
+It packages/validates integrity and freshness, not report truth or authorship.
+An authentic manifest pin needs a separate trusted channel. Read existing files
+before editing; there is no automatic append pipeline.
 
-**Hard rules**:
-1. Phase 0 first — plan uses real device names, never empty `WHERE device IN ()`
-2. No same-SQL retry — re-scope or accept empty result
-3. LIMIT 50 on every SELECT (LIMIT 20 for large networks)
-4. Cross-layer anomalies in their own section
-5. Every finding cites device + value + source view — no fabricated facts
-6. **STOP after `task("sim")` returns** — don't re-verify sim's config-layer ground truth
-7. One report file per request — read-only mode, no CLI on devices
-8. **Respect the evidence budget (≤ ~8 queries).** When you can state the
-   verdict, write the Synthesis and STOP. Do not gather more "to be sure".
-9. **Never `SELECT raw_output` / `substr(raw_output…)`** — use `regexp_extract`
-   or `query_evidence` for config text. Whole-config dumps flood context and
-   cause the loop-until-timeout failure.
+## Unreleased historical analysis and audits
 
-## Mode C — Blast Radius
+Use `compare_routes` after reading [route changes](references/route_changes.md)
+for supported source profiles, verified routing context and multipath semantics.
+A missing route record does not prove withdrawal or reachability loss.
+Use `compare_counters` with [counter deltas](references/counter_deltas.md):
+unknown clocks, resets and wraps must not become invented rates or zero errors.
+For raw configuration text use netops `diff_configs` under its
+[historical source contract](../netops/references/config_diff.md).
 
-```python
-execute_sql(sql="SELECT hostname, role FROM netops.devices")
-inspect_blast_radius(remove_devices=["R3"])          # OR remove_links=[...]
-diff_snapshots(snapshot_id_1="snap_20260501", snapshot_id_2="latest", device="R3")  # optional
-format_and_export(data=f"# Blast Radius: removing {target}\n...",
-                  filename="blast_radius_<date>", format="md", subdir="reports")
-```
+`run_audit` applies a reviewed one-time profile; read
+[audit profiles](references/audit_profiles.md). Preserve per-rule concern,
+unknown and not-executed states. Partial execution leaves the overall result
+unknown. A pass is limited to the selected observed check, not network health.
+These local candidates are not in published 0.1.1 or automatically authorized
+as WebUI tools.
 
-## Delegation to sim (Phase 2.5)
+## Unreleased report review and topology changes
 
-Insert when investigation needs config-layer evaluation (BGP compat, reachability, policy):
+For a report with explicit evidence bindings, use `lint_report` after reading
+[report citation checks](references/report_citations.md). Check coverage and
+binding failures; passing consistency checks does not establish that a claim is
+true or that a caller-provided source is authentic.
 
-```python
-task(description=(
-    "On snapshot snap_20260514_101701_156d60, run "
-    "bgpSessionCompatibility for nodes R1 and R3. "
-    "REPORT_MODE: append evidence to exports/reports/<file>.md (mode='append'). "
-    "Return short verdict in reply text."
-), subagent_type="sim")
-```
+Use `compare_topology` with [topology content changes](references/topology_changes.md)
+for two exact recorded snapshot labels. Preserve parallel links and unknown
+fields. Added or removed observations do not establish physical link up/down;
+missing collection evidence is not a complete empty topology.
 
-Rules: one sim call per question type · pass snapshot_id explicitly ·
-never ask sim to query DB (embed SQL state in the prompt) ·
-cite reply under `## Config-layer Findings (sim)`.
+For OSPF observations use analyzer's [OSPF analysis](../analyzer/references/ospf_analysis.md).
+`run_audit` adds an `ospf` profile and an optional explicit evidence gate; read
+[audit profiles](references/audit_profiles.md) for scope and time policy.
 
+## Evidence boundaries
 
+Use a supported bounded template first, one batch for a fleet question. Empty
+optional filters discover within authorized scope; limits, clipped cells and
+`has_more` / `byte_truncated` still apply. Discovery is not an unlimited export.
+Do not infer snapshot membership from inventory or device role from a hostname,
+platform, ASN or loopback. Keep unknown roles separate. Missing/unsupported
+sources, failed queries and unknown values are not zero or healthy results.
+Do not silently drop filters or narrow the user's question.
 
-## Recorded data time
-
-Cite snapshot ID and `temporal.collected_at` with its precision, source and status. A date label derived from a snapshot ID is an inference, not verified device capture. `ingested_at` and `record_updated_at` are separate clocks; neither proves collection time. Unknown or conflicting time must be reported as unknown. `latest` uses collection provenance and may return `ambiguous_snapshot_time`; choose an explicit snapshot instead of ordering IDs. CLI evidence `captured_at` is null without an explicit raw capture field (previous versions incorrectly exposed updated_at there). Time coverage describes the snapshot or returned records, never live network state or an arbitrary SQL result. Diff results carry separate source and target times.
-
-A `query_evidence` date filter (`date_from`/`date_to`) covers only candidate records whose collection date is known and inside the range. `date_unknown_candidates` / `date_exclusions` / `date_scope` disclose candidate records excluded *after the other metadata filters and before the date filter* because their collection time is unknown, invalid or conflicting. Those are candidate exclusions, not body-match counts; their bodies were not evaluated, and the helper does not expose their total, so never use `candidate_total + date_unknown_candidates` as a denominator. `total` and `total_is_complete` describe only the known-date predicate, not full time coverage of the store. `no_dated_candidates` means no candidate has a known date inside the range: if unknown-time exclusions exist, the date question is unanswered and it is wrong to report "no recorded evidence"; if there are none, known-dated records simply fall outside the range. Disclose unknown-time exclusions even when known-date matches exist. A page that is empty because `offset` is past `total` is a paging artifact, not an empty result set. Continue from `next_offset`/`page + 1` while `has_more`/`more pages` holds, keeping the same filters and snapshot; rows omitted by the character budget resume that way, but a shortened body is not fixed by paging. The shared `evidence_query.md` contract states the full paging, count-separation and failure rules.
+Cite snapshot and returned collection-time provenance, including precision,
+source and status. Recorded data is not live state. Ingest/update time and a
+date-looking ID do not prove capture time. If `latest` returns
+`ambiguous_snapshot_time`, report the ambiguity and use an explicit authorized
+snapshot only when the user's scope supports it; do not order IDs to guess.
+An explicit ID can support observations while collection time stays unknown.
+Stop once evidence answers the question. Do not repeat unchanged failures or
+raise budgets; a corrective retry needs a real corrected argument within scope.
+Report unfinished scope and source/preview truncation.

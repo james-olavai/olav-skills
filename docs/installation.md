@@ -16,12 +16,12 @@ python3 -m venv ~/.venvs/olav-skills
 ## 1. Install the package
 
 ```sh
-pip install olav-skills
+python -m pip install olav-skills==0.1.1
 ```
 
-The current published version is **0.1.1**. To reproduce that exact version,
-use `pip install olav-skills==0.1.1` instead. Run subsequent commands in this
-same activated environment.
+This pins the current published version. Run subsequent commands in the same
+environment. The unpublished 0.2.0 candidate uses a reviewed local wheel.
+[Candidate walkthrough](release-candidate.md)
 
 ## 2. Bind the skills to your harness
 
@@ -38,11 +38,10 @@ olav-skills install --harness claude-code --scope user
 olav-skills install --harness pi --scope user
 ```
 
-This step places the bundled skills in the harness's discovery directory and
-binds them to this environment's Python interpreter. It does not download a
-second package. `pip install` alone does not register skills with a harness.
-Keep this environment at its current path; refresh the harness session if
-needed to discover the skills.
+Pip installs the runtime and bundled resources into the venv. This step copies
+the seven skill directories to the harness discovery path and records the venv's
+absolute Python interpreter. Keep that environment at its current path and
+refresh the harness session if needed to discover the skills.
 
 Check the installation, then follow the [offline data walkthrough](offline-data.md):
 
@@ -79,11 +78,9 @@ discover this default user installation automatically. Use project scope or
 explicitly manage the custom harness configuration.
 
 `--home /absolute/home` can explicitly bind an alternative user home; it is
-rejected for project scope. Project scope requires `--project`. These are
-installation layout adapters. Package tests verify layouts, not model behavior. Separate native no-model discovery
-checks passed for Codex 0.169.0 and Pi 1.3.0; Claude Code 2.1.323 was checked
-for filesystem layout only. See [compatibility](reference/compatibility.md).
-Install does not change harness permissions.
+rejected for project scope. Project scope requires `--project`. The installer
+prepares those layouts. Actual discovery and tool permissions depend on the
+harness configuration. [Compatibility and tested versions](reference/compatibility.md)
 
 Each installed skill includes `olav-runtime.json`, an exact absolute Python
 interpreter in its instructions, and `.olav-skills-install.json` with scope,
@@ -96,13 +93,13 @@ Resolve that conflict explicitly; there is no force-overwrite switch. Whole
 installations are preflighted for conflicts, but an operating-system failure
 partway through may leave some skills upgraded; rerunning is safe.
 
-## Upgrade and remove
+## Upgrade, roll back or remove
 
 Upgrade through pip in the same activated environment, then repeat your
-harness binding command. For example, for Codex:
+harness binding command. To select the latest published version for Codex:
 
 ```sh
-pip install --upgrade olav-skills
+python -m pip install --upgrade olav-skills
 olav-skills install --harness codex --scope user
 ```
 
@@ -111,10 +108,13 @@ upgrade alone does not refresh skills already copied to discovery directories.
 Keep the original scope root. Only unchanged, installer-owned skill directories
 are refreshed; preserve and review any local modifications first.
 
-For a staged upgrade, install the desired package version in a new dedicated
-venv, check it, then bind from that environment to the same scope root. Retain
-the previous venv until validation completes. Moving a venv also requires
-rebinding from its new interpreter.
+For a staged upgrade, install the target version in a new venv, check it, then
+bind from that venv to the same scope root. Retain the previous venv until
+validation completes. To roll back, rerun the binding from the retained venv,
+then check the version and interpreter in each copied skill's
+`olav-runtime.json`. If both versions were installed in the same venv,
+reinstall the reviewed prior version before rebinding. Database and artifact
+writes are outside the scope of package and skill rollback.
 
 When a same-name directory is unowned, edited or has extra files, stop and review
 its contents. Back it up or move that exact directory outside the discovery tree,
@@ -185,7 +185,7 @@ For an offline or reviewed-artifact installation, verify the supplied SHA-256
 and install the local wheel **instead of** the PyPI command in step 1:
 
 ```sh
-pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
+python -m pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
 ```
 
 Its dependencies must also be available in your offline environment. Bind the

@@ -36,3 +36,11 @@ SVG is a table converter only; `draw_topology` supports draw.io and Mermaid outp
 A useful report references the snapshot, collection-time provenance, query scope, node/edge counts, absent layers and artifact path. Pair important claims with focused [reporter evidence](../skills/reporter.md). The bundled synthetic report is ordinary Python-generated Markdown, not a supplied report-writing API. Host file writes require the host's own permissions.
 
 Recorded adjacency is not proof of packet reachability or an approved design. Check source coverage, timestamps, truncation and artifact sensitivity before sharing or making operational decisions.
+
+## Unreleased historical path query
+
+Use topology `inspect_path` after [reading the path contract](../reference/topology-paths.md)
+for bounded candidates in an exact recorded neighbor graph. Retain interface
+identities and parallel links. Missing discovery, hop limits and unenumerated
+paths must stay visible; a graph candidate does not establish packet forwarding
+or operational failover. This entry is absent from published 0.1.1.

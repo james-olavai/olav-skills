@@ -12,6 +12,22 @@ Use `olav-skills list` from the bound venv as the installed inventory. Version 0
 | topology | `list_recipes`, `prepare_recipe`, `query_batch`, `query_topology`, `rebuild_views`, `save_recipe` |
 | writer | `draw_topology`, `render_topology_drawio`, `render_topology_mermaid`, `render_topology_svg`, `topology_view_filter` |
 
+## Unreleased entry points
+
+Development candidates additionally provide analyzer `check_change_plan` and
+reporter `compare_state`. They are not in published 0.1.1. Read their
+[plan pre-check](plan-precheck.md) and [state difference](state-diff.md)
+contracts before supplying JSON. Pre-check execution never approves a change;
+state differences describe supported observed records, not confirmed outages.
+
+The candidate also adds learner `manage_parser` / `reparse_snapshot`, analyzer
+`export_query` / `run_investigation`, and reporter `evidence_bundle`. Read
+[parser lifecycle](parser-lifecycle.md), [full export](full-export.md),
+[investigation recipes](investigation-recipes.md) and
+[evidence delivery](evidence-delivery.md) before calling them. Parser activation
+is an explicit project write; replay does not rewrite stored records. File
+integrity, export completeness and evidence truth are separate checks.
+
 ## Wire convention
 
 Pass **one JSON object** on stdin to `olav-skills run SKILL SCRIPT`. Keep stdout and stderr separate. Most scripts print a JSON object; the three render converters print a JSON **string** containing markup or an omission note. Decode JSON before saving those artifacts. Results and exit behavior are script-specific: `validate_bundle` can exit zero with `ok: false`, and converters can exit zero with an omission comment. `execute_sql` and `query_evidence` return nonzero on their error paths; snapshot-diff argument errors use exit 2 and execution failures use 1. Check both the response and exit status.
@@ -50,3 +66,63 @@ Library upper ceilings include 1000 rows, 8000 characters per cell, 1000000 resp
 `temporal` separates collection, ingestion, record update and event clocks with precision/source/status. Arbitrary SQL time scope is unknown; do not transfer snapshot-time claims to an unrelated SELECT. Different convenience scripts retain different default snapshot selectors. Use explicit IDs.
 
 For `query_evidence`, inspect match/total completeness, paging, excerpt bounds and date exclusions. Unknown-time candidate exclusions occur before body matching and are not match counts or a denominator to add to other counts. `no_dated_candidates` can leave a date question unresolved. See [reporter](../skills/reporter.md) for detailed date behavior, and each [skill page](../index.md#choose-a-skill) for domain parameters and write effects.
+
+## Native contract and historical-analysis candidate
+
+Unreleased updates align `query_batch`, `compare_state` and
+`run_investigation` under [native contracts](native-contracts.md). Netops
+`diff_configs` follows the [historical config contract](config-diff.md).
+Reporter adds [compare_routes](route-changes.md),
+[compare_counters](counter-deltas.md) and [run_audit](audit-profiles.md).
+These fixed scripts retain the installed interpreter, stdin JSON protocol,
+source limits and unknown results; published 0.1.1 does not contain these updates.
+
+## Report review and topology content candidate
+
+Unreleased reporter `lint_report` checks explicit report claim/citation bindings
+against a caller-selected evidence context. Read [citation checks](report-citations.md)
+for coverage and trust boundaries; a valid reference is not a true claim.
+Reporter `compare_topology` compares two exact recorded snapshots and retains
+parallel endpoint/interface identities; read [topology changes](topology-changes.md).
+Unknown collection coverage and missing fields remain unknown. These entries
+are not included in published 0.1.1 or automatically exposed by WebUI.
+
+## Historical paths and baseline candidate
+
+Unreleased topology `inspect_path` finds bounded interface-aware candidates in
+a recorded neighbor graph; read [topology paths](topology-paths.md). Analyzer
+`analyze_baseline` computes fixed-metric references from comparable historical
+intervals and a separate target; read [metric baselines](metric-baselines.md).
+Preserve unknown coverage, clocks, resets and enumeration limits. These entries
+are absent from published 0.1.1 and do not add WebUI tool permissions.
+
+## OSPF and evidence-readiness candidate
+
+Unreleased analyzer `analyze_ospf` supports captured OSPF inspection and
+qualified record differences; read [OSPF analysis](ospf-analysis.md).
+`check_evidence` checks an explicit device/command list against historical raw
+and parsed evidence plus an as-of/age policy; read
+[evidence readiness](evidence-readiness.md). `run_audit` adds explicit OSPF and
+optional checklist admission under [audit profiles](audit-profiles.md); its
+default three checks do not change. Native CLI imports now retain new capture
+provenance; legacy imports missing this history remain unknown. These updates
+are absent from published 0.1.1 and do not register WebUI tools.
+
+## Native snapshot-summary count scopes
+
+`result_contract.counts` labels each unchanged numeric count separately.
+`inventory_device_count` is filtered current project inventory, independent of
+the chosen snapshot and command filter. It is not the number captured then.
+`observed_device_count` counts distinct parsed device names in the selected
+snapshot that also match the filtered current inventory. Commands restrict this
+parsed scope, not the inventory count. Uncatalogued parsed devices are excluded
+by this operation's join, so it does not certify all collected devices.
+Each field declares physical sources, applicable filters and whether a snapshot
+applies. For a selected recorded-device count, report the observed measure and
+its limits; do not substitute the project inventory number. These native
+qualifications do not certify retained warehouse consumers.
+
+Clock precision applies to the same clock and source only. An explicit Z or
+offset in a catalog is not `timestamp_without_timezone`; a naive database clock
+does not borrow that catalog's offset. Keep sources separate and omit unneeded
+clocks rather than merging them into a more certain statement.

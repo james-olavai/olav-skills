@@ -8,6 +8,9 @@ not replace human content review or demonstrate publication permissions.
 from __future__ import annotations
 
 import argparse
+import ast
+import re
+import tomllib
 from email.parser import BytesParser
 import hashlib
 import json
@@ -23,20 +26,32 @@ PACKAGED_RECIPES = {"bgp_arista_eos.yaml", "bgp_cisco_ios.yaml", "bgp_juniper_ju
 BAD_SUFFIXES = {".pyc", ".pyo", ".duckdb", ".sqlite", ".sqlite3", ".pem", ".key", ".pcap", ".pcapng"}
 
 
+def expected_version() -> str:
+    project = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text())["project"]
+    version = project["version"]
+    assert project["name"] == "olav-skills" and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:a[0-9]+|b[0-9]+|rc[0-9]+)?", version), "unsupported release metadata"
+    return version
+
+
 def inspect(path: Path) -> dict:
+    version = expected_version()
     assert path.stat().st_size <= 20_000_000, "archive exceeds 20 MB review bound"
     if path.suffix == ".whl":
         with zipfile.ZipFile(path) as archive:
             entries = archive.infolist()
             assert all(not (i.external_attr >> 16 & 0o170000) == 0o120000 for i in entries), "symlink"
+            assert len({i.filename for i in entries}) == len(entries), "duplicate archive entry"
             blobs = {i.filename: archive.read(i) for i in entries if not i.is_dir()}
         wheel = True
     else:
         with tarfile.open(path, "r:gz") as archive:
             entries = archive.getmembers()
             assert all(i.isfile() or i.isdir() for i in entries), "link or special archive entry"
+            assert len({i.name for i in entries}) == len(entries), "duplicate archive entry"
             blobs = {i.name: archive.extractfile(i).read() for i in entries if i.isfile()}
         wheel = False
+    expected_name = f"olav_skills-{version}-py3-none-any.whl" if wheel else f"olav_skills-{version}.tar.gz"
+    assert path.name == expected_name, "archive filename/version mismatch"
     assert len(blobs) <= 2000 and sum(map(len, blobs.values())) <= 20_000_000, "expanded review bound"
     normalized = {}
     for name, data in blobs.items():
@@ -54,10 +69,10 @@ def inspect(path: Path) -> dict:
         assert not any(part.startswith('.env.') for part in p.parts), f"credential path: {name}"
         assert p.suffix.lower() not in BAD_SUFFIXES, f"unexpected binary/data: {name}"
         if wheel:
-            assert p.parts[0] in {"olav_skills", "olav_skills-0.1.1.dist-info"}, f"wheel namespace: {name}"
+            assert p.parts[0] in {"olav_skills", f"olav_skills-{version}.dist-info"}, f"wheel namespace: {name}"
             normalized[name] = data
         else:
-            assert p.parts[0] == "olav_skills-0.1.1", f"sdist root: {name}"
+            assert p.parts[0] == f"olav_skills-{version}", f"sdist root: {name}"
             assert p.parts[1] in SDIST_ROOTS, f"sdist public boundary: {name}"
             normalized['/'.join(p.parts[1:])] = data
     prefix = "olav_skills/resources/skills/" if wheel else "skills/"
@@ -67,9 +82,15 @@ def inspect(path: Path) -> dict:
     example_prefix = "olav_skills/examples/" if wheel else "examples/"
     assert example_prefix + "synthetic_walkthrough.py" in normalized
     assert example_prefix + "synthetic_2host_bundle/manifest.yaml" in normalized
-    metadata_name = "olav_skills-0.1.1.dist-info/METADATA" if wheel else "PKG-INFO"
+    metadata_name = f"olav_skills-{version}.dist-info/METADATA" if wheel else "PKG-INFO"
     metadata = BytesParser().parsebytes(normalized[metadata_name])
-    assert metadata["Name"] == "olav-skills" and metadata["Version"] == "0.1.1"
+    assert metadata["Name"] == "olav-skills" and metadata["Version"] == version
+    init_name = "olav_skills/__init__.py" if wheel else "src/olav_skills/__init__.py"
+    init_tree = ast.parse(normalized[init_name])
+    declared = [node.value.value for node in init_tree.body if isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name) and target.id == "__version__" for target in node.targets)
+                and isinstance(node.value, ast.Constant)]
+    assert declared == [version], "library/distribution version mismatch"
     assert metadata["Description-Content-Type"] == "text/markdown"
     assert metadata["License-File"] == "LICENSE"
     dependencies = metadata.get_all("Requires-Dist", [])
@@ -80,7 +101,7 @@ def inspect(path: Path) -> dict:
     assert "Issues, https://github.com/james-olavai/olav-skills/issues" in links
     return {"archive": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "files": len(blobs), "expanded_bytes": sum(map(len, blobs.values())),
-            "skills": sorted(found), "project_urls": links, "ok": True}
+            "skills": sorted(found), "version": version, "project_urls": links, "ok": True}
 
 
 def main() -> None:

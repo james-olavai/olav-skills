@@ -11,23 +11,56 @@ views directly.
 | OSPF | `netops.v_show_ip_ospf_neighbor_auto` (+ `..._interface_brief_auto` for `area`, when collected) | `build_per_command_views` | `OSPFAdjacency` |
 | L2 | `netops.v_l2_links_auto` | `build_l2_topology_view`, from `netops.topology_links` | `L2Link` |
 
-A view exists only if its command was collected, so `query_topology` reports the
-layers it cannot answer in `absent_layers`. That is a gap in the collection, not
-a missing recipe — no recipe would fix it.
+## Native layer scope contract
 
-> This file used to say built-in recipes were "automatically loaded into
-> `view_recipes` on every `netops_init`", producing `v_bgp_neighbors_auto` and
-> `v_ospf_neighbors_auto`. Both statements stopped being true in R83.2, which
-> deleted the whole recipe-driven view layer: the built-in recipes were the same
-> hardcoded `(concept, command, vendor) → fields` mapping that R78 had removed
-> from Python, re-spelled in YAML. Those two view names have not existed since,
-> and code written from this page went looking for them (see the schema-drift
-> notes in `query_topology.py`).
+`result_contract` uses schema `olav.topology-result/v1`, backend `native`,
+`effective_concept` and `requested_layers` in bgp/ospf/l2 order. Default concept
+is all. `resolved_snapshot_id` is the actual selected ID or null if unresolved.
+The old top-level snapshot ID remains `none` for the unresolved case.
+
+Each layer has `requested`, `source_view`, `result_state`, `row_count` and
+`collection_coverage`. This native version fixes collection coverage to unknown.
+
+| result_state | source_view | row_count | Meaning |
+|---|---|---|---|
+| not_requested | not_checked | null | Outside this request; do not infer zero |
+| unavailable | absent | null | Required view absent; reason=source_view_absent |
+| unavailable | not_checked | null | No resolved snapshot; reason=snapshot_unavailable |
+| empty | available | 0 | SELECT returned zero rows for this scope |
+| rows | available | positive | Number of rows returned by this SELECT |
+
+Catalogue presence is global to the database, not per-snapshot command coverage.
+An older snapshot may have created a view with no rows for the selected one.
+Neither available/empty nor absent proves whether devices collected a command,
+configured the protocol or have sessions outside these returned records.
+`absent_layers` is the compatibility list of requested layers with absent views;
+it is empty for unresolved snapshots because views were not checked. Arrays
+remain for compatibility, but an empty array alone cannot distinguish these
+states. Consumers must use the layer contract and keep source truncation or
+later projection bounds separate. Source/validation errors do not yield a
+successful empty contract. Invalid concepts are rejected in the native path.
+Legacy warehouse delegation does not carry or establish this native contract.
+
+## Identity and cross-layer associations
+
+An L2 row establishes the recorded device/interface pair and discovery/status
+fields it contains. It does not supply endpoint IPs, masks or protocol-peer
+ownership unless those fields are explicitly returned. A protocol neighbor IP
+identifies a peer address observed by the reporting device, not automatically
+the named device on an adjacent L2 edge.
+
+For a device/interface-to-address association, cite an explicit returned address
+assignment or verified identity mapping in the applicable scope. For subnet
+comparison, also require recorded masks/prefixes for the endpoints or a verified
+subnet mapping; never infer a mask or subnet from familiar-looking addresses.
+If evidence is absent or conflicting, preserve the known edge and keep the
+protocol peer unassociated. Labeling an association as uncertain later does not
+make an unsupported earlier subnet or identity claim valid. Scope the diagram
+to the requested relationships rather than pursuing unrelated protocol facts.
 
 ## What `view_recipes` is for now
 
-**User-added protocols only** — BFD, HSRP, VRRP, IS-IS, LDP, anything declared
-in `~/.olav/config/topology.yaml`. A recipe maps a canonical field name onto a
+**User-added protocols only** — BFD, HSRP, VRRP, IS-IS, LDP, other user-declared concepts. A recipe maps a canonical field name onto a
 column of an existing per-command auto view, and `rebuild_views` materialises it
 as `netops.v_<concept>_auto`.
 

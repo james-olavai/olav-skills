@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, IPvAnyAddress
+from pydantic import BaseModel, ConfigDict, Field, IPvAnyAddress, field_validator
 
 
 # ARCH-28 Round 69 note on BGP state canonical set:
@@ -33,22 +33,31 @@ BgpState = Literal[
 ]
 
 
-# OSPF state preserves Cisco-style role suffixes ("FULL/BDR") intentionally —
-# stripping them loses DR/BDR visibility. The view_builder normalizes only
-# the PREFIX ("full" → "Full" if no role, kept verbatim otherwise).
+# The stock IOS profile attaches a recorded neighbor-role suffix to both
+# stable and transitional states. These spellings preserve the phase and
+# role without interpreting either as health or proof of continuity.
 OspfState = Literal[
     "Full",
-    "FULL/DR",
-    "FULL/BDR",
-    "FULL/DROTHER",
     "2-Way",
-    "2WAY/DROTHER",
+    "Down",
+    "Attempt",
     "Init",
     "ExStart",
     "Exchange",
     "Loading",
-    "Down",
+    "FULL/DR", "FULL/BDR", "FULL/DROTHER", "FULL/-",
+    "2WAY/DR", "2WAY/BDR", "2WAY/DROTHER", "2WAY/-",
+    "DOWN/DR", "DOWN/BDR", "DOWN/DROTHER", "DOWN/-",
+    "ATTEMPT/DR", "ATTEMPT/BDR", "ATTEMPT/DROTHER", "ATTEMPT/-",
+    "INIT/DR", "INIT/BDR", "INIT/DROTHER", "INIT/-",
+    "EXSTART/DR", "EXSTART/BDR", "EXSTART/DROTHER", "EXSTART/-",
+    "EXCHANGE/DR", "EXCHANGE/BDR", "EXCHANGE/DROTHER", "EXCHANGE/-",
+    "LOADING/DR", "LOADING/BDR", "LOADING/DROTHER", "LOADING/-",
 ]
+_OSPF_UNSUFFIXED_STATES = {
+    "FULL": "Full", "2WAY": "2-Way", "DOWN": "Down", "ATTEMPT": "Attempt",
+    "INIT": "Init", "EXSTART": "ExStart", "EXCHANGE": "Exchange", "LOADING": "Loading",
+}
 
 
 class BGPSession(BaseModel):
@@ -65,7 +74,7 @@ class BGPSession(BaseModel):
 
 
 class OSPFAdjacency(BaseModel):
-    """One OSPF adjacency from ``netops.v_ospf_neighbors_auto``."""
+    """One recorded OSPF neighbor from ``netops.v_show_ip_ospf_neighbor_auto``."""
     model_config = ConfigDict(extra="forbid")
 
     device: str
@@ -75,6 +84,19 @@ class OSPFAdjacency(BaseModel):
     area: str | None = None
     state: OspfState
     dead_time: str | None = None
+
+    @field_validator('state', mode='before')
+    @classmethod
+    def _normalize_state(cls, raw: object) -> object:
+        if not isinstance(raw, str):
+            return raw
+        phase, separator, role = raw.strip().upper().partition('/')
+        phase = phase.strip()
+        if phase == '2-WAY':
+            phase = '2WAY'
+        if separator:
+            return f'{phase}/{role.strip()}'
+        return _OSPF_UNSUFFIXED_STATES.get(phase, raw)
 
 
 class L2Link(BaseModel):

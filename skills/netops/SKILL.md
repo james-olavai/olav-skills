@@ -1,99 +1,110 @@
 ---
 name: netops
-description: "Router and shared helpers for this pack — says which sibling skill answers what (topology, analyzer, reporter, importer, learner, writer) and holds the read-only cross-cutting scripts: config and snapshot diffs, command search, change-plan reading, blast radius. Reads a recorded snapshot; no device access."
-compatibility: Requires Python >=3.11 and the olav-skills Python distribution.
+description: "Navigate recorded-network skills and use shared bounded snapshot/config differences, command search and graph impact helpers. No live collection or device changes."
 metadata:
-  runtime: "olav-skills>=0.1.0"
+  runtime: "olav-skills>=0.2.0"
 ---
 
-> **Calling convention in this pack.** These agents were written for the OLAV
-> runtime, whose prose calls scripts as
-> `execute_skill_script(skill_name="<agent>", script_name="<file>.py", arguments={...})`.
-> Here there is no such tool — run the script directly, passing the same
-> arguments as JSON on stdin:
->
-> ```bash
-> echo '{"devices": []}' | python analyzer/scripts/inspect_interfaces.py
-> ```
->
-> Every script reads one JSON object from stdin and prints one JSON object to
-> stdout. An empty optional collection means *discovery*, not *none*:
-> `{"devices": []}` returns every device.
->
-> **`execute_sql` is a script here**, at `analyzer/scripts/execute_sql.py`, and
-> the prose that calls it means that file:
->
-> ```bash
-> echo '{"query": "how many devices", "sql": "SELECT count(*) FROM netops.devices"}' \
->   | python analyzer/scripts/execute_sql.py
-> ```
->
-> Called with `query` alone it returns the schema instead of data, for you to
-> write the SQL against — then call it again with `sql`. Prefer it over your own
-> `duckdb.connect()` for two reasons: a SELECT runs on a **read-only**
-> connection, and anything mutating is **refused rather than executed** —
-> `status: "requires_approval"`, nothing written. It also caps how many rows reach
-> your context (an explicit `export_bounded=true` writes only the bounded preview to a
-> CSV under `exports/queries/`). `analyzer/scripts/search_logs.py` is here on the same terms, and says so
-> when no syslog directory was copied along with the database.
->
-> Tools named in the prose that this pack genuinely does not ship
-> (`olav_recall_memory`, `task(...)`, `format_and_export`) belong to the OLAV
-> runtime: the first two need its memory layer and sub-agent router, and the
-> third formats output you are better at formatting yourself. Where the prose
-> says to *delegate* to another agent, load that sibling skill instead — they are
-> directories next to this one.
->
-> **Nothing here touches a device.** `execute_cli_parallel` and `take_snapshot`
-> are named in some reference docs and are deliberately absent: they open SSH
-> sessions, which is the one thing this pack promises it never does. Fresh data
-> comes from a collector bundle — run `olav-collector` where the devices are,
-> then land it with `importer`.
+# Netops
 
-# Ops Orchestrator — Coordinator, not analyst
+## Execution and permissions
 
-You coordinate specialists.  You do NOT write reports, SQL, or
-change plans yourself.
+Use the installed, bound interpreter and one JSON object on stdin:
 
-## Scope
+```sh
+printf '%s' '{"operation":"snapshot_summary","snapshot_id":"latest"}' | olav-skills run analyzer query_batch
+```
 
-You are a NETWORK OPERATIONS agent.  In-scope: routing (BGP/OSPF),
-topology, drift, change planning, fault analysis, log search on
-network devices.  Out-of-scope: platform admin, service deploy,
-audit profiles → redirect with the correct `--agent` flag.
+Set `OLAV_HOME` to the authorized project before running. The host supplies
+execution, file access and permissions. If it exposes a restricted native tool,
+use that tool's actual name and schema; a shell example does not grant shell
+access or permit bypassing the host. No device access, agent router, model
+provider, memory service, simulation engine or general export tool is supplied.
+Read sibling skills only when needed; loading a skill does not delegate work.
+Scripts return JSON unless their documented output is text. Check process exit
+and result status; successful execution alone does not prove an answer.
 
-## Dispatch table
+## Select the capability
 
-| User intent | Sub-agent | Route |
-|---|---|---|
-| Change plan / "add / modify / remove / 变更" | analyzer → reporter → simulator | **Change-plan workflow** (see below) |
-| Investigate / "why / blast-radius / drift / 故障" | reporter | `task("reporter", req)` |
-| Batfish simulation / what-if | simulator | `task("simulator", req)` |
-| SSH collect / gather | collector | `task("collector", req)` |
-| Import offline bundle | importer | `task("importer", req)` |
-| Topology queries | topology | `task("topology", req)` |
-| Learn / fix parser | learner | `task("learner", req)` |
-| Format / polish report | writer | `task("writer", req)` |
+| Intent | Read when needed |
+|---|---|
+| Counts, inventory, protocol health, bounded SQL, draft changes | [analyzer](../analyzer/SKILL.md) |
+| Recorded BGP/OSPF/L2 relationships or custom recipes | [topology](../topology/SKILL.md) |
+| Investigate evidence, compare snapshots, report or pre-check | [reporter](../reporter/SKILL.md) |
+| Import an authorized offline capture | [importer](../importer/SKILL.md) |
+| Prepare and validate a missing parser | [learner](../learner/SKILL.md) |
+| Render diagrams or polish supplied reports | [writer](../writer/SKILL.md) |
 
-Multi-step workflows (e.g. the change-plan workflow) are declared in
-`workflows/*.workflow.yaml` and injected below this prompt — follow them
-exactly when the user intent matches their trigger.
+Answer simple supported questions directly with the relevant script. Multi-step
+workflows are guidance, not an automatically injected or executed agent graph.
+This package cannot collect fresh data, run ping, formally simulate configs or
+apply changes. Name the gap if the question requires those capabilities.
 
-## Hard rules
+Shared scripts use `olav-skills run netops <script>`: `query_batch`,
+`diff_snapshots`, `diff_configs`, `inspect_blast_radius`, `read_change_plan`,
+`search_commands`. Search commands is a catalog lookup, not command execution.
+Read script signatures before uncommon calls; do not invent aliases.
 
-1. **Pure router** — no SQL, no report writing, no direct tool calls
-   except `olav_recall_memory` and `web_search`.
-2. **Return sub-agent result verbatim** — do not paraphrase or summarise.
-   (The change-plan workflow stacks three verbatim results; stacking is
-   not summarising.)
-3. **Ambiguous intent** → ask one clarifying question before routing.
+For template arguments, counts and source limits read
+[batch query](references/batch_query.md). For scoped recorded-text searches and
+continuation read [evidence query](references/evidence_query.md). For host file
+and output behavior read [output rules](references/OUTPUT_EXPORT_RULES.md).
+For native schema/value discovery read [introspection cache](references/introspection_cache.md).
+Cache contents are advisory refresh metadata, not a capture clock or live state.
 
+## Unreleased native diagnostics
 
-## Bounded query routing
+When investigating missing data or unsupported analysis, the development
+candidate provides `olav-skills doctor --data --project /absolute/project`.
+Use an explicit authorized native project; a data check is not a network health
+probe or proof of capture completeness. The published 0.1.1 lacks this option.
+For content-level changes use reporter's
+[recorded state comparison](../reporter/references/state_changes.md), distinct
+from identity-key and raw text differences. Use analyzer's
+[plan pre-check](../analyzer/references/plan_precheck.md) for deterministic plan
+checks. These entry points require the candidate build and actual host execution
+permission; they do not add tools to a restricted host.
 
-For supported snapshot statistics, device/command coverage, filtered inventory, multi-device summary, top N, key diff or protocol health, route once to analyzer/reporter/topology and return that sub-agent output under the existing thin-router rule. Those sub-agents expose `query_batch`; the orchestrator does not call it directly. Prefer templates before relevant compact schema and bounded read-only SQL fallback. Missing canonical views and zero matches differ; no full body dumps or per-device loops for batch questions. See [query contract](references/batch_query.md).
+## Evidence boundaries
 
+Use a supported bounded template first, one batch for a fleet question. Empty
+optional filters discover within authorized scope; limits, clipped cells and
+`has_more` / `byte_truncated` still apply. Discovery is not an unlimited export.
+Do not infer snapshot membership from inventory or device role from a hostname,
+platform, ASN or loopback. Keep unknown roles separate. Missing/unsupported
+sources, failed queries and unknown values are not zero or healthy results.
+Do not silently drop filters or narrow the user's question.
 
-## Recorded data time
+Cite snapshot and returned collection-time provenance, including precision,
+source and status. Recorded data is not live state. Ingest/update time and a
+date-looking ID do not prove capture time. If `latest` returns
+`ambiguous_snapshot_time`, report the ambiguity and use an explicit authorized
+snapshot only when the user's scope supports it; do not order IDs to guess.
+An explicit ID can support observations while collection time stays unknown.
+Stop once evidence answers the question. Do not repeat unchanged failures or
+raise budgets; a corrective retry needs a real corrected argument within scope.
+Report unfinished scope and source/preview truncation.
 
-Cite snapshot ID and `temporal.collected_at` with its precision, source and status. A date label derived from a snapshot ID is an inference, not verified device capture. `ingested_at` and `record_updated_at` are separate clocks; neither proves collection time. Unknown or conflicting time must be reported as unknown. `latest` uses collection provenance and may return `ambiguous_snapshot_time`; choose an explicit snapshot instead of ordering IDs. CLI evidence `captured_at` is null without an explicit raw capture field (previous versions incorrectly exposed updated_at there). Time coverage describes the snapshot or returned records, never live network state or an arbitrary SQL result. Diff results carry separate source and target times.
+## Unreleased reproducible work
+
+For recorded investigation recipes or full file export, read analyzer's
+[recipes](../analyzer/references/investigation_recipes.md) or
+[export contract](../analyzer/references/full_export.md). For explicitly managed
+parser versions and derived replay, read learner's
+[lifecycle contract](../learner/references/parser_lifecycle.md). To bundle
+reviewed report/evidence files and check freshness, read reporter's
+[evidence delivery contract](../reporter/references/evidence_delivery.md).
+These local candidates require their documented scope and host permissions;
+published 0.1.1 does not contain them.
+
+## Unreleased native contracts and historical analysis
+
+Read [native state contracts](references/native_contracts.md) for default
+IOS/Junos parser coverage and shared query/comparison state semantics. For raw
+configuration comparison use [historical config diff](references/config_diff.md)
+and two explicit SIDs. Reporter adds
+[route changes](../reporter/references/route_changes.md),
+[counter deltas](../reporter/references/counter_deltas.md) and
+[one-time audit profiles](../reporter/references/audit_profiles.md).
+Each contract retains missing scope, capture-time evidence and source bounds;
+none grants device execution or background scheduling.

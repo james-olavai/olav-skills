@@ -25,10 +25,26 @@ export OLAV_HOME=/absolute/path/to/new-synthetic-analysis
 
 Expected: `status: success`, zero added keys and zero removed keys. For a real comparison, replace the two inputs with verified source/target IDs from your own imports into that scope. A zero key delta can still hide changed bodies or changed field values. Use targeted evidence or the saved-text diff where applicable.
 
-`diff_configs` requires `device`, `command`, `snapshot_id_1` and `snapshot_id_2`; `sections`, `context_lines` and `full` affect presentation. Its inputs are saved snapshot raw files, so do not assume every imported database also contains that filesystem source. Surface compact-output limits and missing files.
+The unreleased `diff_configs` requires `device`, one exact `command` and two explicit SIDs. It reads verified historical raw from the native ledger, with a precisely matching last-writer fallback marked partial; it does not require saved snapshot raw files. Read [the source and ordered-group contract](../reference/config-diff.md). Presentation parameters never remove hard bounds.
 
 ## Turn evidence into a draft
 
 An engineering change draft should identify actual endpoints/platforms, interfaces, routing context, constraints, unknowns and impact evidence. Include complete reviewed implementation steps, symmetric rollback, expected post-checks and a pre-change verification section. Existing captured state can be stale. A human or host writes the draft using authorized tools; `generate_change_plan` is a separate bulk model-pattern artifact helper, not a generic intent-to-configuration compiler.
 
+The unpublished 0.2.0 candidate can check draft structure and selected evidence
+from an exact recorded snapshot. `check_change_plan` always returns
+`decision: not_approved`. Review unknowns and failures before seeking human
+approval. [Synthetic example](../release-candidate.md#pre-check-a-draft-change-plan) ·
+[Pre-check contract](../reference/plan-precheck.md)
+
 No simulator is included. Historical Batfish or `sim` references are not executable standalone validation. A graph impact calculation or well-formatted Markdown does not certify a change. Before application, independently verify against current authorized network state and the appropriate external testing process. The Skills package does not execute device configuration or schedule a maintenance window.
+
+## Unreleased topology and report checks
+
+For historical neighbor content, read [topology changes](../reference/topology-changes.md)
+and use reporter `compare_topology` with exact recorded IDs. Link observations
+and their source coverage differ from physical availability.
+Before delivering a report, [citation checks](../reference/report-citations.md)
+can check explicit claim/citation mappings against a separately selected
+trusted evidence context. Mapping consistency does not establish prose truth.
+Both entries are local candidates absent from published 0.1.1.

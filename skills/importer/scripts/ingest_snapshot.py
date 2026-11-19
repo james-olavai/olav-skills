@@ -22,6 +22,11 @@ def ingest_snapshot(
 ) -> dict:
     """Land an offline snapshot bundle into the netops DB.
 
+    Native directory imports save immutable exact-SID raw history and typed
+    capture provenance in this entry point's BEGIN/COMMIT transaction. Default
+    native SIDs carry a UUID suffix, not collection-time evidence. Older imports
+    without a ledger are not backfilled. Staging/report files are not atomic.
+
     Args:
         path:               Directory or zip file containing a canonical
                             portable-snapshot bundle.
@@ -92,6 +97,12 @@ def ingest_snapshot(
             collection_source = "bundle:unknown:unknown"
 
     paths = get_paths_config()
+    # Core project paths are fixed when imported. A long-lived caller changing
+    # OLAV_HOME must start a fresh project context rather than silently write
+    # data or redaction state under the previous project's cached root.
+    selected_home = os.environ.get('OLAV_HOME')
+    if selected_home and Path(selected_home).resolve() != paths.project_root.resolve():
+        raise ValueError('native importer project context changed; start a fresh process')
     staging_dir = paths.project_root / "exports" / "snapshots" / "json"
 
     # The entry point owns the local connection and business transaction.
@@ -105,6 +116,8 @@ def ingest_snapshot(
                 collection_source=collection_source,
                 host_platforms=host_platforms,
                 conn=conn,
+                native_ledger=True,
+                native_workspace_root=paths.project_root / ".olav/workspace",
             )
             conn.execute("COMMIT")
         except BaseException:

@@ -62,10 +62,11 @@ body: |
   -- → e.g. 'router eigrp 1'  (14 chars, not the 70 KB config)
   ```
 
-  If the result is empty, the device has no dynamic routing configured (check
-  `ip route ` for static). If the request's protocol ≠ what you found, plan for
-  what is **actually running**, and say so in the Summary ("request said OSPF;
-  alpha-as1 runs EIGRP 1 — plan targets EIGRP").
+  If the result is empty, the source or pattern may not cover this platform;
+  configuration remains unknown. A nonmatch does not establish absence.
+  If the requested protocol differs from recorded configuration, report the
+  mismatch and clarify whether a protocol migration is intended. Do not
+  silently replace the requested target with the current protocol.
 
   ## Rule 1 — extract the exact fields you need, each in one regexp
 
@@ -122,7 +123,7 @@ body: |
   * **NEVER** `SELECT raw_output`, `SELECT *`, `substr(raw_output, …)`,
     `length(raw_output)`, or otherwise pull whole config text into the answer.
     A 30 KB config in context is what makes you hallucinate and loop.
-  * If a regexp returns empty, the fact is not configured — **do not keep
+  * If a regexp returns empty, the fact is unknown — **do not keep
     trying different substrings**. State the assumption in the plan's Risks
     section and move on. A stated assumption is a correct deliverable; an
     endless search is a timeout.

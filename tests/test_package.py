@@ -19,3 +19,12 @@ def test_distribution_has_only_standalone_dependencies():
     assert metadata["version"] == __version__
     assert len(metadata["dependencies"]) == 8
     assert not any(item.lower().startswith(("olav", "deepagents", "langgraph", "langchain")) for item in metadata["dependencies"])
+
+
+def test_skill_runtime_requirement_matches_candidate_release():
+    import yaml
+    root = cli.resource_root()
+    for name in cli.SKILLS:
+        content = (root / name / "SKILL.md").read_text()
+        frontmatter = yaml.safe_load(content.split("---", 2)[1])
+        assert frontmatter["metadata"]["runtime"] == f"olav-skills>={__version__}"

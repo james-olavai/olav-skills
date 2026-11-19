@@ -19,12 +19,11 @@ priority: 5
 body: |
   # Prod CLI authoring — hard rules
 
-  Every change plan's `cli_per_device` and `rollback_per_device` MUST
-  emit COMPLETE production CLI — including config-mode entry and
+  A completed draft should include implementation and rollback CLI — including config-mode entry and
   commit/save commands. Naked `set ...` (Junos) or `router ospf 1` (IOS)
-  without the wrapping commands is an **invalid draft**: the lab
-  translator can fill it in, but operators in HITL mode (no digital
-  twin) execute the CLI verbatim — missing `commit` = no-op on prod.
+  without the appropriate platform context can be incomplete. No automatic
+  translator or executor is supplied; review syntax for the actual release.
+  Where facts are missing, mark the draft incomplete instead of inventing CLI.
 
   ## Junos (juniper_junos)
 
@@ -44,7 +43,7 @@ body: |
   Junos doesn't have a separate "write memory" — `commit` already
   persists. `commit and-quit` returns to operational mode in one step.
 
-  ## Cisco IOS / IOS-XE / IOS-XR
+  ## Cisco IOS / IOS-XE (not IOS-XR)
 
   Implementation MUST start with `configure terminal`, end with `end`
   then `write memory` (or `copy running-config startup-config`):
@@ -70,10 +69,10 @@ body: |
       interface Ethernet0/0
        no ip ospf 1 area 0
       end
-      no router ospf 1     ← optional, only if no other interfaces use it
-      configure terminal
-      end
       write memory
+
+  Remove a global routing process only when scope and rollback evidence prove
+  it was introduced by this change and is unused by other interfaces.
 
   Notes:
    - Use `end` (not `exit`) to return to enable mode in one step
@@ -122,7 +121,7 @@ body: |
   | OSPF FULL adjacency (Cisco IOS)    | `show ip ospf neighbor`              | `FULL`            |
   | OSPF Full adjacency (Junos)        | `show ospf neighbor`                 | `Full`            |
   | OSPF Full adjacency (SRL)          | `show network-instance default protocols ospf neighbor` | `full` |
-  | BGP Established (Cisco)            | `show ip bgp summary`                | `Established`     |
+  | BGP Established (Cisco IOS)        | `show ip bgp summary`                | numeric prefix count or Established, per platform |
   | BGP Established (Junos)            | `show bgp summary`                   | `Establ`          |
   | Static route in RIB                | `show ip route <prefix>`             | `<prefix>` e.g. `192.0.2.0/24` |
   | Interface UP/UP (Cisco)            | `show interface <intf> status`       | `up.*up` regex    |
@@ -138,41 +137,34 @@ body: |
 
   A Summary that says "increase availability" without a number is an
   opinion. Before writing a redundancy / decommission / failover-class
-  plan, make ONE call to quantify what fails today if the element the
+  plan, make ONE call to quantify recorded graph impact if the element the
   change protects (or removes) goes down:
 
-      execute_skill_script(
-          skill_name="analyzer",
-          script_name="inspect_blast_radius.py",
-          args={"remove_devices": ["<device_fqdn>"]},
-      )
-      # link change: args={"remove_links": [["<device_A>", "<device_B>"]]}
+      printf '%s' '{"remove_devices":["<device>"]}' | olav-skills run analyzer inspect_blast_radius
+
+  For a link scenario use JSON {"remove_links":[["<device_A>","<device_B>"]]}.
 
   Cite the `isolated_nodes` count in BOTH Summary and Risks, e.g.:
-  "Today a failure of alpha-border-4500x isolates 9 devices; this change
-  removes that single point of failure." ONE call only; non-empty
+  "In the recorded graph, removing the target isolates 9 devices."
+  This does not establish live failure impact or prove the proposed fix. ONE call only; non-empty
   `validation_warnings` means the scenario wasn't simulated (bad name) —
   fix the name, don't treat it as no impact. Ordinary config changes
   skip this entirely.
 
   ## Common authoring mistakes — DO NOT do these
 
-  1. **Field name typos**: `expected` ← canonical is `expected_pattern`.
-     `cmd` ← canonical is `command`. Schema is strict.
+  1. **Unclear verification**: name the device, command and meaningful expected
+     condition; this package has no strict post-check execution schema.
   2. **Empty `expected_pattern: ""`**: always matches → false PASS.
   3. **Naked `set ...` without `configure`**: junos no-op.
   4. **Missing `write memory`** (Cisco): config in RAM, lost on reload.
   5. **Rollback omits config-mode wrapper**: rollback won't actually run.
-  6. **post_check.device not in `devices_in_scope`**: lab refuses.
-  7. **Using prod IP/subnet in CLI**: correct, and required. Write the CLI
-     against production addresses. The twin builder slices the device's own
-     running-config and records a prod↔lab interface bijection, so the lab
-     rewrites names for you (dev_docs/112 §6.2); nothing translates your
-     config any more. In analyzer-only mode (no digital twin) the CLI runs
-     verbatim on prod, which is the same text.
+  6. **Verification device outside the requested scope**: disclose or correct
+     scope instead of assuming a lab will reject it.
+  7. **Assuming a lab translates names or approves execution**: this package
+     has no twin builder, live runner or deployment tool. Use only authorized
+     recorded addresses in a draft; separately review target identity and syntax.
 
-related:
-  - intent: change_plan_emit_tcf
-    note: "main change-plan workflow guide; this one is the authoring rules"
-  - intent: freeform_cli_change
-    note: "intent-selection workflow; this one is post-selection CLI rules"
+  Examples are authoring aids, not validated universal CLI. IOS-XR needs its
+  own transaction syntax; do not copy the IOS/IOS-XE wrapper blindly. No lab
+  schema or automated post-check executor is supplied by this package.

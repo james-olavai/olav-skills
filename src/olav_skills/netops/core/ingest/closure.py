@@ -119,6 +119,7 @@ def parser_identity():
     import olav_skills.core.redaction
     import ntc_templates
     from olav_skills.netops.tools.textfsm_parse import _templates_base
+    from olav_skills.parser_lifecycle import active_parser_identity
     files = {}
     for label, base in (("active", _templates_base()),
                         ("ntc", Path(ntc_templates.__file__).parent / "templates")):
@@ -145,7 +146,10 @@ def parser_identity():
         except importlib.metadata.PackageNotFoundError:
             versions[name] = "missing"
     value = {"files": files, "versions": versions}
-    return value | {"fingerprint": digest(value)}
+    managed, selection_revisions = active_parser_identity(_templates_base().parent)
+    if managed:
+        value["managed"] = managed
+    return value | {"fingerprint": digest(value), "managed_selection_revisions": selection_revisions}
 
 
 def input_identity(path, collection_source, host_platforms):
@@ -679,7 +683,10 @@ def ingest(path, *, idempotency_key, collection_source=None, host_platforms=None
                     landed = ingest_snapshot(pending / "input", db_path=None,
                         staging_dir=pending / "snapshots/json", collection_source=source["collection_source"],
                         host_platforms=host_platforms, conn=conn, snapshot_id=sid, closure_context=context)
-                    if parser_identity()["fingerprint"] != parser["fingerprint"]:
+                    current_parser = parser_identity()
+                    if (current_parser["fingerprint"] != parser["fingerprint"]
+                            or current_parser["managed_selection_revisions"]
+                            != parser["managed_selection_revisions"]):
                         raise ClosureError("PARSER_CHANGED")
                     records = {(r["device_name"], r["command"]): r for r in source["records"]}
                     stamp = now()
@@ -688,6 +695,7 @@ def ingest(path, *, idempotency_key, collection_source=None, host_platforms=None
                             raise ClosureError("PARSER_TRACE_MISSING")
                         provenance = records[(record["device_name"], record["command"])] | {
                             "source_fingerprint": source["fingerprint"], "parser_fingerprint": parser["fingerprint"],
+                            "effective_platform": record["platform"],
                             "actual_raw_sha256": hashlib.sha256(record["raw_output"].encode()).hexdigest(),
                             "raw_artifact": {"table": "netops.ingest_sources", "snapshot_id": sid,
                                              "device_name": record["device_name"], "command": record["command"]},

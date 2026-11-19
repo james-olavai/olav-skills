@@ -2,7 +2,7 @@
 
 The current release is the unified **`olav-skills` 0.1.1**, published on PyPI. Its distribution, import name and CLI are separate from the retired platform packages. Python 3.11 or newer is required by package metadata. Deterministic scripts need the installed dependencies; portable knowledge alone is not that runtime.
 
-## What has been checked
+## Published 0.1.1
 
 | Surface | Verified scope | Limit |
 | --- | --- | --- |
@@ -14,7 +14,18 @@ The current release is the unified **`olav-skills` 0.1.1**, published on PyPI. I
 | Claude Code 2.1.323 | Filesystem discovery layout | Native discovery/model behavior not verified in this batch |
 | Portable exporter | Seven-skill hashed catalog and bounded knowledge handoff | No runtime, tool permission or workflow engine |
 
-These checks do not certify all future harness versions. The table records the tested versions and evidence levels, not an ongoing hosted-service promise. Host models, tool permissions, context handling, active project scope and discovery configuration can change the actual result.
+## Unpublished 0.2.0 candidate
+
+| Check | Result and scope |
+| --- | --- |
+| Layout and explicit rebinding | Passed for Codex, Claude Code and Pi, each at project and user scope. |
+| Specified script execution | Passed for the local CLI on the public synthetic workflow. The isolated Pi SDK session also discovered all seven skills and invoked specified tools. |
+| Pi natural questions | Failed qualification in the tested Pi SDK 1.2.0 / DeepSeek V4 Pro setup. The final candidate also failed the held-out wording checks. Failures included missed tool calls, incorrect snapshot arguments and answers with claims beyond the evidence. |
+| Codex 0.169.0 and Claude Code 2.1.323 | This candidate was checked for install layout and version/help only. Native discovery in these hosts, host tool execution and natural questions were untested with this candidate. |
+
+Use the provided results for the tested versions, data and tools. Actual
+behavior depends on the host model, tool permissions, context, active scope
+and discovery configuration. [Candidate walkthrough](../release-candidate.md)
 
 ## Data and feature compatibility
 

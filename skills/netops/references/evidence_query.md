@@ -7,10 +7,11 @@ tools with different arguments; neither accepts the other's names.
 | Source of recorded text | Entry point | Where it lives |
 |---|---|---|
 | `command_output`, `config`, syslog | `query_evidence` (reporter script) | authority `reporter/scripts/query_evidence.py`; standalone `skills/reporter/scripts/query_evidence.py` |
-| syslog (platform script) | `search_logs` | authority `src/olav/data/workspace/core/scripts/search_logs.py`, registered on `core` (`execute_skill_script("core", "search_logs.py", {...})`); standalone pack ships a copy at `skills/analyzer/scripts/search_logs.py` with the same stdin-JSON contract. It is not registered as a reporter script. |
+| syslog | `search_logs` | `analyzer/scripts/search_logs.py` |
 
-Call both with **one JSON object on stdin** (standalone) or the listed arguments
-through `execute_skill_script` (platform). `query_evidence` validates its keys
+Use `olav-skills run reporter query_evidence` or
+`olav-skills run analyzer search_logs`, with one JSON object on stdin.
+`query_evidence` validates its keys
 and rejects an unknown one with a JSON error listing `accepted_args`.
 `search_logs` has no such guard: an unsupported key raises a Python
 `TypeError` at its entry point (non-zero exit, no JSON), so pass only the keys

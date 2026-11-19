@@ -1,17 +1,11 @@
 # 接入已有 AI 宿主
 
-技能是供宿主发现的文件，说明何时使用某项能力，以及如何调用确定性脚本。它不会创建代理进程、注册 MCP 服务、选择模型或授予执行权限。
+七个标准 Skill 说明各项能力何时适用，以及如何调用独立 Python runtime。已有宿主负责模型选择、发现配置、工具调用和权限管理。也可以直接通过 CLI 运行同一套工具。
 
 
 ## 先 pip 安装，再绑定
 
-在已激活的独立 Python 环境中，只需安装一次包：
-
-```sh
-pip install olav-skills
-```
-
-然后按所用 harness 选择对应命令：
+在独立 Python 环境安装已发布的包，再按所用宿主选择绑定命令。[安装指南](installation.md)
 
 ```sh
 olav-skills install --harness codex --scope user
@@ -19,7 +13,7 @@ olav-skills install --harness claude-code --scope user
 olav-skills install --harness pi --scope user
 ```
 
-只执行匹配的绑定命令即可。它使用包内已有的七个技能并记录解释器路径，无需再次下载或手动复制。pip 安装本身不会让 harness 自动发现技能。环境准备和项目范围安装见[安装指南](installation.md)。
+绑定会复制七个技能并记录解释器路径。更换包版本或移动 venv 后，从目标环境显式重新绑定。
 
 ## 三种交接方式
 
@@ -31,16 +25,15 @@ olav-skills install --harness pi --scope user
 
 项目或用户范围的完整命令见[安装](installation.md)。Codex 使用 `.agents/skills`，Claude Code 使用 `.claude/skills`，Pi 项目使用 `.pi/skills`，Pi 用户范围使用 `.pi/agent/skills`。安装范围根必须已存在。项目和用户副本可能同时暴露同名技能，需检查宿主实际生效配置。
 
-## 先绑定执行，再检查发现
+## 验证宿主接入
 
 每个已安装技能包含 `olav-runtime.json` 与 `.olav-skills-install.json`，指令中写入绝对解释器路径。请保留该路径的 venv；只复制技能并不会移动 runtime。venv 移动或替换后，从目标解释器重新执行同一安装命令。遇到冲突时先审阅，不覆盖已编辑技能目录。
 
-建议按以下顺序本地验收：
+1. 核对已复制的清单，再确认宿主实际列出目标范围中的七个技能。按宿主要求刷新会话。
+2. 从绑定环境运行 `version`、`doctor`、`list`，再用已知夹具核对工具结果。[离线示例](offline-data.md)
+3. 若宿主已配置工具调用，先给定输入，核对指定调用的实际结果。再用同一份已知数据单独测试普通问法，检查激活的技能、工具实参、证据和最终回答。
 
-1. 使用绑定解释器运行 `version`、`doctor`、`list`。
-2. 用新的合成数据根运行[离线示例](offline-data.md)。
-3. 确认宿主实际列出目标范围中的七个技能；按宿主要求刷新会话。
-4. 单独用普通问法测试已知合成数据，核查实际激活技能、工具输入输出和最终回答。保留失败及未知；发现成功不能证明路由或推理正确。
+已测试的 Pi 配置未通过自然问答验收，最终本地 0.2.0 候选对留作独立验证的同义问法也未通过。Codex 和 Claude Code 的自然问答未测。[兼容性](reference/compatibility.md)
 
 不支持标准发现的宿主，可以读取导出到审阅位置的相关 SKILL.md，再通过文档中的 CLI 执行。不要虚构 `execute_skill_script` API。
 
@@ -48,4 +41,4 @@ olav-skills install --harness pi --scope user
 
 部分随包指令保留了旧平台术语，例如委派、`task(...)`、`olav_recall_memory`、`format_and_export`、SSH 采集及模拟器引用。独立包的执行以调用约定说明为准：读取同级技能，调用实际列出的 Python 脚本。独立包没有实现这些历史宿主工具。引用中提到工具，不代表当前可用或已获授权。
 
-[兼容性矩阵](reference/compatibility.md)分别记录原生发现、六种文件布局和确定性工作流，不表示跨宿主模型回答已认证。调度、后台运行及审批机制由宿主配置承担，本包不会安装这些能力。
+调度、后台运行和审批机制由宿主负责。

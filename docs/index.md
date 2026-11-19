@@ -1,13 +1,12 @@
 # Olav Skills
 
-Olav Skills gives your existing AI harness network knowledge and deterministic Python tools for **recorded, offline network data**. Import a capture, inspect devices and interfaces, query protocol relationships, compare snapshots and create evidence and diagrams. The current public package is **`olav-skills` 0.1.1**, published on PyPI on 17 November 2026. Python imports use `olav_skills`; the CLI is `olav-skills`.
+Olav Skills pairs seven standard network-analysis skills with a standalone Python runtime for **recorded, offline network data**. Use its CLI to import a capture, inspect devices and interfaces, query protocol relationships, compare snapshots and create evidence and diagrams. An existing AI harness can discover the skills and run the tools under its own permissions.
 
 ## Start with a reproducible result
 
-1. [Install with pip and bind your harness](installation.md). No model key is required for deterministic tools.
-2. [Run the complete offline example](offline-data.md). It checks the exact device set R1/R2, one recorded CDP link and an R1 evidence fragment, then writes a diagram and report.
-3. [Check harness discovery](harnesses.md), or keep using stdin JSON directly. Skill discovery, script execution and model answers have separate validation requirements.
-4. Transfer a reviewed, authorized capture from the separate Collector product and import it into a new analysis root.
+- **Published 0.1.1.** Install from PyPI, then import the synthetic bundle and check the exact device set R1/R2, a recorded CDP link and an R1 evidence fragment. [Installation](installation.md) · [Offline example](offline-data.md)
+- **Unpublished 0.2.0.** Use a reviewed local wheel to repeat that workflow and add data doctor and draft change-plan pre-checks. [Candidate walkthrough](release-candidate.md)
+- **AI harness setup.** Verify discovery, script execution and model answers independently. The tested Pi natural-question setup failed qualification. Codex and Claude Code natural questions were untested. [Harness setup](harnesses.md) · [Compatibility](reference/compatibility.md)
 
 ```mermaid
 flowchart LR
@@ -34,6 +33,6 @@ flowchart LR
 
 A snapshot describes observations in the supplied files. Inventory and observed snapshot membership differ. A device role may be unknown; a missing protocol view is a data gap. Collection time, import time and record update time are separate clocks. A bounded preview is not a full export. Read the [data model](data-model.md), [safety boundaries](safety.md) and [result protocol](reference/scripts.md) before making operational decisions.
 
-The harness supplies the model, conversation, permissions and execution tools. This package supplies no model session manager, memory service, automatic learning loop, workflow engine or simulator. Collector and the private Open WebUI integration are separate products with their own access and deployment boundaries. Installing Skills does not connect to devices or grant access to them.
+The harness supplies model sessions, orchestration, permissions and execution tools. Collector handles device collection as a separate product. Use an authorized, reviewed capture with the local runtime once you have tried the synthetic workflow.
 
 See [compatibility](reference/compatibility.md) for verified levels, [migration](migration.md) for legacy environments and the [historical documentation archive](legacy-index.md) for the former platform. The existing [license](license.md) remains applicable.

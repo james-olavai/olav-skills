@@ -7,6 +7,10 @@ example. Use the dedicated environment from
 [installation](installation.md). Examples use POSIX shell paths; substitute your
 actual absolute venv and a new analysis directory.
 
+For a reviewed 0.2.0 wheel, the candidate walkthrough extends this synthetic
+example with exact-snapshot data doctor and draft plan pre-checks.
+[Candidate walkthrough](release-candidate.md)
+
 ## Run the complete synthetic example
 
 The wheel and sdist include `examples/synthetic_walkthrough.py` and
@@ -97,10 +101,10 @@ export OLAV_HOME=/absolute/path/to/new-synthetic-analysis
 "$SKILLS_PYTHON" -I -B -c 'import json,os; from pathlib import Path; sid=json.loads((Path(os.environ["OLAV_HOME"])/"import.json").read_text())["snapshot_id"]; print(json.dumps({"source":"command_output","pattern":"Hostname","device":"R1","commands":["show version"],"snapshot":sid,"limit":5}))' | "$SKILLS_PYTHON" -I -B -m olav_skills run reporter query_evidence
 ```
 
-A missing topology layer is a collection gap, not proof that the protocol has no
-neighbors. Snapshot IDs and default `latest` selection do not prove a collection
-instant or real-time freshness. Prefer explicit snapshot IDs and carry actual
-collection-time evidence into reports.
+A missing topology source leaves that layer's relationships unknown. Prefer
+explicit snapshot IDs and include actual collection-time evidence in reports.
+Snapshot labels and the default `latest` selection do not establish when data
+was captured or how current it is.
 
 ## Bring your own offline capture
 

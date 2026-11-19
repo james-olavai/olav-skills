@@ -1,13 +1,12 @@
 # Olav Skills
 
-Olav Skills 为你已有的 AI 宿主提供网络领域知识，以及处理**已记录离线网络数据**的确定性 Python 工具。你可以导入采集文件、检查设备与接口、查询协议关系、比较快照，并输出证据和图表。当前公开包是 **`olav-skills` 0.1.1**，于 2026 年 11 月 17 日发布到 PyPI；Python 导入名为 `olav_skills`，命令为 `olav-skills`。
+Olav Skills 提供七个标准网络分析 Skill 和独立 Python runtime，用于处理**已记录的离线网络数据**。通过 CLI 可以导入采集包、检查设备与接口、查询协议关系、比较快照，并输出证据和图表。已有 AI 宿主可发现这些技能，并在自身权限范围内运行工具。
 
 ## 从可复现结果开始
 
-1. [通过 pip 安装并绑定 harness](installation.md)。确定性工具不需要模型密钥。
-2. [运行完整离线示例](offline-data.md)。示例核对 R1/R2 精确设备集合、一条已记录 CDP 链路及 R1 证据片段，再生成图表和报告。
-3. [检查宿主技能发现](harnesses.md)，也可以继续直接传入 stdin JSON。技能发现、脚本执行、模型回答分别需要验证。
-4. 从独立 Collector 产品取得经授权审阅的采集包，在新的分析根目录导入。
+- **已发布 0.1.1。** 从 PyPI 安装后，导入合成包并核对 R1/R2 精确设备集合、一条 CDP 链路记录和一条 R1 证据片段。[安装](installation.md) · [离线示例](offline-data.md)
+- **未发布 0.2.0。** 使用经审阅的本地 wheel 跑同一流程，再验证数据体检和变更草案预检。[候选版上手](release-candidate.md)
+- **接入 AI 宿主。** 分别验证技能发现、脚本执行与模型回答。已测试的 Pi 配置未通过自然问答验收，Codex 和 Claude Code 自然问答未测。[宿主接入](harnesses.md) · [兼容性](reference/compatibility.md)
 
 ```mermaid
 flowchart LR
@@ -34,6 +33,6 @@ flowchart LR
 
 快照描述输入文件中的观测。设备台账与快照观测成员不同；角色可能未知，协议视图缺失表示数据缺口。采集时间、导入时间和记录更新时间是不同的时钟。有界预览也不是完整导出。进行运维判断前，请阅读[数据模型](data-model.md)、[安全边界](safety.md)及[结果协议](reference/scripts.md)。
 
-模型、对话、权限及执行工具由宿主提供。本包没有模型会话管理器、记忆服务、自动学习循环、工作流引擎或模拟器。Collector 与私有 Open WebUI 集成是独立产品，有各自的访问和部署边界。安装技能不会连接设备或授予设备权限。
+模型会话、编排、权限与工具执行由宿主提供。设备采集由独立的 Collector 产品处理。完成合成示例后，可把经授权审阅的离线采集包交给本地 runtime 分析。
 
 [兼容性](reference/compatibility.md)列出实际验证层级；旧环境请读[迁移指南](migration.md)，旧平台资料见[历史手册](legacy-index.md)。现有[许可证](license.md)继续适用。

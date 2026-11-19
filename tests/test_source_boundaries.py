@@ -26,10 +26,12 @@ def test_builtin_data_resolves_inside_package():
     from olav_skills.netops.core.recipe_files import builtin_recipes_dir
     config = resolve_netops_init_config('discovery_protocols.yaml')
     assert config.is_file()
-    assert ROOT / 'src/olav_skills/netops/data' in config.parents
+    import olav_skills.netops as netops_package
+    package_data = Path(netops_package.__file__).resolve().parent / 'data'
+    assert package_data in config.resolve().parents
     recipes = builtin_recipes_dir()
     assert list(recipes.glob('*.yaml'))
-    assert ROOT / 'src/olav_skills/netops/data' in recipes.parents
+    assert package_data in recipes.resolve().parents
 
 
 def test_local_export_uses_only_repository_resources(tmp_path):
@@ -92,11 +94,13 @@ def test_standard_skill_frontmatter():
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', data['name'])
         assert data['name'] == path.parent.name and len(data['name']) <= 64
         assert isinstance(data['description'], str) and 0 < len(data['description']) <= 1024
-        assert isinstance(data['compatibility'], str) and len(data['compatibility']) <= 500
-        assert 'Python >=3.11' in data['compatibility']
+        if 'compatibility' in data:
+            assert isinstance(data['compatibility'], str) and len(data['compatibility']) <= 500
+            assert 'Python >=3.11' in data['compatibility']
         assert isinstance(data['metadata'], dict)
         assert all(isinstance(k, str) and isinstance(v, str) for k, v in data['metadata'].items())
-        assert data['metadata']['runtime'] == 'olav-skills>=0.1.0'
+        from olav_skills import __version__
+        assert data['metadata']['runtime'] == f'olav-skills>={__version__}'
         assert 'allowed-tools' not in data
 
 

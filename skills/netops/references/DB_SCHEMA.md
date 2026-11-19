@@ -92,7 +92,7 @@ FROM netops.parsed_outputs GROUP BY 1 ORDER BY 1;
 
 ```sql
 -- For commands that collected but didn't parse (e.g. an intent the
--- user has not yet /learn_cmd'd):
+-- user has not yet explicit parser learning'd):
 SELECT device_name, command, raw_output FROM netops.raw_output_store
 WHERE command = 'show spanning-tree'
   AND device_name NOT IN (
@@ -101,10 +101,10 @@ WHERE command = 'show spanning-tree'
   );
 ```
 
-`.olav/config/unsupported.json` (populated at each `/netops_init` by
+`.olav/config/unsupported.json` (populated at each `offline ingest` by
 the parse-coverage classifier) lists every `(platform, command)` pair
 that collected but didn't parse — surface these to the user with a
-`/learn_cmd` suggestion.
+`explicit parser learning` suggestion.
 
 ## What's *not* in the schema anymore
 
@@ -116,5 +116,5 @@ referencing them:
 * `view_recipes_seed.yaml` monolith — split into per-protocol files
   under `olav_skills/netops/data/skillpack/.olav/workspace/netops/topology/recipes/builtin/`.
 * `auto_learn.py` batch learner — removed v0.21.0.  Invoke
-  `netops/learner` (`learn_commands`) via the `/learn_cmd` skill for
+  `netops/learner` (`prepare_learn` / `finish_learn`) via the `explicit parser learning` skill for
   interactive parser learning.

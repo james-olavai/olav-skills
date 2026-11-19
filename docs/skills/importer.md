@@ -25,3 +25,17 @@ Raw output can land without a structured parser. Report `devices_landed`, `comma
 Suggest [learner](learner.md) for an appropriate parser gap as a separate reviewed operation. Import does not run a model or automatically learn every unsupported command. Bundled templates can be staged but are not silently activated.
 
 Import writes analysis state and reports. It is not a database migration guarantee or a server maintenance API. Keep the original capture and [validate an authorized copy](../migration.md) before using historical data. See [configuration](../reference/configuration.md) to avoid accidentally selecting another project's database.
+
+## Unreleased native provenance
+
+The candidate's official native directory import saves new historical raw
+captures and bounded source/clock metadata in its database transaction.
+Default native snapshot labels gain a unique import suffix; they are not
+capture clocks. Later raw-store overwrites leave the historical ledger intact.
+Old projects are not backfilled; direct legacy no-opt-in library paths retain
+their previous limits. See [evidence readiness](../reference/evidence-readiness.md).
+Actual stored raw hashes bind the existing redaction output, not a claim that
+redaction was successful or the source authentic. Filesystem staging, report
+and redaction-state files are outside the database rollback guarantee. Native
+imports bind redaction state to the selected project workspace; after changing
+`OLAV_HOME`, start a fresh process before importing.

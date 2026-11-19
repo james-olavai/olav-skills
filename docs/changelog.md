@@ -2,6 +2,21 @@
 
 This history belongs to the standalone `olav-skills` product. The former platform's version history is preserved in the [legacy documentation archive](legacy-index.md), not continued as this package's semantic version sequence.
 
+## 0.2.0 — unpublished candidate
+
+This source candidate adds recorded state/configuration/route/topology changes,
+interface-counter deltas, historical path candidates and fixed-metric baselines;
+parser version management and derived replay; bounded export and evidence
+bundles; investigation/audit profiles, report citation checks, plan pre-checks,
+recorded OSPF analysis and explicit evidence-readiness policies. Official native
+imports retain new historical raw/provenance within the database transaction.
+
+Each feature has its own vendor, source, time and completeness limits. These
+are offline recorded observations, never change approval or proof of live
+health. Cache qualification and host acceptance are separate release gates.
+This version has not been uploaded, deployed or automatically exposed through
+Open WebUI. See [candidate review](release-candidate.md).
+
 ## 0.1.1 — 17 November 2026
 
 Published to production PyPI after fresh, non-editable package validation. The single distribution contains:

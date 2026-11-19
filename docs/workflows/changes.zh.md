@@ -25,10 +25,23 @@ export OLAV_HOME=/absolute/path/to/new-synthetic-analysis
 
 预期 `status: success`，新增键和删除键均为零。真实比较时，换成该范围内实际导入且已核实的源/目标 ID。键差为零仍可能隐藏正文或字段值变化；按需检索聚焦证据，或比较已保存文本。
 
-`diff_configs` 需要 `device`、`command`、`snapshot_id_1`、`snapshot_id_2`；`sections`、`context_lines`、`full` 控制呈现。其来源是已保存快照 raw 文件，不能假定每个导入库都同时有这类文件系统来源。需披露紧凑输出限制及缺文件。
+未发布候选的 `diff_configs` 要求精确device/唯一command和两个明确SID，优先核历史账本raw，精确last-writer回退仅标部分覆盖，不依赖快照raw文件目录。先读[来源与有序分组合同](../reference/config-diff.md)，呈现参数不能解除硬上限。
 
 ## 从证据形成草案
 
 工程变更草案应写明真实端点/平台、接口、路由上下文、限制、未知和影响证据，包括完整审阅过的实施步骤、对称回退、预期后检查和变更前验证。已采集状态可能陈旧。草案由人或宿主用授权工具编写；`generate_change_plan` 是独立的批量型号模式产物工具，不是通用意图转配置编译器。
 
+未发布的 0.2.0 候选可检查草案结构和精确快照中的部分证据。`check_change_plan`
+始终返回 `decision: not_approved`。提交人工审批前，先审阅未知项和失败项。
+[合成示例](../release-candidate.md) · [预检合同](../reference/plan-precheck.md)
+
 包中没有模拟器。旧 Batfish/`sim` 引用不是可执行的独立验证。图影响计算或格式完整的 Markdown 都不能认证变更。应用前，使用当前授权网络状态和合适的外部测试独立验证。Skills 不执行设备配置，也不安排维护窗口。
+
+## 未发布的拓扑与报告检查
+
+历史邻居内容比较使用 reporter `compare_topology`，先读
+[拓扑内容差异](../reference/topology-changes.zh.md)，固定精确双快照。
+链路观测及其采集覆盖与物理可用性分别判断。
+报告交付前可按[引用校验](../reference/report-citations.zh.md)核对显式结论映射、
+引用和独立固定的可信证据上下文；一致性不证明文字结论真实。
+两个入口都是本地候选，尚未包含在已发布的 0.1.1 中。

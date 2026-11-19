@@ -1,17 +1,15 @@
 # Use an existing AI harness
 
-Skills are files that a harness discovers. They describe when to use a capability and how to invoke its deterministic scripts. They do not create an agent process, register an MCP server, select a model or grant execution permissions.
+The seven standard skills describe when to use each capability and how to
+invoke the standalone Python runtime. Your existing harness handles model
+selection, discovery configuration, tool invocation and permissions. The same
+runtime also runs directly from the CLI.
 
 
 ## Install with pip, then bind
 
-Install the package once in an activated dedicated Python environment:
-
-```sh
-pip install olav-skills
-```
-
-Then choose your harness:
+Install the published package in a dedicated Python environment, then choose
+the binding for your harness. [Installation](installation.md)
 
 ```sh
 olav-skills install --harness codex --scope user
@@ -19,10 +17,9 @@ olav-skills install --harness claude-code --scope user
 olav-skills install --harness pi --scope user
 ```
 
-Run only the matching binding command. It uses the seven skills already in the
-package and records the interpreter path; no second download or manual copy is
-needed. Pip installation alone does not make the harness discover the skills.
-See [installation](installation.md) for environment setup and project scope.
+The binding copies the seven skills and records the interpreter path. Repeat
+it explicitly from the intended environment after changing the package version
+or moving the venv.
 
 ## Three different handoffs
 
@@ -34,16 +31,22 @@ See [installation](installation.md) for environment setup and project scope.
 
 Use the [installation commands](installation.md) for project or user scope. The supported paths are `.agents/skills` for Codex, `.claude/skills` for Claude Code and `.pi/skills` for Pi projects; Pi user scope is `.pi/agent/skills`. The installer requires an existing scope root. User and project copies may expose duplicate names; inspect the actual active harness configuration.
 
-## Bind execution, then check discovery
+## Check each step in your harness
 
 Each installed skill has `olav-runtime.json` and `.olav-skills-install.json`. Its instructions name an absolute interpreter. Keep that venv at its recorded path; copying skills alone does not move the runtime. After a venv move or replacement, repeat the same installation command from the intended interpreter. Review conflicts rather than overwriting edited skill directories.
 
-A useful local acceptance sequence is:
+1. Check the copied manifests, then verify the harness lists all seven skills
+   from the intended scope. Refresh the session if your harness requires it.
+2. Run `version`, `doctor` and `list` from the bound environment, then check
+   tool results against the known fixture. [Offline walkthrough](offline-data.md)
+3. If the harness is configured to invoke tools, verify a specified call with
+   known inputs and check the actual result. Then test ordinary user questions
+   separately against the same known data. Inspect the activated skill, tool
+   arguments, evidence and final answer.
 
-1. Run `version`, `doctor` and `list` with the bound interpreter.
-2. Run the [offline walkthrough](offline-data.md) with a new synthetic home.
-3. Verify your harness actually lists the seven skill names from the intended scope and refresh its session if required by that harness.
-4. Separately ask ordinary questions against a known synthetic dataset. Inspect actual skill activation, tool inputs/outputs and the final answer. Keep failures and unknowns; successful discovery alone does not prove routing or reasoning.
+The tested Pi configuration failed natural-question qualification, including
+held-out wording on the final local 0.2.0 candidate. Codex and Claude Code
+natural questions were untested. [Compatibility](reference/compatibility.md)
 
 For a host without standard discovery, export resources to a reviewed location and provide only the relevant SKILL.md to its model. Dispatch through the documented CLI, not an invented `execute_skill_script` API.
 
@@ -51,4 +54,4 @@ For a host without standard discovery, export resources to a reviewed location a
 
 Some distributed instructions retain historical platform terminology such as delegation, `task(...)`, `olav_recall_memory`, `format_and_export`, SSH collection or simulator references. The standalone pack's calling-convention note takes precedence for execution: load a sibling skill and invoke an actually listed Python script. There is no standalone implementation of those historical host tools. A mention in a reference does not establish availability or authorization.
 
-The [compatibility matrix](reference/compatibility.md) records native discovery checks separately from six filesystem layouts and deterministic workflows. No cross-harness model-answer certification is implied. Schedule/background execution and approval mechanisms belong to your host configuration; this package does not install them.
+Scheduling, background execution and approval mechanisms belong to your host configuration.

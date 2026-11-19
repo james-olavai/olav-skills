@@ -32,7 +32,7 @@ BATCH_UNITS: dict[str, tuple[str | None, str]] = {
     "commands": ("device_command_groups", "snapshot_observed_parsed_records"),
     "command_coverage": ("commands", "snapshot_observed_parsed_records"),
     "top_n": ("groups", "snapshot_observed_parsed_records"),
-    "snapshot_summary": (None, "snapshot_counts"),
+    "snapshot_summary": (None, "mixed_current_inventory_and_selected_snapshot_parsed_counts"),
     "interface_health": ("canonical_records", "canonical_view_rows_for_snapshot"),
     "bgp_health": ("canonical_records", "canonical_view_rows_for_snapshot"),
 }
@@ -260,12 +260,26 @@ def adapt_batch(
         )
     elif operation == "snapshot_summary":
         for key, value in (result.get("counts") or {}).items():
+            inventory = key == "inventory_device_count"
+            scopes = {
+                "inventory_device_count": "filtered_current_project_inventory",
+                "observed_device_count": "selected_snapshot_parsed_devices_in_filtered_inventory",
+                "command_count": "selected_snapshot_distinct_non_null_commands_in_filtered_inventory",
+                "record_count": "selected_snapshot_parsed_rows_in_filtered_inventory",
+            }
             counts[key] = count(
                 value=value,
                 unit=SUMMARY_UNITS.get(key, "records"),
-                scope="snapshot_scope_counts",
+                scope=scopes.get(key, "unknown_named_summary_count"),
                 exact=True,
-            )
+            ) | {
+                "snapshot_applies": not inventory,
+                "snapshot_id": None if inventory else result.get("snapshot_id"),
+                "physical_sources": ["netops.devices"] if inventory else
+                                    ["netops.devices", "netops.parsed_outputs"],
+                "applicable_filters": ["devices", "vendors"] if inventory else
+                                      ["devices", "vendors", "commands"],
+            }
     block = contract(
         level="operation",
         limits=limit_block,
@@ -275,6 +289,10 @@ def adapt_batch(
         provenance=provenance(executed=True, physical_sources=physical_sources),
         counts=counts or None,
         semantics=(
+            ("current inventory counts are not snapshot membership; observed counts are "
+             "selected parsed records intersecting filtered current inventory; "
+             "commands filter parsed counts only; total scope=" + total_scope)
+            if operation == "snapshot_summary" else
             "returned rows are " + (unit or "counts") + f"; total scope={total_scope}"
         ),
     )

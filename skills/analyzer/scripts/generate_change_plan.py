@@ -210,18 +210,18 @@ def generate_change_plan(
         "- Change window approved",
         "",
         "## Pre-change verification",
-        "This plan is drafted from captured state, not proven against the "
-        "network. Validate it with Batfish (via the `sim` sub-agent) — a "
-        "separate step — before the maintenance window:",
+        "Unreviewed draft from recorded inventory; collection time and snapshot "
+        "membership are not established by this generator. Review target identity, "
+        "platform/release, image placeholders, rollback and verification with an "
+        "authorized operator before any maintenance window.",
         "",
-        "```",
-        f'olav --agent netops "On the latest snapshot, Batfish-validate '
-        f'exports/change_plans/{output_filename}.md — check subnet/overlap '
-        f'conflicts, BGP/OSPF compatibility, and reachability. Return a verdict."',
-        "```",
+        "The bfs_order option uses role-based stage sorting, not graph BFS or "
+        "dependency analysis. Cisco IOS CLI templates and placeholder values "
+        "require manual completion; other platforms are unsupported by this template.",
         "",
-        "_Drafted from the last snapshot — validate with the command above and "
-        "double-check against the live network before you apply._",
+        "No configuration simulation or device execution is provided. Separately "
+        "authorized validation is required; this file does not approve a change.",
+
     ]
 
     markdown = "\n".join(lines)

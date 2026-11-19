@@ -72,11 +72,11 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
-def _safe_text_for_db(text: str) -> str:
+def _safe_text_for_db(text: str, *, workspace_root: Path | None = None) -> str:
     """Defense-in-depth scrub via netconan; fail-open."""
     try:
         from olav_skills.core.redaction import scrub
-        out, _ = scrub(text)
+        out, _ = scrub(text, workspace_root=workspace_root) if workspace_root is not None else scrub(text)
         return out
     except Exception:  # noqa: BLE001
         return text
@@ -457,10 +457,18 @@ def ingest_snapshot(
     host_platforms: dict[str, str] | None = None,
     conn: duckdb.DuckDBPyConnection | None = None,
     closure_context: dict | None = None,
+    native_ledger: bool = False,
+    native_workspace_root: str | Path | None = None,
 ) -> IngestResult:
     """Land an offline bundle into the netops DB.
 
     Args:
+        native_workspace_root: Explicit absolute redaction workspace for native
+                            opt-in. Default is selected project/.olav/workspace,
+                            never relative to CWD.
+        native_ledger:      Explicit native CLI history opt-in. Requires an active
+                            caller-owned native transaction and borrowed conn;
+                            no ledger/backfill on the legacy default path.
         conn:               Borrowed connection; caller owns BEGIN/COMMIT/ROLLBACK
                             and close. No database path is opened on this path.
                             Staging, reports and external audit are not rolled back.
@@ -492,6 +500,17 @@ def ingest_snapshot(
     """
     bundle_path = Path(path)
     borrowed_conn = conn
+    if type(native_ledger) is not bool:
+        raise ValueError('native_ledger must be boolean')
+    if native_ledger:
+        from . import native_ledger as history
+        history.require_transaction(borrowed_conn, closure_context)
+        if native_workspace_root is None:
+            from olav_skills.core.config import get_paths_config
+            native_workspace_root = get_paths_config().project_root / '.olav/workspace'
+        native_workspace_root = Path(native_workspace_root)
+        if not native_workspace_root.is_absolute() or '..' in native_workspace_root.parts:
+            raise history.NativeLedgerError('NATIVE_LEDGER_INVALID_WORKSPACE')
     staging_dir = Path(staging_dir)
     host_platforms = dict(host_platforms or {})
 
@@ -504,10 +523,15 @@ def ingest_snapshot(
     reader = BundleReader.open(bundle_path)
     manifest = reader.manifest
 
+    native_bundle_id = str(uuid.uuid4()) if native_ledger else None
     sid = snapshot_id or (
         f"snap_{_now().strftime('%Y%m%d_%H%M%S')}_{manifest.workspace_id or 'unknown'}"
     )
-    bundle_id = closure_context["bundle_id"] if closure_context is not None else str(uuid.uuid4())
+    if native_ledger and snapshot_id is None:
+        sid += "_" + native_bundle_id
+    bundle_id = closure_context["bundle_id"] if closure_context is not None else (native_bundle_id or str(uuid.uuid4()))
+    native_source = history.prepare_inputs(reader, collection_source) if native_ledger else None
+    native_records = []
 
     # 2.5 Tier 1+2 platform discovery for every host whose ``_meta.platform``
     # is missing / ``unknown``.  Caller-supplied host_platforms wins.  This
@@ -542,16 +566,20 @@ def ingest_snapshot(
     hosts_with_parsed: set[str] = set()
 
     for rec in reader.iter_command_outputs():
+        if native_ledger:
+            history.verify_record(native_source, rec)
         body = rec.body
         if not _skip_scrub:
-            body = _safe_text_for_db(body)
+            body = (_safe_text_for_db(body, workspace_root=native_workspace_root)
+                    if native_ledger else _safe_text_for_db(body))
         effective_platform = host_platforms.get(rec.host) or rec.platform
         traces = []
         parsed_at = _now().isoformat()
         parsed_json, reason = (_parse_one(effective_platform, rec.command, body, trace=traces.append)
-                               if closure_context is not None else _parse_one(effective_platform, rec.command, body))
-        if closure_context is not None:
-            closure_context.setdefault("records", []).append({
+                               if closure_context is not None or native_ledger else _parse_one(effective_platform, rec.command, body))
+        if closure_context is not None or native_ledger:
+            target_records = closure_context.setdefault("records", []) if closure_context is not None else native_records
+            target_records.append({
                 "device_name": rec.host, "command": rec.command, "platform": effective_platform,
                 "raw_output": body, "parse_status": "parsed" if parsed_json else reason,
                 "parsed_at": parsed_at, "parser": traces[-1] if traces and parsed_json else None,
@@ -573,6 +601,10 @@ def ingest_snapshot(
             "platform": effective_platform,
         })
         hosts.add(rec.host)
+
+    if native_ledger:
+        history.verify_inputs(reader, native_source)
+        history.prepare_ledger(borrowed_conn, sid)
 
     # 4. Apply migrations (additive ALTER + CREATE) on the target DB.
     with open_write_connection(db_path, conn=borrowed_conn) as conn:
@@ -751,6 +783,9 @@ def ingest_snapshot(
                     json.dumps(parser_fills),
                 ],
             )
+
+    if native_ledger:
+        history.insert_records(borrowed_conn, sid, native_source, native_records, ingested_at.isoformat())
 
     # 8. Audit.
     audit_run_id: str | None = None

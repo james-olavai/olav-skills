@@ -9,7 +9,7 @@ import sys
 
 import pytest
 
-from olav_skills import portable
+from olav_skills import portable, __version__
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def test_installed_cli_entrypoint_deterministic_and_original_bytes(tmp_path):
                                 cwd=tmp_path, env={**os.environ, 'OLAV_HOME': str(tmp_path / 'home')},
                                 text=True, capture_output=True)
         assert result.returncode == 0, result.stderr
-        assert json.loads(result.stdout)['version'] == '0.1.1'
+        assert json.loads(result.stdout)['version'] == __version__
     catalog = json.loads((outputs[0] / 'catalog.json').read_bytes())
     assert catalog['schema'] == 'olav.portable-skills/v1'
     assert catalog['version'] == 1 and catalog['profile'] == 'portable'

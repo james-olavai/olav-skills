@@ -52,17 +52,17 @@ and output behavior read [output rules](references/OUTPUT_EXPORT_RULES.md).
 For native schema/value discovery read [introspection cache](references/introspection_cache.md).
 Cache contents are advisory refresh metadata, not a capture clock or live state.
 
-## Unreleased native diagnostics
+## Native diagnostics
 
-When investigating missing data or unsupported analysis, the development
-candidate provides `olav-skills doctor --data --project /absolute/project`.
+When investigating missing data or unsupported analysis in 0.2, use
+`olav-skills doctor --data --project /absolute/project`.
 Use an explicit authorized native project; a data check is not a network health
-probe or proof of capture completeness. The published 0.1.1 lacks this option.
+probe or proof of capture completeness.
 For content-level changes use reporter's
 [recorded state comparison](../reporter/references/state_changes.md), distinct
 from identity-key and raw text differences. Use analyzer's
 [plan pre-check](../analyzer/references/plan_precheck.md) for deterministic plan
-checks. These entry points require the candidate build and actual host execution
+checks. These entry points require 0.2 and actual host execution
 permission; they do not add tools to a restricted host.
 
 ## Evidence boundaries
@@ -85,7 +85,7 @@ Stop once evidence answers the question. Do not repeat unchanged failures or
 raise budgets; a corrective retry needs a real corrected argument within scope.
 Report unfinished scope and source/preview truncation.
 
-## Unreleased reproducible work
+## Reproducible investigations and evidence
 
 For recorded investigation recipes or full file export, read analyzer's
 [recipes](../analyzer/references/investigation_recipes.md) or
@@ -94,10 +94,9 @@ parser versions and derived replay, read learner's
 [lifecycle contract](../learner/references/parser_lifecycle.md). To bundle
 reviewed report/evidence files and check freshness, read reporter's
 [evidence delivery contract](../reporter/references/evidence_delivery.md).
-These local candidates require their documented scope and host permissions;
-published 0.1.1 does not contain them.
+These entry points require their documented scope and host permissions.
 
-## Unreleased native contracts and historical analysis
+## Native contracts and historical analysis
 
 Read [native state contracts](references/native_contracts.md) for default
 IOS/Junos parser coverage and shared query/comparison state semantics. For raw

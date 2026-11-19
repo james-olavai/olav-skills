@@ -1,6 +1,6 @@
 # 脚本目录与 stdin/结果协议
 
-已安装脚本以绑定 venv 的 `olav-skills list` 为准。0.1.1 公开入口如下；不同技能中的同名脚本可能封装同一领域能力。
+已安装脚本以绑定 venv 的 `olav-skills list` 为准。下表列出沿用自 0.1.1 的基础脚本；不同技能中的同名脚本可能封装同一领域能力。
 
 | 技能 | 脚本基名 |
 | --- | --- |
@@ -12,20 +12,20 @@
 | topology | `list_recipes`、`prepare_recipe`、`query_batch`、`query_topology`、`rebuild_views`、`save_recipe` |
 | writer | `draw_topology`、`render_topology_drawio`、`render_topology_mermaid`、`render_topology_svg`、`topology_view_filter` |
 
-## 未发布的新入口
+## 0.2 新增入口
 
-开发候选另提供 analyzer 的 `check_change_plan` 和 reporter 的 `compare_state`；
-已发布 0.1.1 不包含它们。传 JSON 前先读[计划预检查](plan-precheck.md)和
+0.2 新增 analyzer 的 `check_change_plan` 和 reporter 的 `compare_state`。
+传 JSON 前先读[计划预检查](plan-precheck.md)和
 [记录状态差异](state-diff.md)的输入/来源合同。检查执行成功不代表变更获批准，
 记录差异也不直接证明网络掉线。
 
 
-本地候选另有 learner `manage_parser` / `reparse_snapshot`、analyzer
+0.2 还新增 learner `manage_parser` / `reparse_snapshot`、analyzer
 `export_query` / `run_investigation`、reporter `evidence_bundle`。先阅读
 [解析器生命周期](parser-lifecycle.md)、[完整文件导出](full-export.md)、
 [固定调查流程](investigation-recipes.md)与[证据包交付](evidence-delivery.md)。
 解析器启用属于显式项目写操作，重解析仅生成派生产物；文件完整性、导出完整度和
-结论真实性分别核验。上述入口尚不在已发布的0.1.1中。
+结论真实性分别核验。
 
 
 ## 传输约定
@@ -67,38 +67,35 @@
 
 `query_evidence` 要检查匹配/总量完整性、分页、片段边界及日期排除。未知时间候选在正文匹配前排除，不是匹配数，也不能加到其它数量上构造分母。`no_dated_candidates` 可能表示日期问题未解决。详细日期行为见 [reporter](../skills/reporter.md)，参数与写效果见各[技能页面](../index.md)。
 
-## 原生合同与历史分析候选
+## 原生合同与历史分析
 
-未发布更新将query_batch、compare_state、run_investigation统一到
+0.2 将 `query_batch`、`compare_state`、`run_investigation` 统一到
 [原生合同](native-contracts.md)。netops diff_configs遵循
 [历史配置来源合同](config-diff.md)。reporter新增
 [compare_routes](route-changes.md)、[compare_counters](counter-deltas.md)和
-[run_audit](audit-profiles.md)。仍使用绑定解释器和stdin JSON，保留来源、限制与未知；
-已发布0.1.1不含本轮更新。
+[run_audit](audit-profiles.md)。仍使用绑定解释器和stdin JSON，保留来源、限制与未知。
 
-## 报告引用与拓扑内容候选
+## 报告引用与拓扑差异
 
-未发布的 reporter `lint_report` 按调用者固定的证据上下文检查报告引用与显式结论映射。
+reporter `lint_report` 按调用者固定的证据上下文检查报告引用与显式结论映射。
 使用前阅读[引用校验](report-citations.zh.md)，保留覆盖缺口；引用有效不证明结论真实。
 `compare_topology` 比较精确双快照的链路内容，保留端点接口与并行链路，详见
 [拓扑内容差异](topology-changes.zh.md)。缺采集证据或字段保持未知。
-这些入口不在已发布的 0.1.1 内，也不自动增加 WebUI 工具授权。
+WebUI 工具权限由私有集成决定。
 
-## 历史路径与基线候选
+## 历史路径与指标基线
 
-未发布的 topology `inspect_path` 查询历史邻居图的有界候选路径，保留接口与并行链路，
+topology `inspect_path` 查询历史邻居图的有界候选路径，保留接口与并行链路，
 详见[拓扑路径](topology-paths.zh.md)。analyzer `analyze_baseline` 将可比历史区间
 与独立目标区间分开，计算固定指标的统计参考，详见[指标基线](metric-baselines.zh.md)。
-采集覆盖、时钟、重置与枚举遗漏须保留未知；这些入口不在已发布的0.1.1中，
-也不自动增加WebUI工具权限。
+采集覆盖、时钟、重置与枚举遗漏须保留未知。WebUI 工具权限由私有集成决定。
 
-## OSPF与证据准入候选
+## OSPF 与证据准入
 
-未发布的 analyzer `analyze_ospf` 提供OSPF采集观测与有界历史记录比较，先读
+analyzer `analyze_ospf` 提供OSPF采集观测与有界历史记录比较，先读
 [OSPF分析](ospf-analysis.zh.md)。`check_evidence` 按显式设备/命令清单、as-of和
 时效政策核对历史raw与parsed，先读[证据准入](evidence-readiness.zh.md)。
 `run_audit` 可选OSPF规则与显式证据门，详见[规则集](audit-profiles.zh.md)，默认
-三检查不变。新native CLI导入保存新来源账本，不回填旧无历史数据。已发布0.1.1
-不含这些更新，脚本存在不自动增加WebUI工具权限。
+三检查不变。新native CLI导入保存新来源账本，不回填旧无历史数据。WebUI 工具注册由私有集成决定。
 
 native snapshot_summary的result_contract.counts按字段区分：inventory_device_count是当前项目目录（设备/厂商过滤），不受所选SID或命令筛选限制；observed_device_count是所选SID解析记录与当前筛选目录的交集。未登记parsed设备不在该join统计，不能宣称全部采集覆盖。各项标注实际来源、适用过滤及SID是否适用，保留原数字不变。仓储适配不代验；时钟精度只适用同一个来源字段。

@@ -1,6 +1,6 @@
 # Parser versions and stored-raw replay
 
-These native entries are unreleased and require a candidate build. Use an
+These native entries are available in 0.2. Use an
 authorized absolute `project` and explicitly set `OLAV_HOME` for normal
 parsing in that project. Manage one canonical `platform` and `command` at
 a time. The legacy `finish_learn` entry still writes legacy-format templates.

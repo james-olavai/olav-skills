@@ -1,6 +1,6 @@
 # Portable knowledge export
 
-Install the built `olav-skills` 0.1.1 wheel into a dedicated Python environment,
+Install the `olav-skills` 0.2.0 wheel into a dedicated Python environment,
 then run from any working directory:
 
 ```sh

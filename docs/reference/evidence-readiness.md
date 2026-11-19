@@ -1,4 +1,4 @@
-# Explicit evidence readiness (unreleased)
+# Explicit evidence readiness
 
 ## Choose the time policy before invoking
 
@@ -13,7 +13,7 @@ a model's remembered date is not a clock. A ready result for invented inputs
 is not an answer to the user's request. State readiness only for the supplied
 checklist and policy, preserving its non-approval limitations.
 
-This source candidate is absent from published 0.1.1. The host must authorize
+The host must authorize
 execution and set `OLAV_HOME` to the selected native project. Run:
 
 ```sh
@@ -36,7 +36,7 @@ Every selected raw record must have a matching exact stored key and
 selected raw/parsed sources fail the operation. No last-writer fallback is used.
 Missing ledger/table evidence, including a snapshot with no ledger rows, is
 unknown. Once the exact snapshot has ledger coverage, missing requested pairs
-are missing. The unreleased official native importer writes historical ledger
+are missing. The 0.2 native importer writes historical ledger
 rows for new imports transactionally; older imports without this capability
 remain unknown even after a later import creates the ledger table. No backfill
 or historical provenance manufactured from retained last-writer raw is used.

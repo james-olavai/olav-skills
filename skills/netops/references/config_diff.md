@@ -1,7 +1,6 @@
 # Recorded configuration differences
 
-The unreleased native candidate strengthens the existing `diff_configs` entry
-point. Set `OLAV_HOME` to the authorized absolute native project, then pass the
+For `diff_configs` in 0.2, set `OLAV_HOME` to the authorized absolute native project, then pass the
 exact stored device, command and two distinct snapshot IDs.
 
 ```sh

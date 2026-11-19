@@ -1,7 +1,6 @@
 # 观测状态内容比较
 
-这是尚未发布的源码候选。已发布的 PyPI `olav-skills==0.1.1` 不含
-`compare_state`；以下入口须由后续经过验证的新版本提供。
+Olav Skills 0.2 提供 `compare_state`，用于比较已记录的状态。
 
 显式绑定获授权项目的 `OLAV_HOME`，固定两个快照 ID：
 

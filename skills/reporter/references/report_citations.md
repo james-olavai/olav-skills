@@ -1,7 +1,6 @@
 # Report citation and evidence identity linting
 
-Unreleased local candidate; absent from published `olav-skills==0.1.1`.
-Use `olav-skills run reporter lint_report` with one stdin JSON object.
+In 0.2, use `olav-skills run reporter lint_report` with one stdin JSON object.
 No model, database, collector, file writing or directory discovery is involved.
 
 ## Trusted input and what a pass means

@@ -1,6 +1,6 @@
 # 接口计数器增量
 
-未发布的原生候选提供 `reporter compare_counters`，用于比较两次明确历史快照中的 Cisco IOS `show interfaces` 累计计数。
+Olav Skills 0.2 提供 `reporter compare_counters`，用于比较两次明确历史快照中的 Cisco IOS `show interfaces` 累计计数。
 
 ```bash
 printf '%s\n' '{

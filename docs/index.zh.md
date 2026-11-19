@@ -4,8 +4,8 @@ Olav Skills 提供七个标准网络分析 Skill 和独立 Python runtime，用�
 
 ## 从可复现结果开始
 
-- **已发布 0.1.1。** 从 PyPI 安装后，导入合成包并核对 R1/R2 精确设备集合、一条 CDP 链路记录和一条 R1 证据片段。[安装](installation.md) · [离线示例](offline-data.md)
-- **未发布 0.2.0。** 使用经审阅的本地 wheel 跑同一流程，再验证数据体检和变更草案预检。[候选版上手](release-candidate.md)
+- **Olav Skills 0.2.0。** 安装指定版本后，导入合成包并核对 R1/R2 精确设备集合、一条 CDP 链路记录和一条 R1 证据片段。[安装](installation.zh.md) · [离线示例](offline-data.zh.md)
+- **审阅本地 wheel。** 校验提供的 wheel，运行合成流程、数据体检和变更草案预检。[本地 wheel 示例](release-candidate.zh.md)
 - **接入 AI 宿主。** 分别验证技能发现、脚本执行与模型回答。已测试的 Pi 配置未通过自然问答验收，Codex 和 Claude Code 自然问答未测。[宿主接入](harnesses.md) · [兼容性](reference/compatibility.md)
 
 ```mermaid

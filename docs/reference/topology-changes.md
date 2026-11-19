@@ -1,13 +1,12 @@
 # Recorded topology changes
 
-This unreleased native candidate compares two exact snapshots with:
+In Olav Skills 0.2, compare two exact snapshots with:
 
 ```sh
 printf '%s' '{"snapshot_id_1":"before-id","snapshot_id_2":"after-id"}' | olav-skills run reporter compare_topology
 ```
 
-Set an authorized absolute `OLAV_HOME`. Published 0.1.1 does not include this
-entry. The default `source="parsed_neighbors"` uses historical parsed Cisco IOS
+Set an authorized absolute `OLAV_HOME`. The default `source="parsed_neighbors"` uses historical parsed Cisco IOS
 `show cdp neighbors detail` and `show lldp neighbors detail` records. Both sides
 must have matching device/command parent scope. It preserves device/interface
 endpoints and parallel links, normalizes direction and interface abbreviations,

@@ -26,9 +26,9 @@ survey 提示设备需要平台检测时，可用 `discover_platform` 的 `host_
 
 导入会写分析状态和报告，不提供历史数据库迁移保证或服务端维护 API。保留原始采集，使用历史数据前先[验证授权副本](../migration.md)。另见[配置](../reference/configuration.md)，避免误选其它项目数据库。
 
-## 未发布的原生来源账本
+## 原生采集来源账本
 
-候选的官方native目录导入在同一数据库事务内保存新raw历史及受限来源/采集时钟
+0.2 的原生目录导入在同一数据库事务内保存新 raw 历史及受限来源/采集时钟
 元数据。默认SID追加本次导入唯一后缀，不是采集时间证据；后续raw store覆盖不删除
 历史账本。旧数据不回填，legacy library默认未opt-in路径保留原界限。详见
 [证据准入](../reference/evidence-readiness.zh.md)。actual raw hash只绑定实际脱敏

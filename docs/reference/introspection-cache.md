@@ -1,6 +1,6 @@
 # Native introspection cache
 
-Native ingest finalisation in the unpublished 0.2.0 candidate refreshes two
+Native ingest finalisation in 0.2 refreshes two
 DuckDB tables for schema and value discovery.
 
 | Table | Contents |

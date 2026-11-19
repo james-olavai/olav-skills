@@ -1,6 +1,6 @@
-# Exact topology observation differences (unreleased)
+# Exact topology observation differences
 
-This source candidate is not in published 0.1.1. Run:
+To compare two recorded snapshots in 0.2, run:
 
 ```sh
 printf '%s' '{"snapshot_id_1":"before-id","snapshot_id_2":"after-id"}' | olav-skills run reporter compare_topology

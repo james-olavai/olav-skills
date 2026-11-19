@@ -1,7 +1,7 @@
 # Historical topology paths
 
-This unreleased native candidate is absent from published `olav-skills==0.1.1`.
-Set an authorized absolute `OLAV_HOME` and use a reviewed candidate:
+In Olav Skills 0.2, set an authorized absolute `OLAV_HOME` before running
+`inspect_path`:
 
 ```sh
 printf '%s' '{"snapshot_id":"capture-a","source_device":"R1","destination_device":"R3"}' | olav-skills run topology inspect_path

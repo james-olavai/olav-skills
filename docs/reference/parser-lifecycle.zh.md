@@ -1,7 +1,6 @@
 # 解析器版本与离线重解析
 
-这些命令**尚未发布**。请使用审阅过的 `olav-skills` 候选构建。已发布的 0.1.1
-提供旧的 `learner finish_learn` 工作流。
+版本管理和离线重解析需要 Olav Skills 0.2。0.1.1 提供早期的 `learner finish_learn` 工作流。
 
 ## 验证、启用与回退
 

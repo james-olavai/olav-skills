@@ -1,12 +1,12 @@
-# 在本地试用未发布的 0.2.0 候选
+# 在本地审阅 Olav Skills 0.2.0 wheel
 
-**PyPI 已发布版本是 0.1.1。** 本页使用经审阅的本地 **0.2.0** wheel。
-在 POSIX shell 中用 Python 3.11 或更新版本执行。合成夹具与工具运行无需模型、
-凭据或设备访问。[已发布版安装](installation.md)
+在隔离环境中使用提供的 **0.2.0** wheel 运行合成流程。需要 POSIX shell 和
+Python 3.11 或更新版本。合成夹具与工具运行无需模型、凭据或设备访问。
+[标准安装](installation.zh.md)
 
 ## 安装 runtime 并绑定技能
 
-将 `WHEEL` 指向审阅者提供的候选 wheel，`WHEELHOUSE` 指向存有兼容依赖
+将 `WHEEL` 指向审阅者提供的 wheel，`WHEELHOUSE` 指向存有兼容依赖
 wheel 的目录。安装前核对 wheel 的 SHA-256 与审阅者提供的值。以下命令创建
 新的工作目录，从空 home 和空项目开始。
 
@@ -128,6 +128,6 @@ venv 重装经审阅的旧 wheel，再重新绑定。逐项核对技能的版本
 
 ## 宿主验收
 
-本地安装和指定脚本已在合成数据上通过。已测试的 Pi 配置未通过自然问答验收，
-最终候选在留作独立验证的同义问法上也未通过。Codex 和 Claude Code 的自然问答
-未测。[兼容性和验证层级](reference/compatibility.md)
+本地包检查覆盖安装布局及合成数据上的指定脚本调用。此前在 Pi 中测试的 0.2 代码
+未通过自然问答验收，留作独立验证的同义问法也未通过。Codex 和 Claude Code 的自然问答
+未测。[兼容性和验证层级](reference/compatibility.zh.md)

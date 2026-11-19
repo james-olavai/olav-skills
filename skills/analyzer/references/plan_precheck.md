@@ -1,7 +1,6 @@
-# Change-plan checks (unreleased)
+# Change-plan checks
 
-Published 0.1.1 does not contain this candidate. With the candidate installed,
-run `olav-skills run analyzer check_change_plan` using one stdin JSON object,
+In 0.2, run `olav-skills run analyzer check_change_plan` using one stdin JSON object,
 an explicit authorized `OLAV_HOME` (or `project`) and `snapshot_id`.
 The project must already be host-authorized. Snapshot aliases latest/newest/auto
 are rejected; labels do not establish collection time or current state.

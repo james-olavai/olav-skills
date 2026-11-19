@@ -1,11 +1,11 @@
 # 从生成包或旧平台迁移
 
-独立产品使用单一发行包 `olav-skills`、Python 命名空间 `olav_skills` 和管理命令 `olav-skills`。**0.1.1 已在 PyPI 发布**，包含七个标准技能及其确定性 runtime。旧生成包独立安装的 `runtime/`，以及 `olav` / `olav_netops` 命名空间，都不是新包依赖或导入别名。
+独立产品使用单一发行包 `olav-skills`、Python 命名空间 `olav_skills` 和管理命令 `olav-skills`。Olav Skills 0.2 包含七个标准技能及其确定性 runtime。旧生成包独立安装的 `runtime/`，以及 `olav` / `olav_netops` 命名空间，都不是新包依赖或导入别名。
 
 ## 逐消费者迁移
 
 1. 记录旧解释器、包版本、技能发现根与授权数据根，保留环境及备份/锁文件。
-2. 在**新独立 venv** 安装 0.1.1，执行 `version`、`doctor` 和[合成示例](offline-data.md)，不要原地替换运行中的旧服务环境。
+2. 在**新独立 venv** 安装 0.2.0，执行 `version`、`doctor` 和[合成示例](offline-data.md)，不要原地替换运行中的旧服务环境。
 3. 将新资源导出到独立审阅目录，比较 API 与导入。自定义 Python 消费者改用 `olav_skills`；没有把旧导入静默转向新包的别名。
 4. 显式解决同名技能和项目/用户重复注册，再从新解释器安装到选定宿主范围。手工旧目录不会自动归属新安装器，详见[归属与升级](installation.md)。
 5. 选择新的 `OLAV_HOME`，测试授权数据副本。迁移该消费者前核对精确设备集合、解析缺口、时间戳、有界结果及产物。

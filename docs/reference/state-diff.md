@@ -1,7 +1,6 @@
 # Recorded state differences
 
-Unreleased source candidate. Published PyPI `olav-skills==0.1.1` does not include
-`compare_state`; these instructions describe a future validated release.
+Olav Skills 0.2 provides `compare_state` for recorded state differences.
 
 Set `OLAV_HOME` to the authorized project. Compare two explicit snapshot IDs:
 

@@ -1,6 +1,6 @@
 # 已记录数据的调查流程
 
-未发布候选；PyPI0.1.1不含此能力。授权项目绑定绝对OLAV_HOME后调用：
+在 0.2 中，将绝对路径 `OLAV_HOME` 绑定到授权项目后调用：
 
 ```sh
 printf '%s' '{"recipe":"interfaces","snapshot_id":"capture-a","devices":["R1"],"limit":10}' | olav-skills run analyzer run_investigation

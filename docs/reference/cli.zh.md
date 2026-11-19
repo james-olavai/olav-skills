@@ -1,6 +1,6 @@
 # 管理 CLI 参考
 
-本参考针对 `olav-skills` **0.1.1**。使用所选 venv 中的命令，或 `/absolute/path/to/skills-venv/bin/python -m olav_skills`。管理命令为：
+本参考针对 `olav-skills` **0.2**。使用所选 venv 中的命令，或 `/absolute/path/to/skills-venv/bin/python -m olav_skills`。管理命令为：
 
 ```text
 olav-skills [-h] {version,list,doctor,export,install,run} ...
@@ -17,10 +17,10 @@ olav-skills [-h] {version,list,doctor,export,install,run} ...
 
 `doctor` 基础依赖/资源齐全时返回 0，缺失时返回 1。管理校验/文件错误通常返回 2，并向 stderr 写消息；参数解析使用 argparse 标准错误。`run` 保留脚本 stdout、stderr 与退出状态。不能只看进程成功，还应检查脚本内容/状态。
 
-## 未发布的数据体检
+## 数据体检
 
-源码开发候选新增 `doctor --data --project ABSOLUTE_PATH`，可加
-`--snapshot-id EXACT_ID`；已发布的 0.1.1 没有这些参数。仅只读检查显式选择的
+执行 `doctor --data --project ABSOLUTE_PATH`，可加
+`--snapshot-id EXACT_ID`。命令只读检查显式选择的
 native 项目，不加 `--data` 时会拒绝项目/快照选择器。范围、预算、执行成功与
 数据能力就绪的区别、未知采集覆盖见[数据体检](../data-readiness.md)。不调用模型，
 也不连接设备。
@@ -55,15 +55,15 @@ printf '%s\n' '{"operation":"context"}' | /absolute/path/to/skills-venv/bin/olav
 
 知识导出器不是管理命令的 `portable` 子命令。它要求已安装资源和全新规范目标，详见[完整合同](../portable.md)。CLI 不提供聊天、模型配置、采集、服务、调度、模拟、通用数据库管理或自动迁移命令。
 
-## 未发布的可复核脚本
+## 解析、调查与证据脚本
 
-候选沿用 `run SKILL SCRIPT` 调度，没有新增管理子命令：learner 的
+通过 `run SKILL SCRIPT` 调用 learner 的
 `manage_parser` / `reparse_snapshot`、analyzer 的 `export_query` /
-`run_investigation`、reporter 的 `evidence_bundle`。已发布0.1.1不包含这些入口。
+`run_investigation`，以及 reporter 的 `evidence_bundle`。
 先查[脚本目录](scripts.md)及其链接合同，核对必填JSON、写入影响、完整性与未知语义。
 
-## 新增未发布脚本
+## 历史比较与巡检脚本
 
-候选沿用现有dispatcher，reporter新增compare_routes、compare_counters、run_audit。
+同一派发器也可运行 reporter 的 `compare_routes`、`compare_counters`、`run_audit`。
 原生查询/状态语义与netops diff_configs更新了来源合同；先读[脚本目录](scripts.md)。
 没有新增管理子命令或调度器。

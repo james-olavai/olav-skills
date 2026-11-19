@@ -1,7 +1,6 @@
 # Offline evidence delivery
 
-This entry point is available in the unreleased candidate. Use
-`olav-skills run reporter evidence_bundle` with one JSON object on stdin
+In 0.2, use `olav-skills run reporter evidence_bundle` with one JSON object on stdin
 and an explicit absolute `project` on a local POSIX filesystem.
 
 - Put individually approved, reviewed UTF-8 JSON, CSV or Markdown under the

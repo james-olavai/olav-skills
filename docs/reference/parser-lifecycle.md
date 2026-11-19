@@ -1,8 +1,7 @@
 # Parser versions and offline reparse
 
-These commands are **unreleased**. Use a reviewed candidate build of
-`olav-skills`. The published 0.1.1 package has the older
-`learner finish_learn` workflow.
+Version management and offline reparse require Olav Skills 0.2. The earlier
+`learner finish_learn` workflow is available in 0.1.1.
 
 ## Validate, activate and roll back
 

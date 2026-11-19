@@ -26,9 +26,9 @@ Suggest [learner](learner.md) for an appropriate parser gap as a separate review
 
 Import writes analysis state and reports. It is not a database migration guarantee or a server maintenance API. Keep the original capture and [validate an authorized copy](../migration.md) before using historical data. See [configuration](../reference/configuration.md) to avoid accidentally selecting another project's database.
 
-## Unreleased native provenance
+## Native capture provenance
 
-The candidate's official native directory import saves new historical raw
+The 0.2 native directory import saves new historical raw
 captures and bounded source/clock metadata in its database transaction.
 Default native snapshot labels gain a unique import suffix; they are not
 capture clocks. Later raw-store overwrites leave the historical ledger intact.

@@ -4,8 +4,8 @@ Olav Skills pairs seven standard network-analysis skills with a standalone Pytho
 
 ## Start with a reproducible result
 
-- **Published 0.1.1.** Install from PyPI, then import the synthetic bundle and check the exact device set R1/R2, a recorded CDP link and an R1 evidence fragment. [Installation](installation.md) · [Offline example](offline-data.md)
-- **Unpublished 0.2.0.** Use a reviewed local wheel to repeat that workflow and add data doctor and draft change-plan pre-checks. [Candidate walkthrough](release-candidate.md)
+- **Olav Skills 0.2.0.** Install the pinned package, then import the synthetic bundle and check the exact device set R1/R2, a recorded CDP link and an R1 evidence fragment. [Installation](installation.md) · [Offline example](offline-data.md)
+- **Review a local wheel.** Verify a supplied wheel and run the synthetic workflow, including data doctor and draft change-plan pre-checks. [Local wheel walkthrough](release-candidate.md)
 - **AI harness setup.** Verify discovery, script execution and model answers independently. The tested Pi natural-question setup failed qualification. Codex and Claude Code natural questions were untested. [Harness setup](harnesses.md) · [Compatibility](reference/compatibility.md)
 
 ```mermaid

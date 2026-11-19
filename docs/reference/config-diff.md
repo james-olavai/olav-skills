@@ -1,8 +1,7 @@
 # Recorded configuration differences
 
-The local source candidate strengthens `diff_configs`. The published PyPI
-`olav-skills==0.1.1` has the earlier entry point with different source and
-snapshot behavior.
+This page describes the source and snapshot rules for `diff_configs` in 0.2.
+Version 0.1.1 uses the earlier rules.
 
 Set `OLAV_HOME` to the authorized absolute native project path.
 

@@ -1,6 +1,6 @@
 # 一次性巡检规则集
 
-未发布候选，PyPI 0.1.1不含此入口。固定授权项目的绝对 `OLAV_HOME` 后，使用绑定
+在 0.2 中，固定授权项目的绝对 `OLAV_HOME` 后，使用绑定
 解释器向 `olav-skills run reporter run_audit` 传一个stdin JSON：
 
 ```json
@@ -45,7 +45,7 @@ Linux下子能力在本次新进程组中执行，父进程持有TMPDIR、超时
 
 ## OSPF与显式证据准入
 
-候选新增 `ospf` profile及 `ospf_states` 固定check，调用
+`ospf` 规则集使用固定的 `ospf_states` 检查，调用
 [OSPF观测分析](ospf-analysis.zh.md)。默认baseline仍为原三项，不自动扩展。
 Full仅选定观测规则可通过；过渡态只待查；2-Way/未知/缺源不认证健康。
 自定义策略仍最多3个不同固定check。

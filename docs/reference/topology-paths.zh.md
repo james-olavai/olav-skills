@@ -1,7 +1,6 @@
 # 历史拓扑路径
 
-这是尚未发布的 native 候选，已发布的 `olav-skills==0.1.1` 不含此入口。
-先设置获准的绝对路径 `OLAV_HOME`，使用经过审查的候选环境：
+在 Olav Skills 0.2 中运行 `inspect_path` 前，先设置获准的绝对路径 `OLAV_HOME`：
 
 ```sh
 printf '%s' '{"snapshot_id":"capture-a","source_device":"R1","destination_device":"R3"}' | olav-skills run topology inspect_path

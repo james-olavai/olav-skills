@@ -1,8 +1,6 @@
 # Data readiness
 
-This is an **unreleased development candidate**. Published `olav-skills==0.1.1`
-does not provide `doctor --data`; use a reviewed source build containing this
-feature. Installing the published version does not enable the commands below.
+Olav Skills 0.2 provides `doctor --data` for a selected native project.
 
 `olav-skills doctor` remains a fast dependency/resource check. It does not open a
 project database. Explicit data inspection uses a separate, lazy-loaded path:

@@ -1,7 +1,6 @@
 # 完整导出限定范围内的记录
 
-未发布的独立候选提供 `olav-skills run analyzer export_query`。使用经过审阅的
-64位Linux候选安装，且系统须支持OFD锁。调用进程需要已授权项目的
+在支持 OFD 锁的 64 位 Linux 上运行 0.2 的 `olav-skills run analyzer export_query`。调用进程需要已授权项目的
 读取权限和其 `.olav/exports` 目录的写入权限。将 `OLAV_HOME` 设置为该项目的绝对路径。
 
 ## 选择范围

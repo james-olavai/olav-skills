@@ -1,9 +1,9 @@
 # Report citation checks
 
-The unreleased candidate adds `olav-skills run reporter lint_report`. It checks
+In 0.2, `olav-skills run reporter lint_report` checks
 an explicit report/claim map against caller-selected evidence and a trusted
 scope/source/exact-snapshot/hash manifest. It neither discovers files nor
-reads the data warehouse. Published `olav-skills==0.1.1` does not include it.
+reads the data warehouse.
 
 Each claim specifies inclusive one-based report lines and evidence IDs.
 Its literal `[evidence:E1]` markers must match those IDs. All nonblank lines

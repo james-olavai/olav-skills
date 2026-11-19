@@ -2,9 +2,9 @@
 
 This history belongs to the standalone `olav-skills` product. The former platform's version history is preserved in the [legacy documentation archive](legacy-index.md), not continued as this package's semantic version sequence.
 
-## 0.2.0 — unpublished candidate
+## 0.2.0
 
-This source candidate adds recorded state/configuration/route/topology changes,
+Olav Skills 0.2 adds recorded state/configuration/route/topology changes,
 interface-counter deltas, historical path candidates and fixed-metric baselines;
 parser version management and derived replay; bounded export and evidence
 bundles; investigation/audit profiles, report citation checks, plan pre-checks,
@@ -13,10 +13,10 @@ imports retain new historical raw/provenance within the database transaction.
 
 Each feature has its own vendor, source, time and completeness limits. These
 are offline recorded observations, never change approval or proof of live
-health. Cache qualification and host acceptance are separate release gates.
-This version remains unpublished on PyPI. The separately configured private
-integration controls which capabilities are available in Open WebUI.
-[Candidate review](release-candidate.md) · [Open WebUI guide](openwebui.md)
+health. See [compatibility](reference/compatibility.md) for the tested CLI and harness
+scopes, including the failed Pi natural-question qualification. The separately
+configured private integration controls the tools available in Open WebUI.
+[Installation](installation.md) · [Local wheel walkthrough](release-candidate.md) · [Open WebUI guide](openwebui.md)
 
 ## 0.1.1 — 17 November 2026
 

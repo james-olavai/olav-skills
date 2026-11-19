@@ -1,8 +1,8 @@
 # Compatibility and verification levels
 
-The current release is the unified **`olav-skills` 0.1.1**, published on PyPI. Its distribution, import name and CLI are separate from the retired platform packages. Python 3.11 or newer is required by package metadata. Deterministic scripts need the installed dependencies; portable knowledge alone is not that runtime.
+This manual describes the unified **`olav-skills` 0.2** package. Its distribution, import name and CLI are separate from the retired platform packages. Python 3.11 or newer is required by package metadata. Deterministic scripts need the installed dependencies; portable knowledge alone is not that runtime.
 
-## Published 0.1.1
+## 0.1.1 verification history
 
 | Surface | Verified scope | Limit |
 | --- | --- | --- |
@@ -14,24 +14,24 @@ The current release is the unified **`olav-skills` 0.1.1**, published on PyPI. I
 | Claude Code 2.1.323 | Filesystem discovery layout | Native discovery/model behavior not verified in this batch |
 | Portable exporter | Seven-skill hashed catalog and bounded knowledge handoff | No runtime, tool permission or workflow engine |
 
-## Unpublished 0.2.0 candidate
+## 0.2 verification scope
 
 | Check | Result and scope |
 | --- | --- |
 | Layout and explicit rebinding | Passed for Codex, Claude Code and Pi, each at project and user scope. |
 | Specified script execution | Passed for the local CLI on the public synthetic workflow. The isolated Pi SDK session also discovered all seven skills and invoked specified tools. |
-| Pi natural questions | Failed qualification in the tested Pi SDK 1.2.0 / DeepSeek V4 Pro setup. The final candidate also failed the held-out wording checks. Failures included missed tool calls, incorrect snapshot arguments and answers with claims beyond the evidence. |
-| Codex 0.169.0 and Claude Code 2.1.323 | This candidate was checked for install layout and version/help only. Native discovery in these hosts, host tool execution and natural questions were untested with this candidate. |
+| Pi natural questions | Failed qualification in the tested Pi SDK 1.2.0 / DeepSeek V4 Pro setup. The held-out wording checks also failed in the local 0.2.0 test. Failures included missed tool calls, incorrect snapshot arguments and answers with claims beyond the evidence. |
+| Codex 0.169.0 and Claude Code 2.1.323 | The 0.2 checks covered install layout and version/help. Native discovery, host tool execution and natural questions were untested for 0.2. |
 
 Use the provided results for the tested versions, data and tools. Actual
 behavior depends on the host model, tool permissions, context, active scope
-and discovery configuration. [Candidate walkthrough](../release-candidate.md)
+and discovery configuration. [Local wheel walkthrough](../release-candidate.md)
 
 ## Data and feature compatibility
 
 The `.olav` layout and `OLAV_HOME` name continue, but historical database compatibility requires testing on an authorized copy. Available command views depend on inputs/parsers. Bounded metadata health checks, built-in topology relationships and vendor-specific parsed views have different coverage; the presence of one does not prove the others. Inspect actual context, missing sources and `absent_layers`.
 
-Native offline DuckDB is the reproducible flow in this manual. Retained server/API-client/DuckLake consumers and private WebUI integrations have independent contracts. A package install or local candidate test does not validate or switch those deployments.
+Native offline DuckDB is the reproducible flow in this manual. Retained server/API-client/DuckLake consumers and private WebUI integrations have independent contracts. Those deployments require their own verification and rollout.
 
 The public pack includes no collector connection, simulator, automatic memory/learning loop, generic agent harness, scheduling service or executable workflow runner. Two preserved portable workflows explicitly remain metadata-only with a missing simulator capability. Source references to absent historical tools do not add them to the product.
 

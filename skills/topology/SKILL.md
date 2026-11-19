@@ -132,11 +132,10 @@ Stop once evidence answers the question. Do not repeat unchanged failures or
 raise budgets; a corrective retry needs a real corrected argument within scope.
 Report unfinished scope and source/preview truncation.
 
-## Unreleased historical path candidate
+## Historical path query
 
 For paths between named devices in a recorded neighbor graph, read
 [historical topology paths](references/topology_paths.md) and use `inspect_path`
 with an exact snapshot. Preserve interfaces, parallel links and enumeration
 limits. A graph candidate does not prove forwarding, ECMP or operational failover.
 Missing or incomplete discovery must not become a claim of no network path.
-This local candidate is absent from published 0.1.1.

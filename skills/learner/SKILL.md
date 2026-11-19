@@ -56,7 +56,7 @@ Single-sample Python can be quarantined. Read [frozen layout](references/FROZEN_
 for persistence and lookup. No automatic promotion, retries or scheduled batch
 learning are provided. A parser update does not reparse historical rows by itself.
 
-## Unreleased version management and offline replay
+## Version management and offline replay
 
 For explicit candidate versions, independent expected-output validation,
 activation or rollback, read [parser lifecycle](references/parser_lifecycle.md)
@@ -69,5 +69,4 @@ project and needs authorization for that write.
 `olav-skills run learner reparse_snapshot` replays authorized stored raw into a
 new derived export under the lifecycle contract. It does not rewrite the source
 database or reconstruct missing captures. Preserve exact SID, raw/parser hashes,
-unknown collection time and partial last-writer source coverage. Both entries
-are unreleased candidates, not features in the published 0.1.1.
+unknown collection time and partial last-writer source coverage.

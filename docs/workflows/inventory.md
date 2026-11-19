@@ -31,7 +31,7 @@ A good fixture answer is: “This imported synthetic snapshot observes R1 and R2
 
 For “how many core switches?”, unknown role/class evidence leaves the classification unresolved. Do not promote hostname or platform guesses into a count. For “what is wrong today?”, first establish known collection dates and relevant sources; an older or unknown-time capture cannot answer a live-time question.
 
-## Unreleased counter baseline
+## Counter baselines
 
 For one reviewed device/interface, [metric baselines](../reference/metric-baselines.md)
 separate comparable historical intervals and a later target. Use the fixed
@@ -39,7 +39,7 @@ analyzer `analyze_baseline` entry, preserving capture clocks, units and
 discontinuity gaps. Percentiles of observed net counter deltas are references
 for review, not automatic health or alert-policy decisions.
 
-## OSPF and evidence checklist candidate
+## OSPF and evidence checklist
 
 Use [OSPF analysis](../reference/ospf-analysis.md) for recorded neighbor states
 and qualified historical record differences. Before an audit, define the

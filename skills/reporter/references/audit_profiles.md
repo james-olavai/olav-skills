@@ -1,7 +1,7 @@
-# One-time audit profiles (unreleased)
+# One-time audit profiles
 
-Use `olav-skills run reporter run_audit` from the installed bound interpreter.
-This candidate is not in published 0.1.1. The host supplies an authorized absolute
+Run `olav-skills run reporter run_audit` from the bound 0.2 interpreter.
+The host supplies an authorized absolute
 `OLAV_HOME`; no project/database or arbitrary command selector is accepted.
 
 ```json
@@ -95,6 +95,6 @@ because no historical vendor mapping is inferred for the caller's checklist.
 The caller defines the checklist's sufficiency; a ready selected list is not
 complete network collection, parser correctness, source authenticity or health.
 Without this optional policy, no denominator or age threshold is invented.
-The native candidate's official new imports retain historical raw/clock binding;
+New native imports in 0.2 retain historical raw/clock binding;
 old missing ledger history is not reconstructed and may remain unknown. Read
 [evidence readiness](../../analyzer/references/evidence_readiness.md).

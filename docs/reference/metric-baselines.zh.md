@@ -1,6 +1,6 @@
 # 已记录指标的历史基线
 
-这是未发布源码候选，已发布 `olav-skills==0.1.1` 不含此入口。宿主须先授权原生项目。
+Olav Skills 0.2 提供 `analyze_baseline`。宿主须先授权原生项目。
 
 ```sh
 export OLAV_HOME=/absolute/authorized/project

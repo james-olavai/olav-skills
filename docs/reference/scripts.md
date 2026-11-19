@@ -1,6 +1,6 @@
 # Script catalog and stdin/result protocol
 
-Use `olav-skills list` from the bound venv as the installed inventory. Version 0.1.1 exposes these public entry scripts; shared names under different skills can be wrappers around the same domain capability.
+Use `olav-skills list` from the bound venv as the installed inventory. The table lists the base scripts carried forward from 0.1.1; shared names under different skills can be wrappers around the same domain capability.
 
 | Skill | Script basenames |
 | --- | --- |
@@ -12,15 +12,15 @@ Use `olav-skills list` from the bound venv as the installed inventory. Version 0
 | topology | `list_recipes`, `prepare_recipe`, `query_batch`, `query_topology`, `rebuild_views`, `save_recipe` |
 | writer | `draw_topology`, `render_topology_drawio`, `render_topology_mermaid`, `render_topology_svg`, `topology_view_filter` |
 
-## Unreleased entry points
+## Additional 0.2 entry points
 
-Development candidates additionally provide analyzer `check_change_plan` and
-reporter `compare_state`. They are not in published 0.1.1. Read their
+Olav Skills 0.2 adds analyzer `check_change_plan` and reporter
+`compare_state`. Read their
 [plan pre-check](plan-precheck.md) and [state difference](state-diff.md)
 contracts before supplying JSON. Pre-check execution never approves a change;
 state differences describe supported observed records, not confirmed outages.
 
-The candidate also adds learner `manage_parser` / `reparse_snapshot`, analyzer
+Version 0.2 also adds learner `manage_parser` / `reparse_snapshot`, analyzer
 `export_query` / `run_investigation`, and reporter `evidence_bundle`. Read
 [parser lifecycle](parser-lifecycle.md), [full export](full-export.md),
 [investigation recipes](investigation-recipes.md) and
@@ -67,46 +67,43 @@ Library upper ceilings include 1000 rows, 8000 characters per cell, 1000000 resp
 
 For `query_evidence`, inspect match/total completeness, paging, excerpt bounds and date exclusions. Unknown-time candidate exclusions occur before body matching and are not match counts or a denominator to add to other counts. `no_dated_candidates` can leave a date question unresolved. See [reporter](../skills/reporter.md) for detailed date behavior, and each [skill page](../index.md#choose-a-skill) for domain parameters and write effects.
 
-## Native contract and historical-analysis candidate
+## Native contract and historical analysis
 
-Unreleased updates align `query_batch`, `compare_state` and
+Version 0.2 aligns `query_batch`, `compare_state` and
 `run_investigation` under [native contracts](native-contracts.md). Netops
 `diff_configs` follows the [historical config contract](config-diff.md).
 Reporter adds [compare_routes](route-changes.md),
 [compare_counters](counter-deltas.md) and [run_audit](audit-profiles.md).
 These fixed scripts retain the installed interpreter, stdin JSON protocol,
-source limits and unknown results; published 0.1.1 does not contain these updates.
+source limits and unknown results.
 
-## Report review and topology content candidate
+## Report review and topology changes
 
-Unreleased reporter `lint_report` checks explicit report claim/citation bindings
+Reporter `lint_report` checks explicit report claim/citation bindings
 against a caller-selected evidence context. Read [citation checks](report-citations.md)
 for coverage and trust boundaries; a valid reference is not a true claim.
 Reporter `compare_topology` compares two exact recorded snapshots and retains
 parallel endpoint/interface identities; read [topology changes](topology-changes.md).
-Unknown collection coverage and missing fields remain unknown. These entries
-are not included in published 0.1.1 or automatically exposed by WebUI.
+Unknown collection coverage and missing fields remain unknown. WebUI tool access depends on the private integration.
 
-## Historical paths and baseline candidate
+## Historical paths and metric baselines
 
-Unreleased topology `inspect_path` finds bounded interface-aware candidates in
+Topology `inspect_path` finds bounded interface-aware candidates in
 a recorded neighbor graph; read [topology paths](topology-paths.md). Analyzer
 `analyze_baseline` computes fixed-metric references from comparable historical
 intervals and a separate target; read [metric baselines](metric-baselines.md).
-Preserve unknown coverage, clocks, resets and enumeration limits. These entries
-are absent from published 0.1.1 and do not add WebUI tool permissions.
+Preserve unknown coverage, clocks, resets and enumeration limits. WebUI tool access depends on the private integration.
 
-## OSPF and evidence-readiness candidate
+## OSPF and evidence readiness
 
-Unreleased analyzer `analyze_ospf` supports captured OSPF inspection and
+Analyzer `analyze_ospf` supports captured OSPF inspection and
 qualified record differences; read [OSPF analysis](ospf-analysis.md).
 `check_evidence` checks an explicit device/command list against historical raw
 and parsed evidence plus an as-of/age policy; read
 [evidence readiness](evidence-readiness.md). `run_audit` adds explicit OSPF and
 optional checklist admission under [audit profiles](audit-profiles.md); its
 default three checks do not change. Native CLI imports now retain new capture
-provenance; legacy imports missing this history remain unknown. These updates
-are absent from published 0.1.1 and do not register WebUI tools.
+provenance; legacy imports missing this history remain unknown. WebUI tool registration depends on the private integration.
 
 ## Native snapshot-summary count scopes
 

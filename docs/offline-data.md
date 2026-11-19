@@ -1,15 +1,13 @@
 # First offline analysis: validate, import, query and report
 
-This guide targets `olav-skills` 0.1.1 installed with
-`python -m pip install olav-skills==0.1.1` or from a reviewed local wheel.
-No model, collector connection or credentials are needed for the synthetic
-example. Use the dedicated environment from
-[installation](installation.md). Examples use POSIX shell paths; substitute your
-actual absolute venv and a new analysis directory.
+Use the dedicated environment from [installation](installation.md) to run
+the synthetic example. It needs no model, collector connection or credentials.
+Examples use POSIX shell paths. Substitute your actual absolute venv path and a
+new analysis directory.
 
-For a reviewed 0.2.0 wheel, the candidate walkthrough extends this synthetic
-example with exact-snapshot data doctor and draft plan pre-checks.
-[Candidate walkthrough](release-candidate.md)
+The base workflow is also available in 0.1.1. The 0.2
+[local wheel walkthrough](release-candidate.md) adds exact-snapshot data
+doctor and draft plan pre-checks.
 
 ## Run the complete synthetic example
 

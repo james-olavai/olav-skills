@@ -6,7 +6,7 @@
 
 ## 先 pip 安装，再绑定
 
-在独立 Python 环境安装已发布的包，再按所用宿主选择绑定命令。[安装指南](installation.md)
+在独立 Python 环境安装 Olav Skills 0.2.0，再按所用宿主选择绑定命令。[安装指南](installation.zh.md)
 
 ```sh
 olav-skills install --harness codex --scope user
@@ -34,7 +34,7 @@ olav-skills install --harness pi --scope user
 2. 从绑定环境运行 `version`、`doctor`、`list`，再用已知夹具核对工具结果。[离线示例](offline-data.md)
 3. 若宿主已配置工具调用，先给定输入，核对指定调用的实际结果。再用同一份已知数据单独测试普通问法，检查激活的技能、工具实参、证据和最终回答。
 
-已测试的 Pi 配置未通过自然问答验收，最终本地 0.2.0 候选对留作独立验证的同义问法也未通过。Codex 和 Claude Code 的自然问答未测。[兼容性](reference/compatibility.md)
+已测试的 Pi 配置未通过自然问答验收，本地 0.2.0 测试中，留作独立验证的同义问法也未通过。Codex 和 Claude Code 的自然问答未测。[兼容性](reference/compatibility.md)
 
 不支持标准发现的宿主，可以读取导出到审阅位置的相关 SKILL.md，再通过文档中的 CLI 执行。不要虚构 `execute_skill_script` API。
 

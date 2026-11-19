@@ -1,7 +1,6 @@
 # Historical neighbor-graph paths
 
-Unreleased native candidate; published `olav-skills==0.1.1` lacks this entry.
-Use only the installed candidate's bound interpreter and an explicitly authorized
+In 0.2, use only the installed package's bound interpreter and an explicitly authorized
 absolute `OLAV_HOME`:
 
 ```sh

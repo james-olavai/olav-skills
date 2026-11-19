@@ -1,8 +1,8 @@
 # 报告引用校验
 
-未发布候选新增 `olav-skills run reporter lint_report`，将显式报告及 claim
+0.2 的 `olav-skills run reporter lint_report` 将显式报告及 claim
 映射与调用方固定的 scope/source/精确快照/hash 清单匹配。它不发现文件、不读
-数据仓库。已发布 `olav-skills==0.1.1` 尚无此入口。
+数据仓库。
 
 每个 claim 指定从 1 开始、两端包含的报告行范围和证据 ID；范围内字面标记
 `[evidence:E1]` 的集合必须与映射相等。所有非空行须归入不重叠范围；标题或

@@ -1,8 +1,6 @@
 # Offline evidence bundles
 
-This is an unreleased candidate capability. It is available through
-`olav-skills run reporter evidence_bundle` after installing a reviewed
-candidate. The input is one JSON object on stdin.
+Use `olav-skills run reporter evidence_bundle` in 0.2 with one JSON object on stdin.
 
 ## Prepare and verify a delivery
 

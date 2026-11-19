@@ -1,6 +1,6 @@
 # Management CLI reference
 
-This reference describes `olav-skills` **0.1.1**. Use the executable in the selected venv, or `/absolute/path/to/skills-venv/bin/python -m olav_skills`. The available management commands are:
+This reference describes `olav-skills` **0.2**. Use the executable in the selected venv, or `/absolute/path/to/skills-venv/bin/python -m olav_skills`. The available management commands are:
 
 ```text
 olav-skills [-h] {version,list,doctor,export,install,run} ...
@@ -17,10 +17,10 @@ olav-skills [-h] {version,list,doctor,export,install,run} ...
 
 `doctor` returns 0 when base dependencies/resources are present and 1 when they are missing. Management validation/filesystem failures normally return 2 and a stderr message; argument parsing also uses normal argparse failures. `run` forwards script stdout, stderr and exit status. Inspect script content/status as well as process success.
 
-## Unreleased data readiness
+## Data readiness
 
-A source development candidate adds `doctor --data --project ABSOLUTE_PATH`
-with optional `--snapshot-id EXACT_ID`. It is not in the published 0.1.1.
+Use `doctor --data --project ABSOLUTE_PATH` with optional
+`--snapshot-id EXACT_ID`.
 The selected native project is inspected read-only; without `--data`, project
 and snapshot selectors are rejected. See [data readiness](../data-readiness.md)
 for scope, limits, execution status versus capability readiness and unknown
@@ -56,17 +56,15 @@ Name validation is not a sandbox. The scripts still run with process permissions
 
 This knowledge-only exporter is not a `portable` management subcommand. It requires installed resources and a new canonical destination; see [its full contract](../portable.md). The CLI contains no chat, model setup, collector, service, schedule, simulator, general database administration or automatic migration command.
 
-## Unreleased reproducible entry scripts
+## Parser, investigation and evidence scripts
 
-Candidate scripts use the existing `run SKILL SCRIPT` dispatcher, not new
-management subcommands: learner `manage_parser` / `reparse_snapshot`, analyzer
-`export_query` / `run_investigation`, reporter `evidence_bundle`. They are not
-available in published 0.1.1. See the [script catalog](scripts.md) and the linked
+Run these scripts through `run SKILL SCRIPT`: learner `manage_parser` / `reparse_snapshot`, analyzer
+`export_query` / `run_investigation`, reporter `evidence_bundle`. See the [script catalog](scripts.md) and the linked
 contracts for required JSON, write effects and completeness/unknown semantics.
 
-## Additional unreleased scripts
+## Historical comparison and audit scripts
 
 The existing dispatcher also carries reporter `compare_routes`,
-`compare_counters` and `run_audit` in this local candidate. Native query/state
+`compare_counters` and `run_audit`. Native query/state
 semantics and netops `diff_configs` have updated source contracts. Read the
 [script catalog](scripts.md); no new management subcommands or scheduler exist.

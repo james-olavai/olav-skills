@@ -9,8 +9,8 @@ If your administrator has set up the private integration, see how to select your
 
 ## Install with pip, then bind
 
-Install the published package in a dedicated Python environment, then choose
-the binding for your harness. [Installation](installation.md)
+Install Olav Skills 0.2.0 in a dedicated Python environment, then choose the
+binding for your harness. [Installation](installation.md)
 
 ```sh
 olav-skills install --harness codex --scope user
@@ -46,7 +46,7 @@ Each installed skill has `olav-runtime.json` and `.olav-skills-install.json`. It
    arguments, evidence and final answer.
 
 The tested Pi configuration failed natural-question qualification, including
-held-out wording on the final local 0.2.0 candidate. Codex and Claude Code
+held-out wording in the local 0.2.0 test. Codex and Claude Code
 natural questions were untested. [Compatibility](reference/compatibility.md)
 
 For a host without standard discovery, export resources to a reviewed location and provide only the relevant SKILL.md to its model. Dispatch through the documented CLI, not an invented `execute_skill_script` API.

@@ -84,16 +84,16 @@ Stop once evidence answers the question. Do not repeat unchanged failures or
 raise budgets; a corrective retry needs a real corrected argument within scope.
 Report unfinished scope and source/preview truncation.
 
-## Native state interpretation (unreleased)
+## Native state interpretation
 
 For default IOS/Junos parsing and the shared interface/BGP record semantics,
 read [native contracts](../netops/references/native_contracts.md). Keep protocol
 families distinct from line states, unknown distinct from nonhealthy, and
 current inventory metadata distinct from historical source membership.
 
-## Unreleased native capture ledger
+## Native capture ledger
 
-The reviewed candidate's official native `ingest_snapshot` entry stores new raw
+The native `ingest_snapshot` entry in 0.2 stores new raw
 records and bounded capture provenance in the same database transaction as
 parsed records. Historical SID/device/command and the actual stored raw hash
 remain bound after later imports. Command collection headers must be real
@@ -101,5 +101,4 @@ evidence; import time or an SID is not a substitute. Old imports without a
 ledger are not backfilled, and direct legacy library calls retain their stated
 limits. See [evidence readiness](../analyzer/references/evidence_readiness.md)
 before interpreting a checklist as ready. This does not certify redaction,
-source authenticity, parsing correctness or network coverage, and is absent
-from published 0.1.1.
+source authenticity, parsing correctness or network coverage.

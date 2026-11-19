@@ -1,7 +1,6 @@
 # Recorded metric baselines
 
-Unreleased source candidate; published `olav-skills==0.1.1` does not include this
-entry point. The host must authorize the selected native project.
+Olav Skills 0.2 provides `analyze_baseline`. The host must authorize the selected native project.
 
 ```sh
 export OLAV_HOME=/absolute/authorized/project

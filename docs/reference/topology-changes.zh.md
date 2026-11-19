@@ -1,12 +1,12 @@
 # 记录拓扑变化
 
-这个尚未发布的 native 候选支持精确双快照比较：
+在 Olav Skills 0.2 中，使用以下命令比较两个精确快照：
 
 ```sh
 printf '%s' '{"snapshot_id_1":"before-id","snapshot_id_2":"after-id"}' | olav-skills run reporter compare_topology
 ```
 
-显式设置已授权的绝对路径 `OLAV_HOME`。已发布的 0.1.1 不含这个入口。
+显式设置已授权的绝对路径 `OLAV_HOME`。
 默认 `source="parsed_neighbors"` 使用历史解析记录，仅支持 Cisco IOS 的精确命令
 `show cdp neighbors detail`、`show lldp neighbors detail`。两侧设备/命令父来源范围
 须一致。端点包含设备与接口，规范方向和接口缩写，保留并行链路，并比较聚合后的

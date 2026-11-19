@@ -1,9 +1,9 @@
 # 变更计划记录预检
 
-**未发布开发候选。** PyPI 0.1.1 没有 `check_change_plan`。
+Olav Skills 0.2 提供 `check_change_plan`。
 该检查器不执行命令，也不批准上线。
 
-候选安装后，固定授权项目及显式 snapshot，调用
+固定授权项目及显式 snapshot，调用
 `olav-skills run analyzer check_change_plan`，stdin 是一个 JSON 对象：
 
 ```json

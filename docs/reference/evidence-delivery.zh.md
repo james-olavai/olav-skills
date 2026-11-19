@@ -1,7 +1,6 @@
 # 离线证据报告包
 
-此能力随未发布候选提供。安装已审阅的候选版本后，可通过
-`olav-skills run reporter evidence_bundle` 执行。标准输入接收一个 JSON 对象。
+在 0.2 中执行 `olav-skills run reporter evidence_bundle`。标准输入接收一个 JSON 对象。
 
 ## 创建和校验
 

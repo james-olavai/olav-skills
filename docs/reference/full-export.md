@@ -1,7 +1,7 @@
 # Export recorded rows
 
-The unreleased native candidate provides `olav-skills run analyzer export_query`.
-Use a reviewed candidate build on 64-bit Linux with OFD locks available. The
+Use `olav-skills run analyzer export_query` in 0.2 on 64-bit Linux with OFD
+locks available. The
 process needs read access to an explicitly authorized native project and write
 access to its `.olav/exports` directory. Set `OLAV_HOME` to the same absolute
 project path before invoking the script.

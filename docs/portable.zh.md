@@ -1,6 +1,6 @@
 # Portable 知识导出
 
-在独立 Python 环境安装 `olav-skills` 0.1.1 后，可从任意工作目录执行：
+在独立 Python 环境安装 `olav-skills` 0.2.0 后，可从任意工作目录执行：
 
 ```sh
 /absolute/path/to/skills-venv/bin/python -I -B -m olav_skills.portable --out /absolute/new-directory

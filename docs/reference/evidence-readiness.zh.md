@@ -1,8 +1,8 @@
-# 显式巡检证据覆盖与时效（未发布）
+# 显式巡检证据覆盖与时效
 
 两项时效政策须来自用户明确要求或实际授权宿主政策；缺核查时点或最大年龄时先询问，不用采集时间冒充核查时点，不自定默认年龄，也不以示例参数代替用户政策。
 
-本地源码候选，已发布的0.1.1不包含此入口。宿主授权后固定`OLAV_HOME`，
+在 0.2 中，宿主授权后固定 `OLAV_HOME`，
 运行`olav-skills run analyzer check_evidence`，stdin只接受四字段：
 
 ```json
@@ -18,7 +18,7 @@ max_age_seconds为0–315576000整数，无默认24小时政策。
 source_json.raw_artifact四字段完整key一致，actual_raw_sha256与原文实际hash一致。
 错key/hash、重复原文或解析源整次失败。不退到last-writer表冒充完整历史。
 缺历史表或精确SID无任何账本行为未知；精确SID已有账本覆盖而缺要求pair才为missing。
-本批未发布native官方导入入口为新导入同事务写历史账本；旧数据不回填，
+0.2 原生导入入口在同一事务内为新导入写历史账本；旧数据不回填，
 后续新导入建表不改变旧SID无历史来源的unknown，不从last-writer补造历史来源。
 
 解析结果独立读历史`netops.parsed_outputs`。nonempty仅表示非空JSON对象列表，

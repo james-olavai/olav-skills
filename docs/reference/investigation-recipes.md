@@ -1,7 +1,7 @@
 # Recorded investigation recipes
 
 Use `olav-skills run analyzer run_investigation` with one stdin JSON object and
-an authorized absolute `OLAV_HOME`. Published 0.1.1 does not contain this candidate.
+an authorized absolute `OLAV_HOME`. The entry point is available in 0.2.
 
 ```json
 {"recipe":"interfaces","snapshot_id":"capture-a","devices":["R1"],"limit":10}

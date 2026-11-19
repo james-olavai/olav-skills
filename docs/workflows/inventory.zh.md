@@ -31,13 +31,13 @@ export OLAV_HOME=/absolute/path/to/new-synthetic-analysis
 
 对于“核心交换机多少台”，角色/类别证据未知就无法确定分类，不能把名称或平台猜测变成计数。对于“今天哪里不对”，先确认已知采集日期和相关来源；较旧或未知时间的采集不能回答实时问题。
 
-## 未发布的计数器基线
+## 计数器基线
 
 对指定设备和接口，按[指标基线](../reference/metric-baselines.zh.md)将可比历史区间
 与之后的目标区间分开，使用固定 analyzer `analyze_baseline` 入口。保留采集时钟、
 单位与计数不连续缺口；观测计数器净增量的百分位仅供审阅，不自动认证健康或配置告警。
 
-## OSPF与证据清单候选
+## OSPF 与证据清单
 
 按[OSPF分析](../reference/ospf-analysis.zh.md)检查邻居观测与历史记录差异。
 巡检前明确设备/命令预期清单和采集时效政策，使用

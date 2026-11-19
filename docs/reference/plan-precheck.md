@@ -1,9 +1,8 @@
 # Recorded change-plan checks
 
-**Unreleased development candidate.** Published PyPI 0.1.1 does not contain
-`check_change_plan`. This checker never executes a command or approves a change.
+Olav Skills 0.2 provides `check_change_plan`. This checker never executes a command or approves a change.
 
-With the candidate installed, use the authorized project and an explicit snapshot:
+Use the authorized project and an explicit snapshot:
 
 ```sh
 OLAV_HOME=/authorized/project olav-skills run analyzer check_change_plan <<'JSON'

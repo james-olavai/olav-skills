@@ -10,19 +10,20 @@ This repository is the maintained source of the standalone product. The new dist
 is `olav_skills`, and its command is `olav-skills`. The former `olav` and
 `olav-netops` Python distributions are not dependencies.
 
-## Local 0.2.0 candidate
+## Olav Skills 0.2
 
-The source targets **0.2.0**, an unpublished candidate available for review
-through a supplied local wheel. Follow the [candidate walkthrough](docs/release-candidate.md)
-to install and bind it, import the synthetic bundle, run data doctor, query
-inventory and topology, and check a draft change plan. The pre-check always
-reports `not_approved`. An engineer or the host drafts the plan.
+Use the CLI to check data readiness, query a specific snapshot and pre-check a
+draft change plan against recorded evidence. The pre-check always returns
+`not_approved`. An engineer or the host drafts the plan. The
+[local wheel walkthrough](docs/release-candidate.md) demonstrates these steps
+with synthetic data.
 
-The local installer and specified scripts were verified. Natural questions in
-the tested Pi setup failed qualification, including the held-out wording. Codex
-and Claude Code natural questions were untested. See [compatibility](docs/reference/compatibility.md).
+Local package checks covered installation layouts and specified scripts.
+Natural questions in the tested Pi setup failed qualification, including
+the held-out wording. Codex and Claude Code natural questions were untested.
+See [compatibility](docs/reference/compatibility.md).
 
-## Install published 0.1.1
+## Install 0.2.0
 
 Public source: [james-olavai/olav-skills](https://github.com/james-olavai/olav-skills).
 
@@ -32,7 +33,7 @@ install the package from PyPI:
 ```sh
 python3 -m venv ~/.venvs/olav-skills
 . ~/.venvs/olav-skills/bin/activate
-python -m pip install olav-skills==0.1.1
+python -m pip install olav-skills==0.2.0
 ```
 
 Next, bind the bundled skills to your harness. Choose one:
@@ -106,11 +107,9 @@ product and public documentation site have separate migration gates. This packag
 also supplies its own bounded portable knowledge exporter; see its separate contract.
 This native package does not replace them or claim their acceptance.
 
-## Unreleased deterministic capabilities
+## Deterministic capabilities in 0.2
 
-The source development candidate adds the following capabilities. They are not
-included in the published `olav-skills==0.1.1`; use a reviewed candidate build
-and repeat the harness binding after installation.
+These additions and updated contracts apply to Olav Skills 0.2.
 
 - Data readiness: `olav-skills doctor --data --project /absolute/project`
   inspects an explicitly selected native project without changing it. See
@@ -168,7 +167,7 @@ and repeat the harness binding after installation.
 - Audit evidence: analyzer `check_evidence` checks an explicit device/command
   list, capture-time policy and historical raw/parsed bindings; see
   [evidence readiness](docs/reference/evidence-readiness.md). Native CLI imports
-  in this candidate retain new raw capture provenance transactionally; old
+  in 0.2 retain new raw capture provenance transactionally; old
   missing history is not reconstructed. `run_audit` can require this gate and
   run an explicit OSPF profile without expanding its default three checks.
 

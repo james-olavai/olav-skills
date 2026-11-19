@@ -1,13 +1,13 @@
-# Try the unpublished 0.2.0 candidate locally
+# Review an Olav Skills 0.2.0 wheel locally
 
-**0.1.1 is the published PyPI release.** The steps on this page use a reviewed
-local **0.2.0** wheel. Run them with Python 3.11 or newer in a POSIX shell.
-The synthetic fixture and tools run without a model, credentials or device access.
-[Published installation](installation.md)
+Use a supplied **0.2.0** wheel to run the synthetic workflow in an isolated
+environment with Python 3.11 or newer and a POSIX shell. The fixture and tools
+run without a model, credentials or device access.
+[Standard installation](installation.md)
 
 ## Install the runtime and bind the skills
 
-Set `WHEEL` to your supplied local candidate and `WHEELHOUSE` to a directory
+Set `WHEEL` to the supplied wheel and `WHEELHOUSE` to a directory
 of compatible dependency wheels. Compare the wheel's SHA-256 with the value
 supplied by your reviewer before installing. Use a new work directory so the
 exercise starts with an empty home and project.
@@ -139,7 +139,8 @@ the environment and binding leaves imported data and artifacts in place.
 
 ## Harness qualification
 
-The local install and specified scripts passed on synthetic data. The tested
-Pi natural-question setup failed qualification, including the held-out wording
-on the final candidate. Codex and Claude Code natural questions were untested.
+Local package checks exercised installation layout and specified scripts
+on synthetic data. An earlier test of the 0.2 code in Pi failed natural-question
+qualification, including the held-out wording. Codex and Claude Code natural
+questions were untested.
 [Compatibility and evidence levels](reference/compatibility.md)

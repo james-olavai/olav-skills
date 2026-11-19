@@ -1,6 +1,6 @@
 # Native introspection cache
 
-The local 0.2.0 candidate refreshes `netops.value_profile` and
+Version 0.2 refreshes `netops.value_profile` and
 `netops.introspection_cache` as part of native DuckDB ingest finalisation.
 Use these as discovery hints within the authorized project. Prefer a supported
 bounded query, then verify any chosen fields and values against the intended

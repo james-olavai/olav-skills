@@ -1,8 +1,8 @@
 # Full export of a fixed recorded scope
 
-Use the unreleased `export_query` script when the user explicitly asks for all
+In 0.2, use `export_query` when the user explicitly asks for all
 stored rows in a supported exact snapshot scope and authorizes a project output.
-Use `execute_sql` for ad hoc bounded analysis. Select the candidate's bound Python
+Use `execute_sql` for ad hoc bounded analysis. Select the installed package's bound Python
 on Linux. Set `OLAV_HOME` to the authorized absolute project and supply that same
 path in the request.
 

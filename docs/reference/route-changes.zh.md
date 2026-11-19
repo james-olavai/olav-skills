@@ -1,6 +1,6 @@
 # 历史路由比较
 
-`compare_routes` 可用于尚未发布的原生 Skills 候选版本。它在 `OLAV_HOME` 指定的项目中，比较两个精确快照 ID 下的 Cisco IOS 路由解析记录。
+Olav Skills 0.2 提供 `compare_routes`。它在 `OLAV_HOME` 指定的项目中，比较两个精确快照 ID 下的 Cisco IOS 路由解析记录。
 
 ```sh
 export OLAV_HOME=/absolute/path/to/authorized/project

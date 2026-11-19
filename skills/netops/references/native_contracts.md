@@ -1,6 +1,6 @@
 # Native interface and BGP state contracts
 
-Unreleased standalone candidate. Use the native importer and the fixed `query_batch`, `run_investigation`, or `compare_state` entry with the host-authorized `OLAV_HOME`. Use explicit recorded snapshot IDs for historical evidence.
+In 0.2, use the native importer and the fixed `query_batch`, `run_investigation`, or `compare_state` entry with the host-authorized `OLAV_HOME`. Use explicit recorded snapshot IDs for historical evidence.
 
 - IOS interface health reads `status` and line `proto`. Junos reads `admin_state` and `link_state`. Junos `proto` carries family, and legacy missing admin state stays unknown. `up` in both state components is healthy. A known non-up state is nonhealthy. Unrecognized or incomplete state stays unknown unless the other component is known non-up.
 - IOS BGP uses `bgp_neighbor` and `state_or_prefixes_received`. Native Junos uses `peer_ip` and `state`. A Junos view may expose the explicit compatible IOS field pair. A nonnegative numeric prefix count implies Established only in the prefix-count profile. Unknown native state remains unknown. Two complete Junos profiles are ambiguous.

@@ -1,6 +1,6 @@
 # Interface counter deltas
 
-`reporter compare_counters` is available in the unreleased native candidate. It compares recorded cumulative counters from two explicit historical Cisco IOS `show interfaces` observations.
+`reporter compare_counters` is available in Olav Skills 0.2. It compares recorded cumulative counters from two explicit historical Cisco IOS `show interfaces` observations.
 
 ```bash
 printf '%s\n' '{

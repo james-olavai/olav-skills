@@ -1,4 +1,4 @@
-# Recorded OSPF analysis (unreleased)
+# Recorded OSPF analysis
 
 The top-level `assessment` keeps `persistence_status` and `root_cause_status`
 unknown and `confirmed_stuck_count` null, including empty input, all-Full rows
@@ -22,9 +22,8 @@ Do not claim the project has only one capture merely because only one was
 queried. Resolve requested names using an authorized catalog or source metadata;
 if resolution is unavailable ask, rather than substituting latest.
 
-`olav-skills run analyzer analyze_ospf` takes one stdin JSON object. This local
-candidate is absent from published 0.1.1; use a separately reviewed next release
-and host authorization. Set `OLAV_HOME` to the authorized absolute native
+In 0.2, `olav-skills run analyzer analyze_ospf` takes one stdin JSON object.
+Run it with host authorization. Set `OLAV_HOME` to the authorized absolute native
 project. Linux native DuckDB only; no device access or warehouse support.
 
 ```json

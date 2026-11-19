@@ -1,6 +1,6 @@
-# Recorded metric baseline (unreleased)
+# Recorded metric baseline
 
-This development candidate is absent from published 0.1.1. Use
+In 0.2, use
 `olav-skills run analyzer analyze_baseline` with an explicitly authorized native
 `OLAV_HOME`. The operation reads one pinned database version and writes no
 source data, monitoring rule or alert schedule.

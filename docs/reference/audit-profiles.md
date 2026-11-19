@@ -1,7 +1,7 @@
 # One-time audit profiles
 
-Use `olav-skills run reporter run_audit` from the installed bound interpreter.
-This candidate is not in published 0.1.1. The host supplies an authorized absolute
+Run `olav-skills run reporter run_audit` from the bound 0.2 interpreter.
+The host supplies an authorized absolute
 `OLAV_HOME`; no project/database or arbitrary command selector is accepted.
 
 ```json
@@ -67,7 +67,7 @@ append findings to databases, register new WebUI tools or grant permissions.
 
 ## OSPF and explicit evidence admission
 
-The unreleased `ospf` profile checks recorded OSPF observations with
+The `ospf` profile checks recorded OSPF observations with
 [OSPF analysis](ospf-analysis.md); default baseline remains three checks.
 An optional `evidence_check` object accepts exactly `requirements`, `as_of`,
 and `max_age_seconds` under the same parent snapshot. Read

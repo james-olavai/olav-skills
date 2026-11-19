@@ -55,7 +55,7 @@ simulation. For text use reporter's `query_evidence` or analyzer's `search_logs`
 read the [evidence contract](../netops/references/evidence_query.md), since
 argument names, date scope and paging differ.
 
-## Unreleased investigation and file export
+## Investigation and file export
 
 For the fixed recorded inventory, interface or BGP investigation, use
 `olav-skills run analyzer run_investigation` after reading its
@@ -67,8 +67,7 @@ For a requested file beyond the SQL preview, read the
 [full-export contract](references/full_export.md) before using
 `olav-skills run analyzer export_query`. Keep the bound source version and
 inspect complete/partial/failed status; a saved file does not establish full
-source coverage. These candidate entries are not in published 0.1.1 and require
-separate host authorization.
+source coverage. These entries require separate host authorization.
 
 ## Draft changes only when requested
 
@@ -83,15 +82,15 @@ Return Markdown with summary, scope, implementation, rollback, verification,
 risks and pre-change review. Write a file only via an authorized host file tool,
 or report inline if none exists. No framework automatically saves or stops a
 plan. A draft does not simulate, validate or apply a network change.
-## Unreleased plan checks
+## Plan checks
 
-The development candidate adds `olav-skills run analyzer check_change_plan`.
+Version 0.2 provides `olav-skills run analyzer check_change_plan`.
 Read the [pre-check contract](references/plan_precheck.md) before supplying a
 plan and explicit authorized project/snapshot. Distinguish structured semantic
 checks from Markdown structure checks, and preserve unknown source, platform,
 address/VRF and capture coverage. Address overlap alone does not prove a
-conflict, and a plan remains unapproved even when supported checks pass. The
-published 0.1.1 and restricted hosts without this capability cannot run it.
+conflict, and a plan remains unapproved even when supported checks pass.
+Run it only where the host grants this capability.
 
 ## Evidence boundaries
 
@@ -115,14 +114,14 @@ Stop once evidence answers the question. Do not repeat unchanged failures or
 raise budgets; a corrective retry needs a real corrected argument within scope.
 Report unfinished scope and source/preview truncation.
 
-## Native state interpretation (unreleased)
+## Native state interpretation
 
 For default IOS/Junos parsing and the shared interface/BGP record semantics,
 read [native contracts](../netops/references/native_contracts.md). Keep protocol
 families distinct from line states, unknown distinct from nonhealthy, and
 current inventory metadata distinct from historical source membership.
 
-## Unreleased historical baseline candidate
+## Historical metric baselines
 
 For a selected interface counter's recorded baseline and a separate target
 interval, read [metric baselines](references/metric_baselines.md), then use
@@ -130,9 +129,8 @@ interval, read [metric baselines](references/metric_baselines.md), then use
 and discontinuity checks. Statistics describe observed net deltas per second;
 unknown clocks and resets must not become zero. A percentile reference is a
 review suggestion, not certification of health or an automatic alert policy.
-This local candidate is absent from published 0.1.1.
 
-## OSPF and audit evidence (candidate)
+## OSPF and audit evidence
 
 For neighbor states, read [OSPF analysis](references/ospf_analysis.md), then
 use `analyze_ospf`. A single transition cannot prove a stuck session: keep that
@@ -140,5 +138,4 @@ unknown in the conclusion itself, not just a later caveat. For an explicit
 checklist, read [evidence readiness](references/evidence_readiness.md).
 Only call `check_evidence` when both as-of and maximum-age policy are explicit
 from the user or an authorized host policy. Missing either means ask first;
-never borrow capture time as as-of or invent a default age. These candidates
-are absent from published 0.1.1.
+never borrow capture time as as-of or invent a default age.

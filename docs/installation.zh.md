@@ -12,10 +12,10 @@ python3 -m venv ~/.venvs/olav-skills
 ## 第一步：安装包
 
 ```sh
-python -m pip install olav-skills==0.1.1
+python -m pip install olav-skills==0.2.0
 ```
 
-此命令固定当前已发布版。后续命令在同一环境执行。未发布的 0.2.0 候选使用经审阅的本地 wheel。[候选版上手](release-candidate.md)
+后续命令在安装 0.2.0 的同一环境执行。若使用已有的 wheel，请参考[本地 wheel 示例](release-candidate.zh.md)。
 
 ## 第二步：绑定到所用 harness
 
@@ -107,7 +107,7 @@ printf '%s' '{"sql":"SELECT hostname FROM netops.devices ORDER BY hostname"}' | 
 离线或使用审阅过的发行物时，先核对提供的 SHA-256，再用本地 wheel **替代**第一步中的 PyPI 安装命令：
 
 ```sh
-python -m pip install /absolute/path/to/olav_skills-0.1.1-py3-none-any.whl
+python -m pip install /absolute/path/to/olav_skills-0.2.0-py3-none-any.whl
 ```
 
 离线环境也需备齐依赖。随后仍按第二步绑定 harness；wheel 包含相同的 Python 代码及七个技能。源码贡献者可在 checkout 中使用 `python -m pip install .`，普通用户无需这样安装。发行验证使用新环境中的非 editable wheel。依赖由 `pyproject.toml` 声明，不依赖 DeepAgents 或 LangGraph。

@@ -81,7 +81,7 @@ plugins:
             Compatibility: 兼容性与验证
             Project: 项目
             Migration: 迁移
-            Candidate review: 候选审阅
+            Local wheel review: 本地 wheel 审阅
             Cache introspection: 缓存内省
             Changelog: 版本记录
             License: 许可
@@ -115,7 +115,7 @@ nav:
   - Start:
       - Overview: index.md
       - Installation: installation.md
-      - Candidate review: release-candidate.md
+      - Local wheel review: release-candidate.md
       - First offline analysis: offline-data.md
       - Harness setup: harnesses.md
       - Open WebUI guide: openwebui.md

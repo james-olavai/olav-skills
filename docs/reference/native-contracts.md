@@ -1,6 +1,6 @@
 # Native interface and BGP records
 
-These changes are in an unreleased standalone candidate. Published `olav-skills==0.1.1` does not include the parser and query updates described here.
+This page describes the native parser and query contracts in Olav Skills 0.2.
 
 | Recorded command | State source | Interpretation |
 | --- | --- | --- |

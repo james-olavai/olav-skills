@@ -1,6 +1,6 @@
 # Historical route comparison
 
-`compare_routes` is available in the unreleased native Skills candidate. It compares historical Cisco IOS parsed route records for two exact snapshot IDs in the project selected by `OLAV_HOME`.
+`compare_routes` is available in Olav Skills 0.2. It compares historical Cisco IOS parsed route records for two exact snapshot IDs in the project selected by `OLAV_HOME`.
 
 ```sh
 export OLAV_HOME=/absolute/path/to/authorized/project

@@ -1,7 +1,6 @@
-# Recorded content differences (unreleased)
+# Recorded content differences
 
-Published PyPI 0.1.1 does not contain this source candidate. After installing a
-validated release that includes it, use:
+For recorded content differences in 0.2, run:
 
 ```sh
 printf '%s' '{"source":"interfaces_ios","snapshot_id_1":"before","snapshot_id_2":"after","device":"edge-a","limit":20}' | olav-skills run reporter compare_state
@@ -32,7 +31,7 @@ counts null and diff unknown, never zero. Fixed parameterized SQL, read-only
 DB, whole-query deadline, memory/row/cell/byte bounds are enforced. Do not
 retry unchanged failures or raise host budgets to obtain a reassuring answer.
 
-The current unreleased candidate shares [native state contracts](../../netops/references/native_contracts.md).
+Version 0.2 shares [native state contracts](../../netops/references/native_contracts.md).
 Junos BGP accepts its native peer_ip/state or explicit compatible field pair;
 Junos admin state is compared separately from link state and protocol family.
 Legacy missing admin remains unknown. Simultaneous BGP field pairs or duplicate

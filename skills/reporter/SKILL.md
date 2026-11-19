@@ -58,7 +58,7 @@ keys, not content. `inspect_blast_radius` is available under analyzer/netops;
 it models graph connectivity loss, not Batfish, policy or live reachability.
 Validate target names and `validation_warnings` before interpreting counts.
 
-For content-level changes, the unreleased candidate adds
+For content-level changes, 0.2 provides
 `olav-skills run reporter compare_state`; read its
 [scope and source contract](references/state_changes.md) first. Pin both
 snapshot IDs and the supported source. Historical per-command views may hide
@@ -67,7 +67,7 @@ Record changes and missing coverage do not prove network outages.
 
 ## Supplied-plan pre-check
 
-The unreleased candidate provides analyzer's deterministic
+Version 0.2 provides analyzer's deterministic
 `olav-skills run analyzer check_change_plan`; read the
 [pre-check contract](../analyzer/references/plan_precheck.md) for structured
 inputs versus Markdown-only checks. Preserve each pass/fail/unknown finding and
@@ -93,7 +93,7 @@ It packages/validates integrity and freshness, not report truth or authorship.
 An authentic manifest pin needs a separate trusted channel. Read existing files
 before editing; there is no automatic append pipeline.
 
-## Unreleased historical analysis and audits
+## Historical analysis and audits
 
 Use `compare_routes` after reading [route changes](references/route_changes.md)
 for supported source profiles, verified routing context and multipath semantics.
@@ -107,10 +107,9 @@ For raw configuration text use netops `diff_configs` under its
 [audit profiles](references/audit_profiles.md). Preserve per-rule concern,
 unknown and not-executed states. Partial execution leaves the overall result
 unknown. A pass is limited to the selected observed check, not network health.
-These local candidates are not in published 0.1.1 or automatically authorized
-as WebUI tools.
+WebUI tool authorization is controlled by the integration.
 
-## Unreleased report review and topology changes
+## Report review and topology changes
 
 For a report with explicit evidence bindings, use `lint_report` after reading
 [report citation checks](references/report_citations.md). Check coverage and

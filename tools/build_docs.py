@@ -69,6 +69,15 @@ def main():
     mapping = json.loads((ROOT / 'docs-url-map.json').read_text())['routes']
     aliases = []
     reused = []
+    permanent = {
+        '/quickstart/': '/installation/',
+        '/zh/quickstart/': '/zh/installation/',
+        '/query/': '/offline-data/',
+        '/zh/query/': '/zh/offline-data/',
+    }
+    for destination in permanent.values():
+        if not page_for(site, destination).is_file():
+            raise ValueError('missing permanent redirect target: ' + destination)
     for row in mapping:
         target_page = page_for(site, row['new'])
         if not target_page.is_file():
@@ -109,8 +118,18 @@ def main():
                    f'<title>Documentation moved</title></head><body><p><a href="{target}">'
                    'Open the current documentation / 查看新版文档</a></p></body></html>')
         alias.write_text(content)
+        if set(legacy_ids) <= set(target_ids):
+            permanent[row['old']] = row['new']
         aliases.append({'old': row['old'], 'new': row['new'], 'legacy': legacy,
                         'legacy_anchor_count': len(legacy_ids), 'current_anchor_count': len(target_ids)})
+    redirects_path = site / '_redirects'
+    rules = redirects_path.read_text().rstrip() + '\n' if redirects_path.exists() else ''
+    for source, destination in sorted(permanent.items()):
+        rules += f'{source} {destination} 301\n{source.rstrip("/")} {destination} 301\n'
+    redirects_path.write_text(rules)
+    (site / 'robots.txt').write_text(
+        'User-agent: *\nAllow: /\n\nSitemap: https://docs.olavai.com/sitemap.xml\n'
+    )
     removed_search = 0
     for index in site.rglob('search_index.json'):
         data = json.loads(index.read_text())
@@ -143,7 +162,8 @@ def main():
               'reused_current_routes': reused,
               'legacy_search_entries_removed': removed_search,
               'legacy_sitemap_urls_removed': removed_sitemap,
-              'redirect_transport': 'HTML location.replace with no-script meta refresh; not a verified HTTP301 deployment'}
+              'http_permanent_redirects': permanent,
+              'redirect_transport': 'HTTP 301 for anchor-compatible aliases, with HTML compatibility pages for archived anchors'}
     (site / 'docs-build-manifest.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps({'site_dir': str(site), 'legacy_source_files': len(provenance['files']), 'compatibility_aliases': len(aliases)}))
 

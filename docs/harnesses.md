@@ -9,7 +9,7 @@ If your administrator has set up the private integration, see how to select your
 
 ## Install with pip, then bind
 
-Install Olav Skills 0.2.0 in a dedicated Python environment, then choose the
+Install Olav Skills 0.2.2 in a dedicated Python environment, then choose the
 binding for your harness. [Installation](installation.md)
 
 ```sh

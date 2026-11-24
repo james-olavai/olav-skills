@@ -2,20 +2,44 @@
 
 Olav Skills pairs seven standard network-analysis skills with a standalone Python runtime for **recorded, offline network data**. Use its CLI to import a capture, inspect devices and interfaces, query protocol relationships, compare snapshots and create evidence and diagrams. An existing AI harness can discover the skills and run the tools under its own permissions.
 
-## Start with a reproducible result
+## How Olav fits into your network
 
-- **Olav Skills 0.2.0.** Install the pinned package, then import the synthetic bundle and check the exact device set R1/R2, a recorded CDP link and an R1 evidence fragment. [Installation](installation.md) · [Offline example](offline-data.md)
-- **Review a local wheel.** Verify a supplied wheel and run the synthetic workflow, including data doctor and draft change-plan pre-checks. [Local wheel walkthrough](release-candidate.md)
-- **AI harness setup.** Verify discovery, script execution and model answers independently. The tested Pi natural-question setup failed qualification. Codex and Claude Code natural questions were untested. [Harness setup](harnesses.md) · [Compatibility](reference/compatibility.md)
+Olav supports troubleshooting, change pre-checks, and audit handovers for network
+operations and NetDevOps teams working with sensitive infrastructure. Collect on
+the authorized side and transfer a reviewed copy into an analysis environment
+your organization controls. Keep device credentials on the collection side.
 
 ```mermaid
 flowchart LR
-    A[Authorized offline capture] --> B[Validate and import]
-    B --> C[Local recorded model]
-    C --> D[Bounded queries and evidence]
-    D --> E[Report and scoped diagram]
-    H[Your AI harness] --> D
+    A[Collector with authorized SSH] --> D[Reviewed offline handoff]
+    B[RANCID or Oxidized backups] --> C[Prepare a standard bundle]
+    F[Offline CLI outputs] --> C
+    C --> D
+    subgraph Local[Organization-controlled analysis environment]
+        E[Validate and import] --> G[Local DuckDB and Olav Skills]
+    end
+    D --> E
+    G --> H[CLI or personal AI harness]
+    G --> I[Configured team Open WebUI]
 ```
+
+- **Analyze locally.** Use the CLI on the local database or set up
+  [Codex, Claude Code or Pi](harnesses.md). For an entirely local AI workflow,
+  configure the model and retrieval to run locally and keep logs and generated
+  reports within the approved environment. A remote model provider may receive
+  prompt and tool context even when the database is local.
+- **Work as a team.** A separately configured [Open WebUI integration](openwebui.md)
+  gives authorized users browser access to recorded data and reports in their
+  assigned tenant.
+- **Prepare your inputs.** Use the [offline analysis guide](offline-data.md) for
+  bundle validation and for the conversion required before importing backup
+  repositories or loose CLI files.
+
+## Start with a reproducible result
+
+- **Olav Skills 0.2.2.** Install the pinned package, then import the synthetic bundle and check the exact device set R1/R2, a recorded CDP link and an R1 evidence fragment. [Installation](installation.md) · [Offline example](offline-data.md)
+- **Review a local wheel.** Verify a supplied wheel and run the synthetic workflow, including data doctor and draft change-plan pre-checks. [Local wheel walkthrough](release-candidate.md)
+- **AI harness setup.** Verify discovery, script execution and model answers independently. The tested Pi natural-question setup failed qualification. Codex and Claude Code natural questions were untested. [Harness setup](harnesses.md) · [Compatibility](reference/compatibility.md)
 
 ## Choose a skill
 

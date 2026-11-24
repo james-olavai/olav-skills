@@ -1,6 +1,6 @@
 # First offline analysis: validate, import, query and report
 
-Use the dedicated environment from [installation](installation.md) to run
+Use the dedicated Olav Skills 0.2.2 environment from [installation](installation.md) to run
 the synthetic example. It needs no model, collector connection or credentials.
 Examples use POSIX shell paths. Substitute your actual absolute venv path and a
 new analysis directory.
@@ -112,6 +112,12 @@ supplies a collector command. Transfer only an authorized, reviewed bundle to th
 analysis machine using your approved transport. Preserve its manifest and command
 bytes. Review redaction and provenance before sharing: a manifest's redaction
 flag alone does not prove that secrets were removed.
+
+| Source | Prepare it for import |
+| --- | --- |
+| Olav Collector with authorized SSH | Review the exported standard bundle and validate the unpacked directory before importing. Keep device credentials on the collection side. |
+| RANCID or Oxidized repository | Export a reviewed copy and convert it into the standard bundle layout. The survey tool can identify a conventional RANCID tree. Olav Skills 0.2.2 has no verified direct import path for either repository format. A configuration-only backup cannot establish operational state absent from the source. |
+| Loose offline CLI outputs | Group captured outputs by device and command, preserve known capture metadata, and package them in the standard layout. Check parser coverage after import. |
 
 The directory contract is `manifest.yaml` plus `devices/<hostname>/_meta.yaml`
 and per-command `.txt` files. Use the distributed synthetic bundle to inspect

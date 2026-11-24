@@ -2,6 +2,22 @@
 
 This history belongs to the standalone `olav-skills` product. The former platform's version history is preserved in the [legacy documentation archive](legacy-index.md), not continued as this package's semantic version sequence.
 
+## 0.2.2
+
+- Compare two exact recorded topology endpoints without reading unrelated parents.
+- Read historical path candidates within the requested hop and interface scope.
+- Check recorded plan targets separately from proposed-address evidence.
+
+## 0.2.1
+
+- Use English throughout the bundled skill instructions, reference keywords,
+  and workflow triggers.
+- Ask the host to reply in the user's language unless the user requests another.
+  This applies to model replies guided by the skills. Integration-owned
+  templates have their own language settings.
+- After upgrading, rerun the skill installation command for your host to
+  refresh the bound files. [Installation](installation.md)
+
 ## 0.2.0
 
 Olav Skills 0.2 adds recorded state/configuration/route/topology changes,

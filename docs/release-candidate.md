@@ -1,6 +1,6 @@
-# Review an Olav Skills 0.2.0 wheel locally
+# Review an Olav Skills 0.2.2 wheel locally
 
-Use a supplied **0.2.0** wheel to run the synthetic workflow in an isolated
+Use a supplied **0.2.2** wheel to run the synthetic workflow in an isolated
 environment with Python 3.11 or newer and a POSIX shell. The fixture and tools
 run without a model, credentials or device access.
 [Standard installation](installation.md)
@@ -13,7 +13,7 @@ supplied by your reviewer before installing. Use a new work directory so the
 exercise starts with an empty home and project.
 
 ```sh
-WHEEL=/absolute/reviewed/olav_skills-0.2.0-py3-none-any.whl
+WHEEL=/absolute/reviewed/olav_skills-0.2.2-py3-none-any.whl
 WHEELHOUSE=/absolute/reviewed/dependency-wheels
 python3 -c 'from pathlib import Path; import hashlib, sys; print(hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest())' "$WHEEL"
 
@@ -40,7 +40,7 @@ skills list
 skills install --harness pi --scope project --project "$HARNESS_PROJECT"
 ```
 
-Expect version `0.2.0`, runtime doctor `ok: true` and seven skills. This example
+Expect version `0.2.2`, runtime doctor `ok: true` and seven skills. This example
 writes the Pi project layout under `"$HARNESS_PROJECT/.pi/skills"`. Each
 `olav-runtime.json` records the version and `$SKILLS_PYTHON` path. Choose
 `codex` or `claude-code` for those layouts. Starting a harness is optional for

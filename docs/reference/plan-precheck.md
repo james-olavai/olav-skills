@@ -46,8 +46,10 @@ Snapshot membership and historical platform come only from actual
 `netops.parsed_outputs` rows with the requested snapshot ID. Global inventory
 and records in other snapshots do not prove membership or historical platform.
 Empty, missing, schema-incompatible, failed or truncated sources remain unknown;
-a target absent from a complete nonempty returned snapshot fails the membership
-check. The `cisco_ios` template check recognizes its identity only; other
+a target absent from a complete target read fails only when parsed observations
+exist for the requested snapshot. Starting in 0.2.2, `source.requested_devices`
+lists the exact plan targets, and `address_source` tracks the independent address
+read for valid proposed addresses. Skipped address reads return `status="not_read"`. The `cisco_ios` template check recognizes its identity only; other
 templates remain unsupported/unknown. No CLI syntax validator is supplied.
 
 Address observations use only parsed records for `show ip interface brief`,

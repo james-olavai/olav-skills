@@ -1,6 +1,6 @@
-# 在本地审阅 Olav Skills 0.2.0 wheel
+# 在本地审阅 Olav Skills 0.2.2 wheel
 
-在隔离环境中使用提供的 **0.2.0** wheel 运行合成流程。需要 POSIX shell 和
+在隔离环境中使用提供的 **0.2.2** wheel 运行合成流程。需要 POSIX shell 和
 Python 3.11 或更新版本。合成夹具与工具运行无需模型、凭据或设备访问。
 [标准安装](installation.zh.md)
 
@@ -11,7 +11,7 @@ wheel 的目录。安装前核对 wheel 的 SHA-256 与审阅者提供的值。�
 新的工作目录，从空 home 和空项目开始。
 
 ```sh
-WHEEL=/absolute/reviewed/olav_skills-0.2.0-py3-none-any.whl
+WHEEL=/absolute/reviewed/olav_skills-0.2.2-py3-none-any.whl
 WHEELHOUSE=/absolute/reviewed/dependency-wheels
 python3 -c 'from pathlib import Path; import hashlib, sys; print(hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest())' "$WHEEL"
 
@@ -38,7 +38,7 @@ skills list
 skills install --harness pi --scope project --project "$HARNESS_PROJECT"
 ```
 
-预期版本为 `0.2.0`，runtime 体检返回 `ok: true`，列出七个技能。示例将 Pi
+预期版本为 `0.2.2`，runtime 体检返回 `ok: true`，列出七个技能。示例将 Pi
 项目布局写入 `"$HARNESS_PROJECT/.pi/skills"`。每个 `olav-runtime.json` 都记录
 版本及 `$SKILLS_PYTHON` 路径。Codex 或 Claude Code 对应使用 `codex` 或
 `claude-code`。以下 CLI 步骤无需启动宿主。[项目与用户布局](installation.md)

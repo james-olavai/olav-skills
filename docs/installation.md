@@ -16,10 +16,10 @@ python3 -m venv ~/.venvs/olav-skills
 ## 1. Install the package
 
 ```sh
-python -m pip install olav-skills==0.2.0
+python -m pip install olav-skills==0.2.2
 ```
 
-Run subsequent commands in the environment where you installed 0.2.0. For a
+Run subsequent commands in the environment where you installed 0.2.2. For a
 supplied wheel, follow the [local wheel walkthrough](release-candidate.md).
 
 ## 2. Bind the skills to your harness
@@ -184,7 +184,7 @@ For an offline or reviewed-artifact installation, verify the supplied SHA-256
 and install the local wheel **instead of** the PyPI command in step 1:
 
 ```sh
-python -m pip install /absolute/path/to/olav_skills-0.2.0-py3-none-any.whl
+python -m pip install /absolute/path/to/olav_skills-0.2.2-py3-none-any.whl
 ```
 
 Its dependencies must also be available in your offline environment. Bind the

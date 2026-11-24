@@ -5,7 +5,7 @@ The standalone product has one distribution, `olav-skills`, one Python namespace
 ## Move a consumer in stages
 
 1. Record the old interpreter, package versions, skill discovery roots and authorized data roots. Preserve its environment and backup/lock files.
-2. Install 0.2.0 into a **new dedicated venv**, then run `version`, `doctor` and the [synthetic walkthrough](offline-data.md). Do not replace a running legacy service environment in place.
+2. Install 0.2.2 into a **new dedicated venv**, then run `version`, `doctor` and the [synthetic walkthrough](offline-data.md). Do not replace a running legacy service environment in place.
 3. Export the new resources to a separate reviewed directory. Compare API calls and imports; custom Python consumers must use `olav_skills`. There is no alias that silently redirects old imports.
 4. Resolve same-name skills and duplicate project/user registrations explicitly. Install into the selected harness scope from the new interpreter. Existing manual directories are not implicitly installer-owned. See [ownership and upgrade behavior](installation.md).
 5. Set a new `OLAV_HOME` and test a copied, authorized dataset. Check exact device sets, parser gaps, timestamps, bounded results and output files before moving that consumer.

@@ -6,7 +6,7 @@
 
 ## 先 pip 安装，再绑定
 
-在独立 Python 环境安装 Olav Skills 0.2.0，再按所用宿主选择绑定命令。[安装指南](installation.zh.md)
+在独立 Python 环境安装 Olav Skills 0.2.2，再按所用宿主选择绑定命令。[安装指南](installation.zh.md)
 
 ```sh
 olav-skills install --harness codex --scope user

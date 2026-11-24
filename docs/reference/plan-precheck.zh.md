@@ -37,8 +37,11 @@ exit 0 只表示检查运行成功；非法输入、路径或输入/计划/输�
 
 成员及历史平台只依据 netops.parsed_outputs 中所选 snapshot 的真实记录。
 全局 inventory 或其它 snapshot 的记录不证明本快照成员或历史平台。
-缺源、空源、schema 漂移、读取失败、截断均保留 unknown；完整非空返回集没有
-目标时成员项 fail。cisco_ios template 仅检查身份，不验证语法；其它模板未知/不支持。
+缺源、空源、schema 漂移、读取失败、截断均保留 unknown。完整目标读取未找到
+设备且所选快照有解析观测时，成员项为 fail。从 0.2.2 起，`source.requested_devices`
+列明计划中的目标；对有效的拟用地址单独查询并记录 `address_source`，
+跳过读取时返回 `status="not_read"`。cisco_ios template 仅检查身份，
+不验证语法；其它模板未知或不支持。
 
 地址只消费 show ip interface brief、show ipv6 interface、show interfaces terse
 的 parsed_data 对象列表，规范字段为 ip_address、可选 prefix_length/vrf。

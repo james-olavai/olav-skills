@@ -2,6 +2,13 @@
 
 Use this guide if your organization has configured the Olav integration in Open WebUI. The integration answers from recorded network data in the tenant you can access. The administrator controls which tenant entries, read-only capabilities and downloads are available to your account.
 
+## Try the public demo
+
+The [Olav Demo](https://olavai.com/demo/) uses synthetic network data in two
+separate tenants. Use the account and tenant entry assigned to you. Queries and
+download links are scoped to that account's authorized tenant. Follow the
+instructions on the Demo page to request access.
+
 ## Start a chat
 
 1. Open the Open WebUI address supplied by your administrator and sign in with your assigned account.

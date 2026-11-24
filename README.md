@@ -1,42 +1,62 @@
 # Olav Skills
 
-Olav Skills pairs seven standard network-analysis skills with a standalone
-Python runtime. Use its CLI directly to import offline captures, query recorded
-data, inspect topology, compare snapshots and produce evidence. An existing AI
-harness can discover the skills and invoke those tools within its own model,
-conversation and permissions.
+Olav Skills is the Python toolkit behind OLAV’s offline network analysis
+workflow. Network operations and NetDevOps teams use it to query device
+inventories, inspect recorded topology, compare snapshots, pre-check draft
+changes and produce reports with source evidence. The CLI and seven Agent Skills
+work with a local DuckDB database.
 
-This repository is the maintained source of the standalone product. The new distribution is `olav-skills`, its Python namespace
-is `olav_skills`, and its command is `olav-skills`. The former `olav` and
-`olav-netops` Python distributions are not dependencies.
+[Website](https://olavai.com/) · [Documentation](https://docs.olavai.com/) ·
+[中文文档](https://docs.olavai.com/zh/) · [PyPI](https://pypi.org/project/olav-skills/) ·
+[Browser demo](https://olavai.com/demo/)
 
-## Olav Skills 0.2
+Collect device output in the authorized environment, then transfer a reviewed
+offline bundle to the analysis environment. The collector is a separate tool.
+Device credentials stay on the collection side.
+[Architecture and data flow](https://olavai.com/architecture/)
 
-Use the CLI to check data readiness, query a specific snapshot and pre-check a
-draft change plan against recorded evidence. The pre-check always returns
-`not_approved`. An engineer or the host drafts the plan. The
-[local wheel walkthrough](docs/release-candidate.md) demonstrates these steps
-with synthetic data.
+## Current release
 
-Local package checks covered installation layouts and specified scripts.
-Natural questions in the tested Pi setup failed qualification, including
-the held-out wording. Codex and Claude Code natural questions were untested.
-See [compatibility](docs/reference/compatibility.md).
+[Olav Skills 0.2.2](https://pypi.org/project/olav-skills/0.2.2/) compares exact
+recorded topology endpoints, scopes historical path candidates by hop and
+interface, and checks recorded plan targets separately from proposed-address
+evidence. The pre-check returns `not_approved` for human review.
+[Release notes](https://docs.olavai.com/changelog/)
 
-## Install 0.2.0
+The Python distribution and command are both `olav-skills`. The Python namespace
+is `olav_skills`. See the [migration guide](https://docs.olavai.com/migration/)
+if you use the earlier `olav` or `olav-netops` distributions.
 
-Public source: [james-olavai/olav-skills](https://github.com/james-olavai/olav-skills).
+## Install 0.2.2
 
-Use Python 3.11 or newer. Create and activate a dedicated environment, then
-install the package from PyPI:
+Use Python 3.11 or newer and a dedicated environment:
 
 ```sh
 python3 -m venv ~/.venvs/olav-skills
 . ~/.venvs/olav-skills/bin/activate
-python -m pip install olav-skills==0.2.0
+python -m pip install olav-skills==0.2.2
+olav-skills version
+olav-skills doctor
+olav-skills list
 ```
 
-Next, bind the bundled skills to your harness. Choose one:
+### Try a synthetic snapshot
+
+Run the packaged example in a new analysis directory:
+
+```sh
+analysis_dir=$(mktemp -d)
+python -I -B -m olav_skills.examples.synthetic_walkthrough --home "$analysis_dir"
+```
+
+The example validates and imports an offline bundle, checks the exact device
+set R1/R2, and writes a topology artifact and a source-linked report. It runs
+without model credentials or device access.
+[Offline walkthrough](https://docs.olavai.com/offline-data/)
+
+### Connect your harness
+
+Choose the binding command for your harness:
 
 ```sh
 olav-skills install --harness codex --scope user
@@ -44,25 +64,25 @@ olav-skills install --harness claude-code --scope user
 olav-skills install --harness pi --scope user
 ```
 
-Pip installs the Python tools and all seven skills into the venv. The binding
-command copies those skills into the chosen harness's discovery directory and
-records this venv's interpreter. Keep the venv at its bound path. After changing
-versions or moving environments, explicitly repeat the binding command from the
-intended venv. Rolling back the binding leaves database changes in place.
+OpenCode can discover the skills installed through the Codex-compatible
+`.agents/skills/` layout. Install from the intended Python environment, then
+repeat the binding after upgrading the package or moving the environment.
+[Installation and project scope](https://docs.olavai.com/installation/) ·
+[Compatibility](https://docs.olavai.com/reference/compatibility/) ·
+[OpenCode skill discovery](https://opencode.ai/docs/skills/#discovery)
 
-Check the installed environment with `olav-skills version`, `olav-skills doctor`
-and `olav-skills list`.
+For OLAV’s local AI workflows, **Gemma 4 31B IT** or **Qwen3.8-27B** is the
+minimum recommended model. The CLI can also run the packaged tools directly.
+[Minimum models and test notes](https://olavai.com/local-models/)
 
-The distribution includes the seven skills and a public synthetic example. Follow
-[installation](https://github.com/james-olavai/olav-skills/blob/main/docs/installation.md) for Codex, Claude Code and Pi; then run the
-[offline data walkthrough](https://github.com/james-olavai/olav-skills/blob/main/docs/offline-data.md) for validation, import, exact
-device membership, topology and an evidence report. See [migration](https://github.com/james-olavai/olav-skills/blob/main/docs/migration.md)
-before replacing a legacy installation, and [portable export](https://github.com/james-olavai/olav-skills/blob/main/docs/portable.md)
-for knowledge-only handoff.
+### Try the browser demo
 
-Package tests establish deterministic execution and installation layout.
-Actual harness discovery, natural-language routing and model answers need
-separate validation.
+The public Demo uses Open WebUI and two synthetic networks. Request access by
+email, set a password from the one-time link, and select a tenant in the model
+picker to try inventory, topology or report queries.
+[Demo welcome page](https://olavai.com/demo/) ·
+[Demo walkthrough](https://olavai.com/blog/olav-demo-is-live/) ·
+[Open WebUI guide](https://docs.olavai.com/openwebui/)
 
 ## Skills
 
